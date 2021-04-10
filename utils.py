@@ -1,0 +1,102 @@
+
+from telegram.ext import *
+from telegram import *
+from telegram.utils.helpers import *
+from telegram.utils import helpers
+from bson.objectid import ObjectId
+from bson.int64 import Int64
+from threading import Lock
+from collections import defaultdict
+
+
+class Callback(CallbackQueryHandler):
+    name = None
+
+    def __init__(self, item=None):
+        super().__init__(self._perform, pattern=f'^{self.name}(#.+)*$')
+
+    # def answer(self, update,):
+    #     pass
+
+    def _perform(self, update, context):
+        from models import User
+        User.update_from_request(update)
+
+        query = update.callback_query
+        parts = query.data.split('#')
+        args = []
+        for a in parts[1:]:
+            xp = a.split('!')
+            if xp[0] == 'str':
+                args.append(xp[1])
+            elif xp[0] == 'int':
+                args.append(int(xp[1]))
+            elif xp[0] == 'int64':
+                args.append(Int64(xp[1]))
+            elif xp[0] == 'id':
+                args.append(ObjectId(xp[1]))
+        return self.perform(context, update.callback_query, *args)
+
+
+
+def cb_data(name, *args):
+    pargs = []
+    for a in args:
+        if type(a) is str:
+            pargs.append(f'str!{str(a)}')
+        elif type(a) is int:
+            pargs.append(f'int!{str(a)}')
+        elif type(a) is Int64:
+            pargs.append(f'int64!{str(a)}')
+        elif type(a) is ObjectId:
+            pargs.append(f'id!{str(a)}')
+
+    return '#'.join([name, *pargs])
+
+
+def find_by(lst, field, val):
+    for i in range(len(lst)):
+        if lst[i][field] == val:
+            return lst[i], i
+    return None, -1
+
+
+context_locks = defaultdict(Lock)
+context_main_lock = Lock()
+
+def lock_context_for_user(context, user):
+    with context_main_lock:
+        return context_locks[user.id]
+
+
+def find_best_inc(price):
+    from math import floor, log
+    if price < 10:
+        return 1
+    if price < 100:
+        return 5
+    if price < 200:
+        return 20
+    if price < 1000:
+        return 50
+    if price < 10000:
+        return 200
+    return find_best_inc(price // 1000) * 1000
+
+
+def handler(f):
+    from models import User
+    def inner(update, context):
+        User.update_from_request(update)
+        return f(update, context)
+    return inner
+
+
+bot_id = None
+def get_bot_id(context):
+    global bot_id
+    if bot_id is None:
+        bot = context.bot.get_me()
+        bot_id = bot.id
+    return bot_id
+    
