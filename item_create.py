@@ -2,14 +2,9 @@ import logging
 from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
-from telegram.utils import helpers
-from emoji import UNICODE_EMOJI_ENGLISH
-import IPython
 
-from threading import Semaphore
-
-from utils import lock_context_for_user, handler, get_bot_id
-from models import Item, Chat, User
+from utils import handler
+from item import Item
 
 logger = logging.getLogger(__name__)
 
@@ -156,61 +151,9 @@ def list_items(update, context):
     update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
 
 
-def on_member(update, context):
-    cm = update.chat_member
-    handle_chat_member(cm.new_chat_member, cm.chat)
-
-
-def on_bot_member(update, context):
-    if update.my_chat_member.new_chat_member.status != 'administrator':
-        return
-    create_chat(update, context)
-    members = context.bot.get_chat_administrators(update.effective_chat.id)
-    for member in members:
-        if not member.user.is_bot:
-            handle_chat_member(member, update.effective_chat)
-
-
-def handle_chat_member(chat_member, chat):
-    user, status = chat_member.user, chat_member.status
-    try:
-        seller = User.find_one(id=user.id)
-    except ValueError:
-        seller = User(id=user.id, username=user.username, first_name=user.first_name, last_name=user.last_name)
-    exists = any(c['chat_id'] == chat.id for c in seller.chats)
-    if status in ['member', 'creator'] and not exists:
-        seller.chats.append({'chat_id': chat.id, 'name': chat.title})
-    elif status == 'left' and exists:
-        seller.chats = [c for c in seller.chats if c['chat_id'] != chat.id]
-    seller.save()
-
-
-def create_chat(update, context):
-    chat_member = update.my_chat_member.new_chat_member
-    if chat_member.user.id != get_bot_id(context):
-        return
-
-    tchat = update.effective_chat
-    mchat = Chat.find_by_id(tchat.id)
-    if mchat is None:
-        mchat = Chat(id=tchat.id)
-
-    with mchat:
-        mchat.title = tchat.title
-        mchat.username = tchat.username
-        mchat.type = tchat.type
-        mchat.active = chat_member.status != 'left'
-
-        # TODO: handle case where info_message_id exists but has been deleted
-
-        if mchat.active:
-            mchat.publish_info_message(context)
-
-
-
-def setup(dispatcher):
+def handlers():
     canceler = MessageHandler(Filters.regex(r'/?[cC]ancel'), cancel)
-    dispatcher.add_handler(ConversationHandler(
+    yield ConversationHandler(
         entry_points=[CommandHandler('newitem', item_new)],
         states={
             ITEM_TITLE: [canceler, MessageHandler(Filters.text, item_title)],
@@ -220,9 +163,7 @@ def setup(dispatcher):
         },
         fallbacks=[CommandHandler('cancel', cancel)],
         # run_async=True # Run sync break multiple images
-    ))
+    )
 
-    dispatcher.add_handler(CommandHandler('listitems', list_items))
-    dispatcher.add_handler(ChatMemberHandler(on_member, chat_member_types=ChatMemberHandler.CHAT_MEMBER))
-    dispatcher.add_handler(ChatMemberHandler(on_bot_member, chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER))
+    yield CommandHandler('listitems', list_items)
 

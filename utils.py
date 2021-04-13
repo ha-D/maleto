@@ -15,11 +15,24 @@ class Callback(CallbackQueryHandler):
     def __init__(self, item=None):
         super().__init__(self._perform, pattern=f'^{self.name}(#.+)*$')
 
-    # def answer(self, update,):
-    #     pass
+    @classmethod
+    def data(cls, *args):
+        pargs = []
+        for a in args:
+            if type(a) is str:
+                pargs.append(f'str!{str(a)}')
+            elif type(a) is int:
+                pargs.append(f'int!{str(a)}')
+            elif type(a) is Int64:
+                pargs.append(f'int64!{str(a)}')
+            elif type(a) is ObjectId:
+                pargs.append(f'id!{str(a)}')
+
+        return '#'.join([cls.name, *pargs])
 
     def _perform(self, update, context):
-        from models import User
+        import IPython
+        from user import User
         User.update_from_request(update)
 
         query = update.callback_query
@@ -85,18 +98,17 @@ def find_best_inc(price):
 
 
 def handler(f):
-    from models import User
     def inner(update, context):
+        from user import User
         User.update_from_request(update)
         return f(update, context)
     return inner
 
 
-bot_id = None
-def get_bot_id(context):
-    global bot_id
-    if bot_id is None:
+bot = None
+def get_bot(context):
+    global bot
+    if bot is None:
         bot = context.bot.get_me()
-        bot_id = bot.id
-    return bot_id
+    return bot
     
