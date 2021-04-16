@@ -2,14 +2,12 @@ import logging
 
 from telegram import *
 
-from models import Model
+from .models import Model
 
 logger = logging.getLogger(__name__)
 
 
 class Chat(Model):
-    mongo_id = False
-
     class Meta:
         name = 'chats'
         fields = ('id', 'title', 'username', 'type', 'info_message_id', 'active')
@@ -24,7 +22,7 @@ class Chat(Model):
 
     
     def generate_info_message(self):
-        from item import Item
+        from .item import Item
         
         items = Item.find(posts__chat_id=self.id)
         s =  '\n'.join([

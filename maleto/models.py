@@ -1,12 +1,11 @@
+from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from collections import defaultdict
-from threading import Lock, RLock
-from telegram.ext import *
-from telegram.error import BadRequest
-from telegram import *
-from utils import cb_data, find_by
+from threading import RLock
 import logging
+
+from .utils import omit
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +18,12 @@ db.items.create_index([('title', 'text'), ('description', 'text')])
 class Model:
     _lock = RLock()
     doc_locks = defaultdict(RLock)
-    mongo_id = True
 
     def __init__(self, **kwargs):
         self.data = kwargs
     
     def __getattr__(self, key):
-        if self.mongo_id and key == 'id':
+        if key == 'id':
             return self.data.get('_id', None)
         if key == '_id' or key in self.Meta.fields:
             return self.data.get(key, None)
@@ -38,32 +36,27 @@ class Model:
         return super().__setattr__(key, val)
 
     def save(self):
-        id = self._id
-        if id:
-            self.col().update({'_id': id}, self.data)
-        else:
-            self.id = self.col().insert(self.data)
+        now = datetime.now()
+        self.col().update(
+            {'_id': self.id}, 
+            {
+                '$set': {**omit(self.data, 'created_at'), 'updated_at': now},
+                '$setOnInsert': {'created_at': now} 
+            },
+            upsert=True
+        )
 
     def lock(self):
-        if not self.id:
-            return
         self._lock.acquire()
         doc_lock = self.doc_locks[self.id]
         self._lock.release()
         doc_lock.acquire()
 
     def release(self):
-        if not self.id:
-            return
         self._lock.acquire()
         doc_lock = self.doc_locks[self.id]
         self._lock.release()
-        try:
-            doc_lock.release()
-        except RuntimeError:
-            # in case wasn't locked because it had no id
-            pass
-        
+
     def __enter__(self):
         self.lock()
         return self
@@ -77,7 +70,7 @@ class Model:
         context.user_data[self.Meta.name] = self.id
 
     def delete(self):
-        self.col().delete_one({'_id': self._id})
+        self.col().delete_one({'_id': self.id})
 
     @classmethod
     def clear_context(cls, context):
@@ -92,10 +85,8 @@ class Model:
     def find(cls, **kwargs):
         if 'text' in kwargs:
             kwargs['$text'] = {'$search': kwargs.pop('text')}
-        if cls.mongo_id and 'id' in kwargs:
+        if 'id' in kwargs:
             kwargs['_id'] = kwargs.pop('id')
-        if '_id' in kwargs:
-            kwargs['_id'] = ObjectId(kwargs['_id'])
         q = {k.replace('__', '.'): kwargs[k] for k in kwargs}
         return [cls(**i) for i in cls.col().find(q)]
 
@@ -110,10 +101,7 @@ class Model:
 
     @classmethod
     def find_by_id(cls, id):
-        if cls.mongo_id:
-            doc = cls.col().find_one({'_id': ObjectId(id)})
-        else:
-            doc = cls.col().find_one({'id': id})
+        doc = cls.col().find_one({'_id': id})
         if doc is None:
             return None
         return cls(**doc)

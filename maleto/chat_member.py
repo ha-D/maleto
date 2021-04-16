@@ -3,9 +3,9 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from utils import get_bot
-from chat import Chat
-from user import User
+from .utils import get_bot
+from .chat import Chat
+from .user import User
 
 logger = logging.getLogger(__name__)
 

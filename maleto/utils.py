@@ -31,8 +31,7 @@ class Callback(CallbackQueryHandler):
         return '#'.join([cls.name, *pargs])
 
     def _perform(self, update, context):
-        import IPython
-        from user import User
+        from .user import User
         User.update_from_request(update)
 
         query = update.callback_query
@@ -51,27 +50,15 @@ class Callback(CallbackQueryHandler):
         return self.perform(context, update.callback_query, *args)
 
 
-
-def cb_data(name, *args):
-    pargs = []
-    for a in args:
-        if type(a) is str:
-            pargs.append(f'str!{str(a)}')
-        elif type(a) is int:
-            pargs.append(f'int!{str(a)}')
-        elif type(a) is Int64:
-            pargs.append(f'int64!{str(a)}')
-        elif type(a) is ObjectId:
-            pargs.append(f'id!{str(a)}')
-
-    return '#'.join([name, *pargs])
-
-
 def find_by(lst, field, val):
     for i in range(len(lst)):
         if lst[i][field] == val:
             return lst[i], i
     return None, -1
+
+
+def omit(d, x):
+    return {k: d[k] for k in d if k not in x}
 
 
 context_locks = defaultdict(Lock)
@@ -97,10 +84,13 @@ def find_best_inc(price):
     return find_best_inc(price // 1000) * 1000
 
 
-def handler(f):
+def bot_handler(f):
     def inner(update, context):
-        from user import User
-        User.update_from_request(update)
+        from .user import User
+        api_user = update.effective_user
+        user = User.update_from_request(api_user)
+        context.user = user
+        context.lang = user.lang
         return f(update, context)
     return inner
 
@@ -111,4 +101,38 @@ def get_bot(context):
     if bot is None:
         bot = context.bot.get_me()
     return bot
+
+
+
+import gettext
+
+# class TranslatableString(str):
+    # pass
+
+# lang_cache = {}
+# def translate(lang, msg_list):
+#     if lang is None:
+#         lang = 'en'
+#     if lang not in lang_cache:
+#         gt = gettext.translation('messages', 'translations', fallback=True, languages=[lang])
+#         lang_cache[lang] = gt.gettext
+#     translate = lang_cache[lang]
+
+#     def _(s):
+#         if isinstance(s, TranslatableString):
+#             return translate(s)
+#         return s
+
+#     if type(msg_list) is str:
+#         return _(msg_list)
+#     return '\n'.join([_(m) for m in msg_list])
+
+lang_cache = {}
+def translator(lang):
+    if lang is None:
+        lang = 'en'
+    if lang not in lang_cache:
+        gt = gettext.translation('messages', 'translations', fallback=True, languages=[lang])
+        lang_cache[lang] = gt.gettext
+    return lang_cache[lang]
     

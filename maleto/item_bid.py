@@ -4,8 +4,8 @@ from telegram import *
 from telegram.utils.helpers import *
 from telegram.utils import helpers
 
-from item import Item
-from utils import Callback, find_best_inc, handler
+from .item import Item
+from .utils import Callback, find_best_inc, bot_handler
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ def ask_for_bid(context, message, item, error=None):
     )
             
 
-@handler
+@bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:
         price = int(update.message.text)
@@ -84,7 +84,7 @@ def on_bid(update, context):
             return OFFER
 
 
-@handler
+@bot_handler
 def cancel(update, context):
     Item.C(context, remove=True)
     update.message.reply_text(

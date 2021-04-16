@@ -1,0 +1,97 @@
+# Translations template for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-04-16 00:03+0430\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: maleto/item_create.py:27
+msgid ""
+"Ok lets add a new item. I'm going to ask you some questions about the "
+"item you want to sell."
+msgstr ""
+
+#: maleto/item_create.py:28
+msgid "You can click on the 'Cancel' button or enter /cancel at any time to abort"
+msgstr ""
+
+#: maleto/item_create.py:30
+msgid "To start, enter the *title* of the item you want to sell"
+msgstr ""
+
+#: maleto/item_create.py:44
+msgid "Great thanks."
+msgstr ""
+
+#: maleto/item_create.py:47
+msgid "Now send me some *photos* of the item."
+msgstr ""
+
+#: maleto/item_create.py:48
+msgid ""
+"Click on Done or enter /done when you've sent all the photos you want to "
+"add."
+msgstr ""
+
+#: maleto/item_create.py:73
+msgid "Hmm, I haven't received any photos 🤔."
+msgstr ""
+
+#: maleto/item_create.py:75
+msgid ""
+"If you've sent any photos please wait for the upload to finish and then "
+"notify me again."
+msgstr ""
+
+#: maleto/item_create.py:80
+msgid "Awesome! 🎉"
+msgstr ""
+
+#: maleto/item_create.py:82
+msgid "Now enter a description about your item"
+msgstr ""
+
+#: maleto/item_create.py:96
+msgid "What price are you selling at?"
+msgstr ""
+
+#: maleto/item_create.py:109
+msgid "That doesn't look like a valid price, please just give me a number"
+msgstr ""
+
+#: maleto/item_create.py:123
+msgid "Alright, thats all I need 🥳🥳"
+msgstr ""
+
+#: maleto/item_create.py:125
+msgid "There are more options you can edit later on."
+msgstr ""
+
+#: maleto/item_create.py:127
+msgid "You can view all your created items anytime by entering /listitems"
+msgstr ""
+
+#: maleto/item_create.py:144
+msgid "Ok, no worries, no item created."
+msgstr ""
+
+#: maleto/item_create.py:153
+msgid "You don't have any items. Use the _/newitem_ command to create one."
+msgstr ""
+
+#: maleto/item_create.py:156
+msgid "Click on one any item to view more options"
+msgstr ""
+

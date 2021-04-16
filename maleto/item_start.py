@@ -4,7 +4,7 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from item import Item
+from .item import Item
 
 logger = logging.getLogger(__name__)
 

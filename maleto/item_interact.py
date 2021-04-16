@@ -6,10 +6,10 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from item import Item
-from user import User
-from utils import Callback
-from item_bid import RevokeBidCallback, BidCallback, WaitListCallback
+from .item import Item
+from .user import User
+from .utils import Callback
+from .item_bid import RevokeBidCallback, BidCallback, WaitListCallback
 
 logger = logging.getLogger(__name__)
 

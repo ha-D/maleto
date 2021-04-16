@@ -1,10 +1,12 @@
 import logging
+
 from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from utils import handler
-from item import Item
+from .utils import bot_handler, translator
+from .item import Item
+from .user import User
 
 logger = logging.getLogger(__name__)
 
@@ -14,40 +16,42 @@ STORE_NAME = range(1)
 
 cancel_markup = ReplyKeyboardMarkup([[KeyboardButton('Cancel')]])
 
-@handler
+
+@bot_handler
 def item_new(update, context):
-    item = Item()
-    item.owner_id = update.effective_user.id
+    item = Item.new(context.user.id)
     item.save()
     item.save_to_context(context)
+    _ = translator(context.lang)
     msg = '\n'.join([
-        "Ok lets add a new item. I'm going to ask you some questions about the item you want to sell.",
-        "You may click on the 'Cancel' button or enter /cancel at any time to abort",
+        _("Ok lets add a new item. I'm going to ask you some questions about the item you want to sell."),
+        _("You can click on the 'Cancel' button or enter /cancel at any time to abort"),
         '',
-        'Please enter the *title* of the item you want to sell',
+        _('To start, enter the *title* of the item you want to sell'),
     ])
     update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup)
     return ITEM_TITLE 
 
 
-@handler
+@bot_handler
 def item_title(update, context):
+    _ = translator(context.lang)
     title = update.message.text.strip()
     # TODO: title validations?
     with Item.from_context(context) as item:
         item.title = title
         msg = '\n'.join([
-            'Great thanks.',
+            _('Great thanks.'),
             '',
             '📷 🖼',
-            'Now send me some *photos* of the item.',
-            "Click on Done or enter /done when you've sent all the photos you want to add."
+            _('Now send me some *photos* of the item.'),
+            _("Click on Done or enter /done when you've sent all the photos you want to add.")
         ])
         update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=ReplyKeyboardMarkup([[KeyboardButton('Done')], [KeyboardButton('Cancel')]]))
         return ITEM_PHOTO
 
 
-@handler
+@bot_handler
 def item_photo(update, context):
     if len(update.message.photo) == 0:
         return ITEM_PHOTO
@@ -60,46 +64,49 @@ def item_photo(update, context):
     return ITEM_PHOTO
 
 
-@handler
+@bot_handler
 def item_photo_done(update, context):
+    _ = translator(context.lang)
     with Item.from_context(context) as item:
         if len(item.photos) == 0:
             update.message.reply_text('\n'.join([
-                "Hmm, I haven't received any photos 🤔.",
+                _("Hmm, I haven't received any photos 🤔."),
                 "",
-                "If you've sent any photos please wait for the upload to finish and then notify me again."
+                _("If you've sent any photos please wait for the upload to finish and then notify me again.")
             ]))
             return ITEM_PHOTO
    
     msg = '\n'.join([
-        'Awesome! 🎉',
+        _('Awesome! 🎉'),
         '',
-        'Now enter a description about your item',
+        _('Now enter a description about your item'),
     ])
     update.message.reply_text(msg, reply_markup=cancel_markup)
     return ITEM_DESCRIPTION
 
 
-@handler
+@bot_handler
 def item_description(update, context):
     with Item.from_context(context) as item:
         item.description = update.message.text
 
+    
+    _ = translator(context.lang)
     msg = '\n'.join([
-        "What price are you selling at?",
+        _("What price are you selling at?"),
     ])
     update.message.reply_text(msg, reply_markup=cancel_markup)
     return ITEM_PRICE
 
 
-@handler
+@bot_handler
 def item_price(update, context):
-    user = update.effective_user
     text = update.message.text
+    _ = translator(context.lang)
 
     if not text.isdigit():
         msg = '\n'.join([
-          "That doesn't look like a valid price, please just give me a number",
+          _("That doesn't look like a valid price, please just give me a number"),
         ])
         update.message.reply_text(msg, reply_markup=cancel_markup)
         return ITEM_PRICE
@@ -111,12 +118,13 @@ def item_price(update, context):
 
 
 def item_end(update, context, item):
+    _ = translator(context.lang)
     msg = '\n'.join([
-        "Alright, thats all I need 🥳🥳",
+        _("Alright, thats all I need 🥳🥳"),
         '',
-        'There are more options you can edit later on.',
+        _('There are more options you can edit later on.'),
         '',
-        'You can view all your created items anytime by entering /listitems'
+        _('You can view all your created items anytime by entering /listitems')
     ])
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
 
@@ -127,24 +135,25 @@ def item_end(update, context, item):
     item.publish_to_interaction_message_for_user(context, user.id)
 
 
-@handler
+@bot_handler
 def cancel(update, context):
+    _ = translator(context.lang)
     item = Item.from_context(context)
     item.delete()
     Item.clear_context(context)
-    update.message.reply_text('Ok, no worries, no item created.', reply_markup=ReplyKeyboardRemove())
+    update.message.reply_text(_('Ok, no worries, no item created.'), reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
-@handler
+@bot_handler
 def list_items(update, context):
-    user = update.effective_user
-    items = Item.find(owner=user.id)
+    _ = translator(context.user)
+    items = Item.find(owner=context.user.id)
     if len(items) == 0:
-        message = "You don't have any items. Use the _/newitem_ command to create one."
+        message = _("You don't have any items. Use the _/newitem_ command to create one.")
     else:
         message = '\n'.join([
-            'Click on one any item to view more options',
+            _('Click on one any item to view more options'),
             '\n',
             *[s.link() for s in items],
         ])

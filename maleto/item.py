@@ -1,13 +1,14 @@
 import logging
+import string
+import random
 
 from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
-from utils import cb_data, find_by, get_bot
-from models import Model
-import callbacks as cb
+from .utils import find_by, get_bot
+from .models import Model
 
 logger = logging.getLogger(__name__)
 
@@ -18,10 +19,16 @@ class Item(Model):
                 'published_messages', 'bids', 'base_price', 
                 'interaction_messages', 'posts', 'min_price_inc')
 
-
     def __init__(self, **kwargs):
         super().__init__(**{'photos': [], 'bids': [], 'interaction_messages': [], 
         'posts': [], 'stores': [], **kwargs})
+
+    @classmethod
+    def new(cls, owner_id):
+        item = Item()
+        item.owner_id = owner_id
+        item.id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=11))
+        return item
 
     @classmethod
     def find(cls, **kwargs):
@@ -29,7 +36,7 @@ class Item(Model):
 
     @property
     def owner(self):
-        from user import User
+        from .user import User
         return User.find_by_id(self.owner_id)
 
     def get_latest_bids(self, user_id=None):
@@ -67,7 +74,7 @@ class Item(Model):
             self.bids[-1]['users'].append(user_id)
     
     def add_sale_message(self, context, chat_id):
-        from chat import Chat
+        from .chat import Chat
 
         post, _ = find_by(self.posts, 'chat_id', chat_id)
         if not post:
@@ -81,7 +88,7 @@ class Item(Model):
         Chat.find_by_id(chat_id).publish_info_message(context)
 
     def remove_sale_message(self, context, chat_id):
-        from chat import Chat
+        from .chat import Chat
 
         post, idx = find_by(self.posts, 'chat_id', chat_id)
         if post:
@@ -92,7 +99,7 @@ class Item(Model):
         Chat.find_by_id(chat_id).publish_info_message(context)
 
     def publish_to_messages(self, context):
-        from item_interact import publish_interaction_message
+        from .item_interact import publish_interaction_message
         sale_message = self.generate_sale_message(context)
         for post in self.posts:
             chat_id = post['chat_id']
@@ -119,7 +126,7 @@ class Item(Model):
         imes['state'] = state
 
     def publish_to_interaction_message_for_user(self, context, user_id):
-        from item_interact import publish_interaction_message
+        from .item_interact import publish_interaction_message
         return publish_interaction_message(context, self, user_id)
 
     def get_interaction_message(self, user_id):
@@ -147,7 +154,7 @@ class Item(Model):
                     logger.warning('Unable to delete post message (%d, %d)', chat_id, message_id, exc_info=True)
 
     def generate_sale_message(self, context):
-        from user import User
+        from .user import User
         bot = get_bot(context)
 
         price, idx, q_len = self.get_latest_bids()
