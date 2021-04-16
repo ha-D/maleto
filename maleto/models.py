@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 client = MongoClient()
-db = client['maleto']
-db.items.create_index([('title', 'text'), ('description', 'text')])
+db = client["maleto"]
+db.items.create_index([("title", "text"), ("description", "text")])
 
 
 class Model:
@@ -21,11 +21,11 @@ class Model:
 
     def __init__(self, **kwargs):
         self.data = kwargs
-    
+
     def __getattr__(self, key):
-        if key == 'id':
-            return self.data.get('_id', None)
-        if key == '_id' or key in self.Meta.fields:
+        if key == "id":
+            return self.data.get("_id", None)
+        if key == "_id" or key in self.Meta.fields:
             return self.data.get(key, None)
         return super().__getattribute__(key)
 
@@ -37,13 +37,13 @@ class Model:
 
     def save(self):
         now = datetime.now()
-        self.col().update(
-            {'_id': self.id}, 
+        self.col().update_one(
+            {"_id": self.id},
             {
-                '$set': {**omit(self.data, 'created_at'), 'updated_at': now},
-                '$setOnInsert': {'created_at': now} 
+                "$set": {**omit(self.data, "created_at"), "updated_at": now},
+                "$setOnInsert": {"created_at": now},
             },
-            upsert=True
+            upsert=True,
         )
 
     def lock(self):
@@ -70,7 +70,7 @@ class Model:
         context.user_data[self.Meta.name] = self.id
 
     def delete(self):
-        self.col().delete_one({'_id': self.id})
+        self.col().delete_one({"_id": self.id})
 
     @classmethod
     def clear_context(cls, context):
@@ -83,25 +83,25 @@ class Model:
 
     @classmethod
     def find(cls, **kwargs):
-        if 'text' in kwargs:
-            kwargs['$text'] = {'$search': kwargs.pop('text')}
-        if 'id' in kwargs:
-            kwargs['_id'] = kwargs.pop('id')
-        q = {k.replace('__', '.'): kwargs[k] for k in kwargs}
+        if "text" in kwargs:
+            kwargs["$text"] = {"$search": kwargs.pop("text")}
+        if "id" in kwargs:
+            kwargs["_id"] = kwargs.pop("id")
+        q = {k.replace("__", "."): kwargs[k] for k in kwargs}
         return [cls(**i) for i in cls.col().find(q)]
 
     @classmethod
     def find_one(cls, **kwargs):
         docs = cls.find(**kwargs)
         if len(docs) == 0:
-            raise ValueError('No items found')
+            raise ValueError("No items found")
         if len(docs) > 1:
-            raise ValueError('More than one item found')
+            raise ValueError("More than one item found")
         return docs[0]
 
     @classmethod
     def find_by_id(cls, id):
-        doc = cls.col().find_one({'_id': id})
+        doc = cls.col().find_one({"_id": id})
         if doc is None:
             return None
         return cls(**doc)
@@ -110,5 +110,5 @@ class Model:
     def from_context(cls, context):
         doc_id = context.user_data.get(cls.Meta.name, None)
         if not doc_id:
-            raise ValueError('No item id found in context')
+            raise ValueError("No item id found in context")
         return cls.find_by_id(doc_id)

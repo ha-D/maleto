@@ -9,60 +9,79 @@ from .user import User
 
 logger = logging.getLogger(__name__)
 
-
-def on_member(update, context):
-    cm = update.chat_member
-    handle_chat_member(cm.new_chat_member, cm.chat)
+STATUS_MEMBER = ["member", "creator", "administrator"]
+STATUS_ADMIN = ["creator", "administrator"]
 
 
-def on_bot_member(update, context):
-    if update.my_chat_member.new_chat_member.status != 'administrator':
-        return
-    create_chat(update, context)
-    members = context.bot.get_chat_administrators(update.effective_chat.id)
-    for member in members:
-        if not member.user.is_bot:
-            handle_chat_member(member, update.effective_chat)
+def on_member_status_change(update, context):
+    cmu = update.chat_member
+    cm = cmu.new_chat_member
+    chat = Chat.create_or_update_from_api(cmu.chat)
+    user = User.find_by_id(cm.user.id)
+    with user:
+        with chat:
+            if cm.status in STATUS_MEMBER:
+                handle_user_join(user, chat)
+            else:
+                handle_user_leave(user, chat)
+            if cm.status in STATUS_ADMIN:
+                handle_admin_join(user, chat)
+            else:
+                handle_admin_leave(user, chat)
 
 
-def handle_chat_member(chat_member, chat):
-    user, status = chat_member.user, chat_member.status
-    try:
-        seller = User.find_one(id=user.id)
-    except ValueError:
-        seller = User(id=user.id, username=user.username, first_name=user.first_name, last_name=user.last_name)
-    exists = any(c['chat_id'] == chat.id for c in seller.chats)
-    if status in ['member', 'creator'] and not exists:
-        seller.chats.append({'chat_id': chat.id, 'name': chat.title})
-    elif status == 'left' and exists:
-        seller.chats = [c for c in seller.chats if c['chat_id'] != chat.id]
-    seller.save()
+def on_bot_status_change(update, context):
+    """ Called when bot leaves or enters grpup """
+    cmu = update.my_chat_member
+    cm = cmu.new_chat_member
+
+    # if cm.status not in STATUS_ADMIN or cm.user.id != get_bot(context).id:
+    #     return
+
+    chat = Chat.create_or_update_from_api(cmu.chat)
+
+    if cm.status in STATUS_MEMBER:
+        api_admins = context.bot.get_chat_administrators(chat.id)
+        admins = [User.create_or_update_from_api(adm) for adm in api_admins]
+        with chat:
+            chat.active = True
+            if cm.status in STATUS_MEMBER:
+                for adm in admins:
+                    handle_user_join(adm, chat)
+                    handle_admin_join(adm, chat)
+    else:
+        chat.active = False
+        chat.save()
 
 
-def create_chat(update, context):
-    chat_member = update.my_chat_member.new_chat_member
-    if chat_member.user.id != get_bot(context).id:
-        return
+def handle_user_join(user, chat):
+    exists = any(c == chat.id for c in user.chats)
+    if not exists:
+        user.chats.append(chat.id)
 
-    tchat = update.effective_chat
-    mchat = Chat.find_by_id(tchat.id)
-    if mchat is None:
-        mchat = Chat(id=tchat.id)
 
-    with mchat:
-        mchat.title = tchat.title
-        mchat.username = tchat.username
-        mchat.type = tchat.type
-        mchat.active = chat_member.status != 'left'
+def handle_user_leave(user, chat):
+    exists = any(c == chat.id for c in user.chats)
+    if exists:
+        user.chats = [c for c in user.chats if c != chat.id]
 
-        # TODO: handle case where info_message_id exists but has been deleted
 
-        if mchat.active:
-            mchat.publish_info_message(context)
+def handle_admin_join(user, chat):
+    exists = any(u == user.id for u in chat.admins)
+    if not exists:
+        chat.admins.append(user.id)
 
+
+def handle_admin_leave(user, chat):
+    exists = any(u == user.id for u in chat.admins)
+    if exists:
+        chat.admins = [u for u in chat.admins if u != user.id]
 
 
 def handlers():
-    yield ChatMemberHandler(on_member, chat_member_types=ChatMemberHandler.CHAT_MEMBER)
-    yield ChatMemberHandler(on_bot_member, chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER)
-
+    yield ChatMemberHandler(
+        on_member_status_change, chat_member_types=ChatMemberHandler.CHAT_MEMBER
+    )
+    yield ChatMemberHandler(
+        on_bot_status_change, chat_member_types=ChatMemberHandler.MY_CHAT_MEMBER
+    )

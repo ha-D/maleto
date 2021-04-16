@@ -32,7 +32,7 @@ class Callback(CallbackQueryHandler):
 
     def _perform(self, update, context):
         from .user import User
-        User.update_from_request(update)
+        User.create_or_update_from_api(update)
 
         query = update.callback_query
         parts = query.data.split('#')
@@ -88,7 +88,7 @@ def bot_handler(f):
     def inner(update, context):
         from .user import User
         api_user = update.effective_user
-        user = User.update_from_request(api_user)
+        user = User.create_or_update_from_api(api_user)
         context.user = user
         context.lang = user.lang
         return f(update, context)
