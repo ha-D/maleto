@@ -10,9 +10,13 @@ from .utils import omit
 logger = logging.getLogger(__name__)
 
 
-client = MongoClient()
-db = client["maleto"]
-db.items.create_index([("title", "text"), ("description", "text")])
+db = None
+
+
+def init_db(db_uri, db_name):
+    global db
+    client = MongoClient(db_uri)
+    db = client[db_name]
 
 
 class Model:

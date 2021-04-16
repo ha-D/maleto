@@ -1,5 +1,6 @@
 import logging
 import argparse
+from maleto.models import init_db
 from maleto.utils.config import EnvDefault
 
 from telegram.ext import Updater
@@ -41,6 +42,7 @@ def main():
         help="Proxy used if polling",
         action=EnvDefault,
         envvar="BOT_PROXY",
+        required=False,
     )
     parser.add_argument(
         "--mode",
@@ -57,19 +59,44 @@ def main():
         type=str,
         help="",
         action=EnvDefault,
-        envar="BOT_HOST",
+        envvar="BOT_HOST",
         default="0.0.0.0",
     )
     parser.add_argument(
         "--port", type=int, help="", action=EnvDefault, envvar="BOT_PORT", default=8443
     )
     parser.add_argument(
-        "--url", "-u", type=str, help="", action=EnvDefault, envvar="BOT_URL"
+        "--url",
+        "-u",
+        type=str,
+        help="",
+        action=EnvDefault,
+        envvar="BOT_URL",
+        required=False,
+    )
+    parser.add_argument(
+        "--db-uri",
+        type=str,
+        help="",
+        action=EnvDefault,
+        envvar="BOT_DB_URI",
+        default="mongodb://127.0.0.1:27017",
+    )
+    parser.add_argument(
+        "--db-name",
+        type=str,
+        help="",
+        action=EnvDefault,
+        envvar="BOT_DB_NAME",
+        default="maleto",
     )
 
     args = parser.parse_args()
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
+
+    print("-------------------------------       ", args)
+    init_db(args.db_uri, args.db_name)
 
     updater = Updater(
         token=args.token, request_kwargs={"proxy_url": args.proxy}, use_context=True
