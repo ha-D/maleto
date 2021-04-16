@@ -95,7 +95,6 @@ def main():
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
 
-    print("-------------------------------       ", args)
     init_db(args.db_uri, args.db_name)
 
     updater = Updater(

@@ -31,8 +31,12 @@ class Callback(CallbackQueryHandler):
         return '#'.join([cls.name, *pargs])
 
     def _perform(self, update, context):
-        from .user import User
+        from ..user import User
         User.create_or_update_from_api(update)
+
+        user = User.create_or_update_from_api(update.effective_user)
+        context.user = user
+        context.lang = user.lang
 
         query = update.callback_query
         parts = query.data.split('#')
@@ -86,7 +90,7 @@ def find_best_inc(price):
 
 def bot_handler(f):
     def inner(update, context):
-        from .user import User
+        from ..user import User
         api_user = update.effective_user
         user = User.create_or_update_from_api(api_user)
         context.user = user

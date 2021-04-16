@@ -75,7 +75,7 @@ def item_photo(update, context):
         return ITEM_PHOTO
 
     photo = update.message.photo[0]
-    photo.get_file().download(f"media/{photo.file_id}")
+    # photo.get_file().download(f"media/{photo.file_id}")
     with Item.from_context(context) as item:
         item.photos.append(photo.file_id)
 
@@ -160,7 +160,7 @@ def item_end(update, context, item):
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
 
     user = update.effective_user
-    msg = update.message.reply_photo(item.photos[0], caption="Please wait...")
+    msg = update.message.reply_photo(item.photos[0], caption=_("Please wait..."))
     item.active = (True,)
     item.change_user_interaction_message(context, user.id, msg.message_id)
     item.publish_to_interaction_message_for_user(context, user.id)

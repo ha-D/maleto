@@ -33,7 +33,8 @@ class User(Model):
                 },
                 upsert=True,
             )
-            return cls(**d)
+            if d is not None:
+                return cls(**d)
         return None
 
     def link(self):
