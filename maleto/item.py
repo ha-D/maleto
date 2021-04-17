@@ -1,13 +1,15 @@
+from datetime import datetime
 import logging
 import string
 import random
+import time
 
 from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
-from .utils import find_by, get_bot
+from .utils import find_by, get_bot, translator
 from .models import Model
 
 logger = logging.getLogger(__name__)
@@ -28,6 +30,8 @@ class Item(Model):
             "interaction_messages",
             "posts",
             "min_price_inc",
+            "settings_message",
+            "bid_messages",
         )
 
     def __init__(self, **kwargs):
@@ -38,6 +42,8 @@ class Item(Model):
                 "interaction_messages": [],
                 "posts": [],
                 "stores": [],
+                "settings_message": [],
+                "bid_messages": [],
                 **kwargs,
             }
         )
@@ -59,41 +65,29 @@ class Item(Model):
 
         return User.find_by_id(self.owner_id)
 
-    def get_latest_bids(self, user_id=None):
-        """
-        Returns (price, place_in_queue, total_queue_size)
-        """
-        if len(self.bids) == 0:
-            return self.base_price, -1, 0
-        latest = self.bids[-1]
-        price = latest["price"]
-        bids = latest["users"]
-        try:
-            return price, bids.index(user_id), len(bids)
-        except ValueError:
-            return price, -1, len(bids)
-
-    def remove_user_from_bids(self, user_id):
+    def remove_user_bid(self, context, user_id, sort=True):
         for bid in self.bids:
             bid["users"] = [u for u in bid["users"] if u != user_id]
         self.bids = [b for b in self.bids if len(b["users"]) > 0]
+        if sort:
+            self._sort_bids()
 
-    def add_user_bid(self, user_id, price):
-        highest_price, place_in_queue, total_queue_size = self.get_latest_bids(user_id)
-        if price < highest_price:
-            raise ValueError("price low")
-        if price == highest_price and place_in_queue >= 0:
-            raise ValueError("already in queue")
+    def add_user_bid(self, context, user_id, price, sort=True):
+        # TODO: check min price inc
 
-        self.remove_user_from_bids(user_id)
+        _ = translator(context.lang)
+        if self.base_price and price < self.base_price:
+            raise ValueError(_("bid must be higher than original price"))
 
-        # if no bids or bidding with higher price
-        if total_queue_size == 0 or highest_price < price:
-            self.bids.append({"price": price, "users": [user_id]})
-        else:
-            self.bids[-1]["users"].append(user_id)
+        self.remove_user_bid(user_id, sort=False)
+        self.bids.append({"user_id": user_id, "price": price, "ts": time.time()})
+        if sort:
+            self._sort_bids()
 
-    def add_sale_message(self, context, chat_id):
+    def _sort_bids(self):
+        self.bids = sorted(self.bids, key=lambda b: (b["price"], b["ts"]), reverse=True)
+
+    def add_to_chat(self, context, chat_id):
         from .chat import Chat
 
         post, _ = find_by(self.posts, "chat_id", chat_id)
@@ -109,7 +103,7 @@ class Item(Model):
         self.save()
         Chat.find_by_id(chat_id).publish_info_message(context)
 
-    def remove_sale_message(self, context, chat_id):
+    def remove_from_chat(self, context, chat_id):
         from .chat import Chat
 
         post, idx = find_by(self.posts, "chat_id", chat_id)
@@ -120,9 +114,63 @@ class Item(Model):
         self.save()
         Chat.find_by_id(chat_id).publish_info_message(context)
 
-    def publish_to_messages(self, context):
-        from .item_interact import publish_interaction_message
+    def new_bid_message(self, context, user_id, message_id=None, publish=True):
+        prev_mes, _ = find_by(self.bid_messages, "user_id", user_id)
+        if prev_mes is not None:
+            # Clear previous bid message for this user
+            try:
+                context.bot.edit_message_caption(
+                    chat_id=prev_mes["user_id"],
+                    message_id=prev_mes["message_id"],
+                    caption=f"{self.title}",
+                    reply_markup=InlineKeyboardMarkup([]),
+                )
+            except BadRequest as e:
+                pass
 
+        _ = translator(context.lang)
+        if message_id is None:
+            message = context.bot.send_photo(
+                chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
+            )
+            message_id = message.message_id
+        if prev_mes:
+            prev_mes["message_id"] = message_id
+        else:
+            self.bid_messages.append({"user_id": user_id, "message_id": message_id})
+
+    def new_settings_message(self, context, message_id=None, publish=True):
+        prev_mes = self.settings_message
+        if prev_mes is None:
+            # Clear previous bid message for this user
+            try:
+                context.bot.edit_message_caption(
+                    chat_id=self.owner_id,
+                    message_id=prev_mes["message_id"],
+                    caption=f"{self.title}",
+                    reply_markup=InlineKeyboardMarkup([]),
+                )
+            except BadRequest as e:
+                pass
+        _ = translator(context.lang)
+        if message_id is None:
+            message = context.bot.send_photo(
+                chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
+            )
+            message_id = message.message_id
+        self.settings_message = {"message_id": message_id, "state": "default"}
+        if publish:
+            self.publish_settings_message(context)
+
+    def update_bid_message_state(self, user_id, state):
+        mes, _ = find_by(self.interaction_messages, "user_id", user_id)
+        mes["state"] = state  # TODO: handle NONE
+
+    def update_settings_message_state(self, state):
+        mes = self.settings_message
+        mes["state"] = state
+
+    def publish(self, context):
         sale_message = self.generate_sale_message(context)
         for post in self.posts:
             chat_id = post["chat_id"]
@@ -135,37 +183,24 @@ class Item(Model):
                 caption=sale_message,
             )
 
-        for imes in self.interaction_messages:
-            publish_interaction_message(context, self, imes["user_id"], imes=imes)
+        self.publish_settings_message(context)
 
-    def change_user_interaction_message(self, context, user_id, message_id):
-        imes, _ = find_by(self.interaction_messages, "user_id", user_id)
-        if imes is not None:
-            try:
-                context.bot.edit_message_caption(
-                    chat_id=imes["user_id"],
-                    message_id=imes["message_id"],
-                    caption=f"{self.title}",
-                    reply_markup=InlineKeyboardMarkup([]),
-                )
-            except BadRequest as e:
-                pass
-            imes["message_id"] = message_id
-        else:
-            self.interaction_messages.append(
-                {"user_id": user_id, "message_id": message_id}
+        for mes in self.bid_messages:
+            self.publish_interaction_message(
+                context, self, mes["user_id"], mes["message_id"]
             )
 
-    def change_interaction_message_state(self, user_id, state):
-        imes, _ = find_by(self.interaction_messages, "user_id", user_id)
-        imes["state"] = state
+    def publish_settings_message(self, context):
+        from .item_settings import publish_settings_message
 
-    def publish_to_interaction_message_for_user(self, context, user_id):
-        from .item_interact import publish_interaction_message
+        return publish_settings_message(context, self)
 
-        return publish_interaction_message(context, self, user_id)
+    def publish_bid_message(self, context, user_id, message_id=None):
+        from .item_bid import publish_bid_message
 
-    def get_interaction_message(self, user_id):
+        return publish_bid_message(context, self, user_id, message_id)
+
+    def get_bid_message(self, user_id):
         imes, _ = find_by(self.interaction_messages, "user_id", user_id)
         return imes
 
@@ -206,52 +241,62 @@ class Item(Model):
 
         bot = get_bot(context)
 
-        price, idx, q_len = self.get_latest_bids()
+        _ = translator(context.lang)
+
+        current_price = self.base_price
+        if len(self.bids > 0):
+            current_price = self.bids[0]["price"]
+
         msg = [
             f"*{self.title}*",
-            f"Seller: {self.owner.link()}",
+            _("Seller: {}").format(self.owner.link()),
             "",
             self.description,
             "",
-            f"Price: {price}",
+            _("Price: {}").format(current_price),
         ]
 
-        if q_len > 0:
+        if len(self.bids) > 0:
             users = [User.find_by_id(uid) for uid in self.bids[-1]["users"]]
-            msg += [f"Buyer: {users[0].link()}"]
+            msg += [_("Buyer: {}").format(users[0].link())]
             if len(users) > 1:
                 users = users[1:]
-                msg.append("Waiting List:")
+                msg.append(_("Waiting List:"))
                 if len(users) <= 4:
                     msg += [f"{i+1}. {u.link()}" for i, u in enumerate(users)]
                 elif len(users) > 4:
                     msg += [f"{i+1}. {u.link()}" for i, u in enumerate(users[:3])]
-                    msg.append(f"_{len(users) - 3} more people..._")
+                    msg.append(_("_{} more people..._").format(len(users) - 3))
 
         msg += [
             "",
-            f"[Click here to buy this item](https://t.me/{bot.username}?start=item-{self.id})",
+            f"[{_('Click here to buy this item')}](https://t.me/{bot.username}?start=item-{self.id})",
         ]
 
         return "\n".join(msg)
 
-    def generate_owner_message(self):
-        highest_price, _, total_queue_size = self.get_latest_bids()
-
+    def generate_owner_message(self, context):
+        _ = translator(context.lang)
         msg = [
             self.title,
             "",
-            f"Published in *{len(self.posts)}* chats",
+            _("Published in *{}* chats").format(len(self.posts)),
             "",
-            f"Starting Price: {self.base_price}",
+            _("Starting Price: {}").format(self.base_price),
             "",
         ]
-        if total_queue_size == 0:
-            msg.append("No one has made an offer")
-        elif total_queue_size == 1:
-            f"Current Bid: {highest_price}",
+        if len(self.bids) == 0:
+            msg.append(_("No one has made an offer"))
+        elif len(self.bids) == 1:
+            msg.append(_("Current Bid: {}".format(self.bids[0]["price"])))
         else:
-            f"Current Bid: {highest_price} with {total_queue_size - 1} people in waiting list",
+            msg.append(
+                _("Current Bid: {} with {} people in waiting list").format(
+                    self.bids[0]["price"], len(self.bids) - 1
+                )
+            )
+
+        return "\n".join(msg)
 
     def chat_link(self, chat_id):
         post, _ = find_by(self.posts, "chat_id", chat_id)

@@ -1,5 +1,7 @@
 import logging
 import argparse
+
+from telegram import chat
 from maleto.models import init_db
 from maleto.utils.config import EnvDefault
 
@@ -7,7 +9,7 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler, Filters
 
 from .item_start import item_start
-from . import item_create, item_interact, item_bid, chat_member, admin
+from . import item_create, item_settings, item_bid, chat_member, user_settings, chat_settings
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -104,7 +106,7 @@ def main():
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start, Filters.text), 0)
 
-    modules = [item_create, item_interact, item_bid, chat_member, admin]
+    modules = [item_create, item_settings, item_bid, chat_member, user_settings, chat_settings]
     for i, m in enumerate(modules):
         for handler in m.handlers():
             dispatcher.add_handler(handler, group=i + 1)

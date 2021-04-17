@@ -4,7 +4,7 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import bot_handler, translator
+from .utils import Callback, bot_handler, translator
 from .item import Item
 from .user import User
 
@@ -158,12 +158,8 @@ def item_end(update, context, item):
         ]
     )
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
-
-    user = update.effective_user
-    msg = update.message.reply_photo(item.photos[0], caption=_("Please wait..."))
     item.active = (True,)
-    item.change_user_interaction_message(context, user.id, msg.message_id)
-    item.publish_to_interaction_message_for_user(context, user.id)
+    item.new_settings_message(context, publish=True)
 
 
 @bot_handler
@@ -180,21 +176,43 @@ def cancel(update, context):
 
 @bot_handler
 def list_items(update, context):
-    _ = translator(context.user)
-    items = Item.find(owner=context.user.id)
+    _ = translator(context.lang)
+    items = Item.find(owner_id=context.user.id)
     if len(items) == 0:
         message = _(
             "You don't have any items. Use the _/newitem_ command to create one."
         )
+        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     else:
+        kb = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        s.title,
+                        callback_data=SelectItemCallback.data(s.id),
+                    ),
+                ] for s in items
+            ]
+        )
         message = "\n".join(
             [
                 _("Click on one any item to view more options"),
-                "\n",
-                *[s.link() for s in items],
             ]
         )
-    update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
+        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN, reply_markup=kb)
+    
+
+class SelectItemCallback(Callback):
+    name = "select-item"
+
+    def perform(self, context, query, item_id):
+        _ = translator(context.lang)
+        item = Item.find_by_id(item_id)
+        # context.bot.edit_message_media(chat_id=context.user.id, message_id=query.message.message_id, media=InputMediaPhoto(media=item.photos[0]))
+        query.edit_message_reply_markup(InlineKeyboardMarkup([]))
+        with item:
+            item.new_settings_message(context, publish=True)
+        query.answer()
 
 
 def handlers():
@@ -218,4 +236,4 @@ def handlers():
         # run_async=True # Run sync break multiple images
     )
 
-    yield CommandHandler("listitems", list_items)
+    yield from (CommandHandler("myitems", list_items), SelectItemCallback())

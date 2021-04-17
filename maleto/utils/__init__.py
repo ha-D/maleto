@@ -32,7 +32,6 @@ class Callback(CallbackQueryHandler):
 
     def _perform(self, update, context):
         from ..user import User
-        User.create_or_update_from_api(update)
 
         user = User.create_or_update_from_api(update.effective_user)
         context.user = user
@@ -109,27 +108,6 @@ def get_bot(context):
 
 
 import gettext
-
-# class TranslatableString(str):
-    # pass
-
-# lang_cache = {}
-# def translate(lang, msg_list):
-#     if lang is None:
-#         lang = 'en'
-#     if lang not in lang_cache:
-#         gt = gettext.translation('messages', 'translations', fallback=True, languages=[lang])
-#         lang_cache[lang] = gt.gettext
-#     translate = lang_cache[lang]
-
-#     def _(s):
-#         if isinstance(s, TranslatableString):
-#             return translate(s)
-#         return s
-
-#     if type(msg_list) is str:
-#         return _(msg_list)
-#     return '\n'.join([_(m) for m in msg_list])
 
 lang_cache = {}
 def translator(lang):
