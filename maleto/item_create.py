@@ -1,4 +1,5 @@
 import logging
+from maleto.utils.currency import get_currencies
 
 from telegram.ext import *
 from telegram import *
@@ -10,7 +11,9 @@ from .user import User
 
 logger = logging.getLogger(__name__)
 
-ITEM_TITLE, ITEM_PHOTO, ITEM_DESCRIPTION, ITEM_PRICE, ITEM_EMOJI = range(5)
+ITEM_TITLE, ITEM_PHOTO, ITEM_DESCRIPTION, ITEM_CURRENCY, ITEM_PRICE, ITEM_EMOJI = range(
+    6
+)
 STORE_NAME = range(1)
 
 
@@ -26,13 +29,13 @@ def item_new(update, context):
     msg = "\n".join(
         [
             _(
-                "Ok lets add a new item. I'm going to ask you some questions about the item you want to sell."
+                "Ok lets add a new item. I'm going to ask you a few questions about the item you want to sell."
             ),
             _(
-                "You can click on the 'Cancel' button or enter /cancel at any time to abort"
+                "You can click on the `Cancel` button or enter `/cancel` at any time to abort"
             ),
             "",
-            _("To start, enter the *title* of the item you want to sell"),
+            _("To start, enter the `title` of the item you want to sell"),
         ]
     )
     update.message.reply_text(
@@ -48,25 +51,37 @@ def item_title(update, context):
     # TODO: title validations?
     with Item.from_context(context) as item:
         item.title = title
-        msg = "\n".join(
-            [
-                _("Great thanks."),
-                "",
-                "📷 🖼",
-                _("Now send me some *photos* of the item."),
-                _(
-                    "Click on Done or enter /done when you've sent all the photos you want to add."
-                ),
-            ]
-        )
-        update.message.reply_text(
-            msg,
-            parse_mode=ParseMode.MARKDOWN,
-            reply_markup=ReplyKeyboardMarkup(
-                [[KeyboardButton("Done")], [KeyboardButton("Cancel")]]
+
+    return item_photo_ask(
+        update,
+        context,
+        [
+            _("Great thanks."),
+        ],
+    )
+
+
+def item_photo_ask(update, context, msg):
+    _ = translator(context.lang)
+    msg = "\n".join(
+        [
+            *msg,
+            "",
+            "📷 🖼",
+            _("Now send me some `photos` of the item."),
+            _(
+                "Click on `Done` or enter `/done` when you've sent all the photos you want to add."
             ),
-        )
-        return ITEM_PHOTO
+        ]
+    )
+    update.message.reply_text(
+        msg,
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=ReplyKeyboardMarkup(
+            [[KeyboardButton("Done")], [KeyboardButton("Cancel")]]
+        ),
+    )
+    return ITEM_PHOTO
 
 
 @bot_handler
@@ -85,26 +100,37 @@ def item_photo(update, context):
 @bot_handler
 def item_photo_done(update, context):
     _ = translator(context.lang)
-    with Item.from_context(context) as item:
-        if len(item.photos) == 0:
-            update.message.reply_text(
-                "\n".join(
-                    [
-                        _("Hmm, I haven't received any photos 🤔."),
-                        "",
-                        _(
-                            "If you've sent any photos please wait for the upload to finish and then notify me again."
-                        ),
-                    ]
-                )
+    item = Item.from_context(context)
+    if len(item.photos) == 0:
+        update.message.reply_text(
+            "\n".join(
+                [
+                    _("Hmm, I haven't received any photos 🤔."),
+                    "",
+                    _(
+                        "If you've sent photos please wait for the upload to finish and then notify me again."
+                    ),
+                ]
             )
-            return ITEM_PHOTO
+        )
+        return ITEM_PHOTO
 
-    msg = "\n".join(
+    return item_description_ask(
+        update,
+        context,
         [
             _("Awesome! 🎉"),
+        ],
+    )
+
+
+def item_description_ask(update, context, msg):
+    _ = translator(context.lang)
+    msg = "\n".join(
+        [
+            *msg,
             "",
-            _("Now enter a description about your item"),
+            _("Now enter a `description` for your item"),
         ]
     )
     update.message.reply_text(msg, reply_markup=cancel_markup)
@@ -115,11 +141,44 @@ def item_photo_done(update, context):
 def item_description(update, context):
     with Item.from_context(context) as item:
         item.description = update.message.text
+    return item_currency_ask(update, context, [])
 
+
+def item_currency_ask(update, context, msg):
     _ = translator(context.lang)
     msg = "\n".join(
         [
-            _("What price are you selling at?"),
+            *msg,
+            _("What currency?"),
+        ]
+    )
+    currencies = get_currencies(context)
+    cbtns = [KeyboardButton(text=c) for c in currencies]
+    btns = ReplyKeyboardMarkup(list(zip(cbtns[::2], cbtns[1::2])))
+    update.message.reply_text(msg, reply_markup=btns)
+    return ITEM_CURRENCY
+
+
+@bot_handler
+def item_currency(update, context):
+    _ = translator(context.lang)
+    currency_key = get_currencies(context).get(update.message.text)
+    if currency_key is None:
+        update.message.reply_text(_("I'm not familiar with that currency, please try again"))
+        return ITEM_CURRENCY
+
+    with Item.from_context(context) as item:
+        item.currency = currency_key
+
+    return item_price_ask(update, context, [])
+
+
+def item_price_ask(update, context, msg):
+    _ = translator(context.lang)
+    msg = "\n".join(
+        [
+            *msg,
+            _("What `price` are you selling at?"),
         ]
     )
     update.message.reply_text(msg, reply_markup=cancel_markup)
@@ -154,7 +213,7 @@ def item_end(update, context, item):
             "",
             _("There are more options you can edit later on."),
             "",
-            _("You can view all your created items anytime by entering /listitems"),
+            _("You can view all your created items anytime by entering /myitems"),
         ]
     )
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
@@ -191,7 +250,8 @@ def list_items(update, context):
                         s.title,
                         callback_data=SelectItemCallback.data(s.id),
                     ),
-                ] for s in items
+                ]
+                for s in items
             ]
         )
         message = "\n".join(
@@ -199,8 +259,10 @@ def list_items(update, context):
                 _("Click on one any item to view more options"),
             ]
         )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN, reply_markup=kb)
-    
+        update.message.reply_text(
+            text=message, parse_mode=ParseMode.MARKDOWN, reply_markup=kb
+        )
+
 
 class SelectItemCallback(Callback):
     name = "select-item"
@@ -230,6 +292,7 @@ def handlers():
                 canceler,
                 MessageHandler(Filters.text, item_description),
             ],
+            ITEM_CURRENCY: [canceler, MessageHandler(Filters.text, item_currency)],
             ITEM_PRICE: [canceler, MessageHandler(Filters.text, item_price)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],

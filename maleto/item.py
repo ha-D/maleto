@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from maleto.utils.currency import format_currency
 import string
 import random
 import time
@@ -24,14 +25,13 @@ class Item(Model):
             "description",
             "owner_id",
             "photos",
-            "published_messages",
             "bids",
             "base_price",
-            "interaction_messages",
             "posts",
             "min_price_inc",
             "settings_message",
             "bid_messages",
+            "currency",
         )
 
     def __init__(self, **kwargs):
@@ -39,7 +39,6 @@ class Item(Model):
             **{
                 "photos": [],
                 "bids": [],
-                "interaction_messages": [],
                 "posts": [],
                 "stores": [],
                 "settings_message": [],
@@ -253,7 +252,9 @@ class Item(Model):
             "",
             self.description,
             "",
-            _("Price: {}").format(current_price),
+            _("Price: {}").format(
+                format_currency(context, self.currency, current_price)
+            ),
         ]
 
         if len(self.bids) > 0:
@@ -282,17 +283,26 @@ class Item(Model):
             "",
             _("Published in *{}* chats").format(len(self.posts)),
             "",
-            _("Starting Price: {}").format(self.base_price),
+            _("Starting Price: {}").format(
+                format_currency(context, self.currency, self.base_price)
+            ),
             "",
         ]
         if len(self.bids) == 0:
             msg.append(_("No one has made an offer"))
         elif len(self.bids) == 1:
-            msg.append(_("Current Bid: {}".format(self.bids[0]["price"])))
+            msg.append(
+                _(
+                    "Current Bid: {}".format(
+                        format_currency(context, self.currency, self.bids[0]["price"])
+                    )
+                )
+            )
         else:
             msg.append(
                 _("Current Bid: {} with {} people in waiting list").format(
-                    self.bids[0]["price"], len(self.bids) - 1
+                    format_currency(context, self.currency, self.bids[0]["price"]),
+                    len(self.bids) - 1,
                 )
             )
 
