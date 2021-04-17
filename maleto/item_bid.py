@@ -138,7 +138,8 @@ class BidCallback(Callback):
     def perform(self, context, query, item_id):
         with Item.find_by_id(item_id) as item:
             ask_for_bid(context, query.message, item)
-            return OFFER
+        query.answer()
+        return OFFER
 
 
 class WaitListCallback(Callback):

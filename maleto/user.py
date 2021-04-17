@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class User(Model):
     class Meta:
         name = "users"
-        fields = ("username", "first_name", "last_name", "chats", "lang")
+        fields = ("username", "first_name", "last_name", "chats", "lang", "chat_settings_message")
 
     def __init__(self, **kwargs):
         super().__init__(**{"chats": [], **kwargs})

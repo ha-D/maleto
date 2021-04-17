@@ -118,3 +118,4 @@ def translator(lang):
         lang_cache[lang] = gt.gettext
     return lang_cache[lang]
     
+LANGUAGES = {"English": "en", "فارسی": "fa"}

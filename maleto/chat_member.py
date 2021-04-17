@@ -17,9 +17,13 @@ def on_member_status_change(update, context):
     cmu = update.chat_member
     cm = cmu.new_chat_member
     chat = Chat.create_or_update_from_api(cmu.chat)
-    user = User.find_by_id(cm.user.id)
+    user = User.create_or_update_from_api(cm.user)
+        
     with user:
         with chat:
+            if user.lang == None and chat.lang is not None:
+                user.lang = chat.lang
+
             if cm.status in STATUS_MEMBER:
                 handle_user_join(user, chat)
             else:

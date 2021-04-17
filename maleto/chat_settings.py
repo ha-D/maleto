@@ -3,16 +3,12 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import bot_handler, translator
+from .utils import Callback, LANGUAGES, bot_handler, translator
 from .item import Item
 from .user import User
 from .chat import Chat
 
 logger = logging.getLogger(__name__)
-
-LANG_SEL = range(1)
-
-langs = {"English": "en", "فارسی": "fa"}
 
 
 @bot_handler
@@ -20,42 +16,57 @@ def list_chats(update, context):
     _ = translator(context.lang)
     admin_chats = Chat.find(admins=context.user.id)
     kb = InlineKeyboardMarkup(
-            [[InlineKeyboardButton("Buy with this price", callback_data='nutin')] for i in range(10)],
+        [
+            [
+                InlineKeyboardButton(
+                    chat.title, callback_data=ChatSelectCallback.data(chat.id)
+                )
+            ]
+            for chat in admin_chats
+        ],
     )
     update.message.reply_text("Pick you shop", reply_markup=kb)
 
 
-@bot_handler
-def lang_start(update, context):
-    _ = translator(context.lang)
-    l = [KeyboardButton(n) for n in langs.keys()]
-    btns = ReplyKeyboardMarkup(list(zip(l[::2], l[1::2])))
-    update.message.reply_text(
-        _("Select your language"), parse_mode=ParseMode.MARKDOWN, reply_markup=btns
-    )
-    return LANG_SEL
+class ChatSelectCallback(Callback):
+    name = "chatselect"
 
-
-@bot_handler
-def lang_select(update, context):
-    _ = translator(context.lang)
-    lang = update.message.text
-    if lang not in langs.keys():
-        update.message.reply_text(
-            _("Language not recognized"),
-            parse_mode=ParseMode.MARKDOWN,
-            reply_markup=ReplyKeyboardRemove(),
+    def perform(self, context, query, chat_id):
+        chat = Chat.find_by_id(chat_id)
+        _ = translator(context.lang)
+        msg = "\n".join([chat.title])
+        btns = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        "Change Language", callback_data=ChatLangCallback.data(chat.id)
+                    )
+                ]
+            ],
         )
+        query.message.edit_text(text=msg, reply_markup=btns)
+        query.answer()
 
-    else:
-        with User.find_by_id(update.effective_user.id) as user:
-            user.lang = langs[lang]
-    update.message.reply_text(
-        _("Language changed"),
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=ReplyKeyboardRemove(),
-    )
-    return ConversationHandler.END
+
+class ChatLangCallback(Callback):
+    name = "chatlang"
+
+    def perform(self, context, query, chat_id, lang=None):
+        chat = Chat.find_by_id(chat_id)
+        _ = translator(context.lang)
+        if lang is None:
+            msg = "\n".join([chat.title, "", _("Select language")])
+            l = [
+                InlineKeyboardButton(n, callback_data=ChatLangCallback.data(chat.id, n))
+                for n in LANGUAGES.keys()
+            ]
+            btns = InlineKeyboardMarkup(list(zip(l[::2], l[1::2])))
+            query.message.edit_text(text=msg, reply_markup=btns)
+            query.answer()
+        else:
+            with chat:
+                chat.lang = lang
+            ChatSelectCallback().perform(context, query, chat_id)
 
 
 @bot_handler
@@ -64,14 +75,5 @@ def cancel(update, context):
 
 
 def handlers():
-    canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
-    yield ConversationHandler(
-        entry_points=[CommandHandler("changelang", lang_start)],
-        states={
-            LANG_SEL: [canceler, MessageHandler(Filters.text, lang_select)],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-        # run_async=True # Run sync break multiple images
-    )
-
     yield CommandHandler("mystores", list_chats)
+    yield from (ChatSelectCallback(), ChatLangCallback())
