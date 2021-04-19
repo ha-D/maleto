@@ -5,7 +5,7 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, bot_handler, translator
+from .utils import Callback, bot_handler, split_keyboard, translator
 from .item import Item
 from .user import User
 
@@ -149,12 +149,11 @@ def item_currency_ask(update, context, msg):
     msg = "\n".join(
         [
             *msg,
-            _("What currency?"),
+            _("What `currency` would you like to use?"),
         ]
     )
     currencies = get_currencies(context)
-    cbtns = [KeyboardButton(text=c) for c in currencies]
-    btns = ReplyKeyboardMarkup(list(zip(cbtns[::2], cbtns[1::2])))
+    btns = split_keyboard([KeyboardButton(text=c) for c in currencies], 2)
     update.message.reply_text(msg, reply_markup=btns)
     return ITEM_CURRENCY
 
@@ -239,7 +238,7 @@ def list_items(update, context):
     items = Item.find(owner_id=context.user.id)
     if len(items) == 0:
         message = _(
-            "You don't have any items. Use the _/newitem_ command to create one."
+            "You don't have any items. Use the `/newitem` command to create one."
         )
         update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
     else:

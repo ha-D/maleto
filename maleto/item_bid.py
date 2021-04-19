@@ -1,4 +1,5 @@
 import logging
+from maleto.utils.currency import format_currency
 from telegram.error import BadRequest
 from telegram.ext import *
 from telegram import *
@@ -6,7 +7,14 @@ from telegram.utils.helpers import *
 from telegram.utils import helpers
 
 from .item import Item
-from .utils import Callback, find_best_inc, bot_handler, find_by, translator
+from .utils import (
+    Callback,
+    find_best_inc,
+    bot_handler,
+    find_by,
+    split_keyboard,
+    translator,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +58,7 @@ def buyer(context, item, bid):
         [
             [
                 InlineKeyboardButton(
-                    _("I don't want it anymore"),
+                    _("Remove Offer"),
                     callback_data=RevokeBidCallback.data(item.id),
                 )
             ]
@@ -68,10 +76,10 @@ def in_waiting_list(context, item, bid, pos):
         [
             [
                 InlineKeyboardButton(
-                    _("Make Higher Offer"), callback_data=BidCallback.data(item.id)
+                    _("Change Offer"), callback_data=BidCallback.data(item.id)
                 ),
                 InlineKeyboardButton(
-                    _("I don't want it anymore"),
+                    _("Remove Offer"),
                     callback_data=RevokeBidCallback.data(item.id),
                 ),
             ],
@@ -87,11 +95,7 @@ def no_bidder(context, item):
         [
             [
                 InlineKeyboardButton(
-                    _("Buy with this price"),
-                    callback_data=WaitListCallback.data(item.id, item.base_price),
-                ),
-                InlineKeyboardButton(
-                    _("Make Higher Offer"), callback_data=BidCallback.data(item.id)
+                    _("Make Offer"), callback_data=BidCallback.data(item.id)
                 ),
             ],
         ]
@@ -107,11 +111,7 @@ def not_bidding(context, item):
         [
             [
                 InlineKeyboardButton(
-                    _("Go in queue with this price"),
-                    callback_data=WaitListCallback.data(item.id, highest_bid),
-                ),
-                InlineKeyboardButton(
-                    _("Make Higher Offer"), callback_data=BidCallback.data(item.id)
+                    _("Make Offer"), callback_data=BidCallback.data(item.id)
                 ),
             ],
         ]
@@ -142,34 +142,24 @@ class BidCallback(Callback):
         return OFFER
 
 
-class WaitListCallback(Callback):
-    name = "waitinglist"
-
-    def perform(self, context, query, item_id, price):
-        with Item.find_by_id(item_id) as item:
-            user = query.from_user
-            try:
-                item.add_user_bid(context, user.id, price)
-                item.publish(context)
-                query.answer()
-            except ValueError as e:
-                item.publish_bid_message(context, user.id)
-                query.answer(e.message)
-
-
 def ask_for_bid(context, message, item, error=None):
     item.save_to_context(context)
     highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
 
-    min_price_inc = item.min_price_inc or find_best_inc(item.base_price)
-    prices = [highest_bid + min_price_inc * i for i in range(3)]
     _ = translator(context.lang)
-    msg = _("Enter your offer")
     if error is not None:
-        msg = f"{error}\n{msg}"
+        msg = "\n".join([error, "", _("Do you want to try again?")])
+    else:
+        msg = _("Enter your offer")
+
+    min_price_inc = item.min_price_inc or find_best_inc(item.base_price)
+    prices = [highest_bid + min_price_inc * i for i in range(4)]
+    btns = split_keyboard(
+        [KeyboardButton(str(p)) for p in prices] + [KeyboardButton("Cancel")], 2
+    )
     message.reply_markdown(
         text=msg,
-        reply_markup=ReplyKeyboardMarkup([[KeyboardButton(str(p)) for p in prices]]),
+        reply_markup=ReplyKeyboardMarkup(btns),
     )
 
 
@@ -181,17 +171,26 @@ def on_bid(update, context):
         user = update.message.from_user
         try:
             item.add_user_bid(context, user.id, price)
-            update.message.reply_text(
-                _("Thanks you have it"), reply_markup=ReplyKeyboardRemove()
-            )
+            if item.bids[0]["user_id"] == context.user.id:
+                update.message.reply_text(
+                    _("Congrats 🎉, you're the current buyer at {}").format(
+                        format_currency(context, item.currency, price)
+                    ),
+                    reply_markup=ReplyKeyboardRemove(),
+                )
+            else:
+                __, pos = find_by(item.bids, "user_id", context.user.id)
+                update.message.reply_text(
+                    _(
+                        "You've made an offer for {} and are #{} in the waiting list"
+                    ).format(price, pos),
+                    reply_markup=ReplyKeyboardRemove(),
+                )
             item.clear_context(context)
             item.publish(context)
             return ConversationHandler.END
         except ValueError as e:
-            update.message.reply_text(
-                _("Could not do it:"), reply_markup=ReplyKeyboardRemove()
-            )
-            ask_for_bid(context, update.message, item, _("Could not do it sorry"))
+            ask_for_bid(context, update.message, item, e.message)
             return OFFER
 
 
@@ -200,14 +199,14 @@ def cancel(update, context):
     _ = translator(context.lang)
     Item.C(context, remove=True)
     update.message.reply_text(
-        _("Ok cool, nothing happened"), reply_markup=ReplyKeyboardRemove()
+        _("Ok no problem, cancelled"), reply_markup=ReplyKeyboardRemove()
     )
     return ConversationHandler.END
 
 
 def handlers():
     yield ConversationHandler(
-        entry_points=[RevokeBidCallback(), BidCallback(), WaitListCallback()],
+        entry_points=[RevokeBidCallback(), BidCallback()],
         states={OFFER: [MessageHandler(Filters.text, on_bid)]},
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[CommandHandler("cancel", cancel), MessageHandler("Cancel", cancel)],
     )

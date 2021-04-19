@@ -1,12 +1,15 @@
-import logging
-
-from telegram.ext import *
-from telegram import *
-from telegram.utils.helpers import *
+from telegram.ext import CommandHandler, Filters
 
 from .item import Item
 
-logger = logging.getLogger(__name__)
+
+def on_start(update, context):
+    if len(context.args) == 0 or context.args[0] == "":
+        return
+
+    action, arg = context.args[0].split("-")
+    if action == "item":
+        return item_start(update, context, arg)
 
 
 def item_start(update, context, item_id):
@@ -17,3 +20,7 @@ def item_start(update, context, item_id):
             item.new_settings_message(context, publish=True)
         else:
             item.new_bid_message(context, user.id, publish=True)
+
+
+def handlers():
+    yield CommandHandler("start", on_start, Filters.text)

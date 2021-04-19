@@ -87,6 +87,12 @@ def find_best_inc(price):
     return find_best_inc(price // 1000) * 1000
 
 
+def split_keyboard(btns, cols=2):
+    from itertools import zip_longest as zl
+    rows = zl(*[btns[i::cols] for i in range(cols)])
+    return [[x for x in row if x is not None] for row in rows]
+
+
 def bot_handler(f):
     def inner(update, context):
         from ..user import User

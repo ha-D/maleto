@@ -14,8 +14,7 @@ LANG_SEL = range(1)
 
 @bot_handler
 def lang_start(update, context):
-    l = [KeyboardButton(n) for n in LANGUAGES.keys()]
-    btns = ReplyKeyboardMarkup(list(zip(l[::2], l[1::2])))
+    btns = ReplyKeyboardMarkup([KeyboardButton(n) for n in LANGUAGES.keys()], 2)
     update.message.reply_text(
         "Select your language", parse_mode=ParseMode.MARKDOWN, reply_markup=btns
     )

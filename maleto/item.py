@@ -10,8 +10,8 @@ from telegram import *
 from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
-from .utils import find_by, get_bot, translator
-from .models import Model
+from .utils import find_best_inc, find_by, get_bot, translator
+from .utils.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,18 @@ class Item(Model):
 
         _ = translator(context.lang)
         if self.base_price and price < self.base_price:
-            raise ValueError(_("bid must be higher than original price"))
+            raise ValueError(_("Your offer is too low"))
+
+        min_price_inc = self.min_price_inc or find_best_inc(self.base_price)
+        highest_bid = self.base_price
+        if self.bids:
+            highest_bid = max(self.bids, key=lambda b: b["price"])["price"]
+        if price > highest_bid and price - highest_bid < min_price_inc:
+            raise ValueError(
+                _(
+                    "You need to increase by at least {} if you want to offer a higher price"
+                ).format(format_currency(context, self.currency, min_price_inc))
+            )
 
         self.remove_user_bid(user_id, sort=False)
         self.bids.append({"user_id": user_id, "price": price, "ts": time.time()})
@@ -204,21 +215,44 @@ class Item(Model):
         return imes
 
     def delete_all_messages(self, context):
-        for imes in self.interaction_messages:
+        for bmes in self.bid_messages:
             try:
-                msg = "\n".join([self.title, "", "This item is no longer available"])
+                user = User.find_by_id(bmes["user_id"])
+                if user is None:
+                    continue
+                _ = translator(user.lang)
+                msg = "\n".join([self.title, "", _("This item is no longer available")])
                 context.bot.edit_message_caption(
-                    chat_id=imes["user_id"],
-                    message_id=imes["message_id"],
+                    chat_id=bmes["user_id"],
+                    message_id=bmes["message_id"],
                     caption=msg,
                     parse_mode=ParseMode.MARKDOWN,
                     reply_markup=InlineKeyboardMarkup([]),
                 )
             except BadRequest as e:
                 logger.warning(
-                    "Unable to disable interaction message (%d, %d)",
-                    imes["chat_id"],
-                    imes["message_id"],
+                    "Unable to disable bid message (%d, %d)",
+                    bmes["chat_id"],
+                    bmes["message_id"],
+                    exc_info=True,
+                )
+
+        if smes := self.settings_message:
+            try:
+                _ = translator(context.lang)
+                msg = "\n".join([self.title, "", _("This item is no longer available")])
+                context.bot.edit_message_caption(
+                    chat_id=self.owner_id,
+                    message_id=smes["message_id"],
+                    caption=msg,
+                    parse_mode=ParseMode.MARKDOWN,
+                    reply_markup=InlineKeyboardMarkup([]),
+                )
+            except BadRequest as e:
+                logger.warning(
+                    "Unable to disable settings message (%d, %d)",
+                    smes["chat_id"],
+                    smes["message_id"],
                     exc_info=True,
                 )
 

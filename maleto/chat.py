@@ -3,7 +3,7 @@ import logging
 
 from telegram import *
 
-from .models import Model
+from .utils.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,6 @@ class Chat(Model):
                     },
                     "$setOnInsert": {
                         "created_at": datetime.now(),
-                        "lang": api_chat.language_code,
                     },
                 },
                 upsert=True,

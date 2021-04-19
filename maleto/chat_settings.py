@@ -3,7 +3,7 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, LANGUAGES, bot_handler, translator
+from .utils import Callback, LANGUAGES, bot_handler, split_keyboard, translator
 from .item import Item
 from .user import User
 from .chat import Chat
@@ -60,7 +60,7 @@ class ChatLangCallback(Callback):
                 InlineKeyboardButton(n, callback_data=ChatLangCallback.data(chat.id, n))
                 for n in LANGUAGES.keys()
             ]
-            btns = InlineKeyboardMarkup(list(zip(l[::2], l[1::2])))
+            btns = InlineKeyboardMarkup(split_keyboard(l, 2))
             query.message.edit_text(text=msg, reply_markup=btns)
             query.answer()
         else:

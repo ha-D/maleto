@@ -5,7 +5,7 @@ from collections import defaultdict
 from threading import RLock
 import logging
 
-from .utils import omit
+from . import omit
 
 logger = logging.getLogger(__name__)
 

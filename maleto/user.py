@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from .models import Model
+from .utils.model import Model
 
 logger = logging.getLogger(__name__)
 

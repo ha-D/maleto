@@ -1,15 +1,22 @@
 import logging
 import argparse
-
-from telegram import chat
-from maleto.models import init_db
-from maleto.utils.config import EnvDefault
+from telegram.bot import Bot
 
 from telegram.ext import Updater
-from telegram.ext import CommandHandler, Filters
+from telegram.utils.request import Request
 
+from .utils.model import init_db
+from .utils.config import EnvDefault
 from .item_start import item_start
-from . import item_create, item_settings, item_bid, chat_member, user_settings, chat_settings
+from . import (
+    entry,
+    item_bid,
+    item_create,
+    item_settings,
+    chat_member,
+    chat_settings,
+    user_settings,
+)
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -17,14 +24,57 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def start(update, context):
-    if len(context.args) == 0 or context.args[0] == "":
-        update.message.reply_text("Hmm? Watchya wanna do?")
-        return
+def cmd_start(args):
+    init_db(args.db_uri, args.db_name)
 
-    action, arg = context.args[0].split("-")
-    if action == "item":
-        return item_start(update, context, arg)
+    updater = Updater(
+        token=args.token, request_kwargs={"proxy_url": args.proxy}, use_context=True
+    )
+
+    dispatcher = updater.dispatcher
+
+    modules = [
+        entry,
+        item_bid,
+        item_create,
+        item_settings,
+        chat_member,
+        chat_settings,
+        user_settings,
+    ]
+    for i, m in enumerate(modules):
+        for handler in m.handlers():
+            dispatcher.add_handler(handler, group=i)
+
+    if args.mode == "poll":
+        updater.start_polling(
+            allowed_updates=[
+                "message",
+                "callback_query",
+                "chat_member",
+                "my_chat_member",
+            ]
+        )
+    elif args.mode == "webhook":
+        updater.start_webhook(
+            listen=args.host,
+            port=args.port,
+            url_path=args.token,
+            webhook_url=f"{args.url}/{args.token}",
+        )
+    updater.idle()
+
+
+def cmd_commands(args):
+    bot = Bot(args.token, request=Request(proxy_url=args.proxy))
+
+    bot.set_my_commands(
+        [
+            ("newitem", "Create new item"),
+            ("myitems", "List created items"),
+            ("changelang", "Change your preferred language"),
+        ]
+    )
 
 
 def main():
@@ -92,42 +142,20 @@ def main():
         envvar="BOT_DB_NAME",
         default="maleto",
     )
+    parser.add_argument(
+        "command",
+        metavar="command",
+        type=str,
+        choices=["start", "setcommands"],
+        nargs="?",
+        default="start",
+    )
 
     args = parser.parse_args()
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
 
-    init_db(args.db_uri, args.db_name)
-
-    updater = Updater(
-        token=args.token, request_kwargs={"proxy_url": args.proxy}, use_context=True
-    )
-
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start, Filters.text), 0)
-
-    modules = [item_create, item_settings, item_bid, chat_member, user_settings, chat_settings]
-    for i, m in enumerate(modules):
-        for handler in m.handlers():
-            dispatcher.add_handler(handler, group=i + 1)
-
-    if args.mode == "poll":
-        updater.start_polling(
-            allowed_updates=[
-                "message",
-                "callback_query",
-                "chat_member",
-                "my_chat_member",
-            ]
-        )
-    elif args.mode == "webhook":
-        updater.start_webhook(
-            listen=args.host,
-            port=args.port,
-            url_path=args.token,
-            webhook_url=f"{args.url}/{args.token}",
-        )
-    updater.idle()
+    {"start": cmd_start, "setcommands": cmd_commands}[args.command](args)
 
 
 if __name__ == "__main__":
