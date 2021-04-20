@@ -1,13 +1,13 @@
 import logging
 import argparse
-from telegram.bot import Bot
 
+from telegram.bot import Bot
 from telegram.ext import Updater
 from telegram.utils.request import Request
+import sentry_sdk
 
 from .utils.model import init_db
 from .utils.config import EnvDefault
-from .item_start import item_start
 from . import (
     entry,
     item_bid,
@@ -25,6 +25,9 @@ logger = logging.getLogger(__name__)
 
 
 def cmd_start(args):
+    if args.sentry_dsn:
+        sentry_sdk.init(args.sentry_dsn, traces_sample_rate=1.0)
+
     init_db(args.db_uri, args.db_name)
 
     updater = Updater(
@@ -33,6 +36,7 @@ def cmd_start(args):
 
     dispatcher = updater.dispatcher
 
+    dispatcher.add_error_handler()
     modules = [
         entry,
         item_bid,
@@ -75,6 +79,10 @@ def cmd_commands(args):
             ("changelang", "Change your preferred language"),
         ]
     )
+
+
+def on_error(update, context):
+    sentry_sdk.capture_exception(context.error)
 
 
 def main():
@@ -142,6 +150,15 @@ def main():
         envvar="BOT_DB_NAME",
         default="maleto",
     )
+    parser.add_argument(
+        "--sentry-dsn",
+        type=str,
+        help="",
+        action=EnvDefault,
+        envvar="BOT_SENTRY_DSN",
+        required=False,
+    )
+
     parser.add_argument(
         "command",
         metavar="command",

@@ -1,5 +1,4 @@
 import logging
-from maleto.utils.currency import format_currency
 from telegram.error import BadRequest
 from telegram.ext import *
 from telegram import *
@@ -7,6 +6,7 @@ from telegram.utils.helpers import *
 from telegram.utils import helpers
 
 from .item import Item
+from .utils.currency import format_currency
 from .utils import (
     Callback,
     find_best_inc,

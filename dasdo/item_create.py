@@ -1,13 +1,12 @@
 import logging
-from maleto.utils.currency import get_currencies
 
 from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
 from .utils import Callback, bot_handler, split_keyboard, translator
+from .utils.currency import get_currencies
 from .item import Item
-from .user import User
 
 logger = logging.getLogger(__name__)
 

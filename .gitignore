@@ -1,5 +1,8 @@
+dist/
+deploy/
 venv/
 scratch/
 .vscode/
 media/
 .DS_Store
+__pycache__

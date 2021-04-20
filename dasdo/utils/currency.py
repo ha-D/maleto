@@ -1,4 +1,4 @@
-from maleto.utils import translator
+from . import translator
 
 
 def get_currencies(context):

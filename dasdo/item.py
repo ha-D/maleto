@@ -1,6 +1,4 @@
-from datetime import datetime
 import logging
-from maleto.utils.currency import format_currency
 import string
 import random
 import time
@@ -12,6 +10,7 @@ from telegram.error import BadRequest
 
 from .utils import find_best_inc, find_by, get_bot, translator
 from .utils.model import Model
+from .utils.currency import format_currency
 
 logger = logging.getLogger(__name__)
 
