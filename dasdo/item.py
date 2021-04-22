@@ -99,10 +99,11 @@ class Item(Model):
     def add_to_chat(self, context, chat_id):
         from .chat import Chat
 
+        chat = Chat.find_by_id(chat_id)
         post, _ = find_by(self.posts, "chat_id", chat_id)
         if not post:
             media = [InputMediaPhoto(media=photo) for photo in self.photos]
-            media[0].caption = self.generate_sale_message(context)
+            media[0].caption = self.generate_sale_message(context, chat.lang)
             media[0].parse_mode = parse_mode = ParseMode.MARKDOWN
             messages = context.bot.send_media_group(chat_id=chat_id, media=media)
             self.posts.append(
@@ -110,7 +111,7 @@ class Item(Model):
             )
         # Need to save for the chat publish to work
         self.save()
-        Chat.find_by_id(chat_id).publish_info_message(context)
+        chat.publish_info_message(context)
 
     def remove_from_chat(self, context, chat_id):
         from .chat import Chat
@@ -180,10 +181,13 @@ class Item(Model):
         mes["state"] = state
 
     def publish(self, context):
-        sale_message = self.generate_sale_message(context)
+        from .chat import Chat
+
         for post in self.posts:
             chat_id = post["chat_id"]
             message_id = post["messages"][0]
+            chat = Chat.find_by_id(chat_id)
+            sale_message = self.generate_sale_message(context, chat.lang)
             ignore_no_changes(
                 context.bot.edit_message_caption,
                 chat_id=int(chat_id),
@@ -268,15 +272,15 @@ class Item(Model):
                         exc_info=True,
                     )
 
-    def generate_sale_message(self, context):
+    def generate_sale_message(self, context, lang):
         from .user import User
 
         bot = get_bot(context)
 
-        _ = translator(context.lang)
+        _ = translator(lang)
 
         current_price = self.base_price
-        if len(self.bids > 0):
+        if len(self.bids) > 0:
             current_price = self.bids[0]["price"]
 
         msg = [
@@ -302,9 +306,10 @@ class Item(Model):
                     msg += [f"{i+1}. {u.link()}" for i, u in enumerate(users[:3])]
                     msg.append(_("_{} more people..._").format(len(users) - 3))
 
+        click_here = _("Click here to buy this item")
         msg += [
             "",
-            f"[{_('Click here to buy this item')}](https://t.me/{bot.username}?start=item-{self.id})",
+            f"[{click_here}](https://t.me/{bot.username}?start=item-{self.id})",
         ]
 
         return "\n".join(msg)

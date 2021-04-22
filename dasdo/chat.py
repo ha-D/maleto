@@ -1,5 +1,7 @@
+from dasdo.utils import translator
 from datetime import datetime
 import logging
+from pymongo.collection import ReturnDocument
 
 from telegram import *
 
@@ -22,7 +24,7 @@ class Chat(Model):
         )
 
     def __init__(self, **kwargs):
-        super().__init__({"admins": [], **kwargs})
+        super().__init__(**{"admins": [], **kwargs})
 
     def publish_info_message(self, context):
         if self.info_message_id is None:
@@ -43,13 +45,13 @@ class Chat(Model):
 
     def generate_info_message(self):
         from .item import Item
-
+        _ = translator(self.lang)
         items = Item.find(posts__chat_id=self.id)
         s = "\n".join(
             [
-                "Welcome!!",
+                _("Welcome!!"),
                 "",
-                "These items are currently on sale:",
+                _("These items are currently on sale:"),
                 *[item.chat_link(self.id) for item in items],
                 "",
             ]
@@ -58,11 +60,11 @@ class Chat(Model):
 
     @classmethod
     def get_chat_names(cls, chat_ids):
-        chats = Chat.find(_id__in=chat_ids)
+        chats = Chat.find(_id={"$in": chat_ids})
         return {c.id: c.title for c in chats}
 
     @classmethod
-    def create_or_update_from_api(cls, api_chat):
+    def create_or_update_from_api(cls, context, api_chat):
         if api_chat is not None:
             d = cls.col().find_one_and_update(
                 {"_id": api_chat.id},
@@ -80,6 +82,13 @@ class Chat(Model):
                 },
                 upsert=True,
             )
-            if d is not None:
+            if d is None:
+                logger.info(
+                    f"New chat created. chat:{api_chat.id} title:{api_chat.title}"
+                )
+                chat = Chat.find_by_id(api_chat.id)
+                chat.publish_info_message(context)
+                return chat
+            else:
                 return cls(**d)
         return None

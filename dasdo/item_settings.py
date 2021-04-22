@@ -62,7 +62,7 @@ def settings_menu(context, item):
 
 
 def settings_publishing(context, item):
-    _ = translator(context.lang) 
+    _ = translator(context.lang)
     user = item.owner
     existing = set([s["chat_id"] for s in item.posts])
     buttons = [
@@ -106,7 +106,7 @@ class PublishCallback(Callback):
 
 
 def settings_deleting(context, item):
-    _ = translator(context.lang) 
+    _ = translator(context.lang)
     msg = "\n".join(
         [
             item.generate_owner_message(context),
@@ -132,7 +132,7 @@ class DeleteCallback(Callback):
     name = "delete"
 
     def perform(self, context, query, item_id, action=""):
-        _ = translator(context.lang) 
+        _ = translator(context.lang)
         with Item.find_by_id(item_id) as item:
             user = query.from_user
             if action == "":

@@ -17,6 +17,8 @@ def init_db(db_uri, db_name):
     global db
     client = MongoClient(db_uri)
     db = client[db_name]
+    client.server_info()
+    logger.info('DB connected')
 
 
 class Model:

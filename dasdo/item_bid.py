@@ -1,4 +1,5 @@
 import logging
+import warnings
 from telegram.error import BadRequest
 from telegram.ext import *
 from telegram import *
@@ -205,8 +206,11 @@ def cancel(update, context):
 
 
 def handlers():
-    yield ConversationHandler(
-        entry_points=[RevokeBidCallback(), BidCallback()],
-        states={OFFER: [MessageHandler(Filters.text, on_bid)]},
-        fallbacks=[CommandHandler("cancel", cancel), MessageHandler("Cancel", cancel)],
-    )
+    canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=UserWarning)
+        yield ConversationHandler(
+            entry_points=[RevokeBidCallback(), BidCallback()],
+            states={OFFER: [MessageHandler(Filters.text, on_bid)]},
+            fallbacks=[canceler],
+        )

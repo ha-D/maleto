@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-20 00:24+0430\n"
+"POT-Creation-Date: 2021-04-23 01:27+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,223 +17,275 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: maleto/chat_settings.py:58
+#: dasdo/chat.py:52
+msgid "Welcome!!"
+msgstr ""
+
+#: dasdo/chat.py:54
+msgid "These items are currently on sale:"
+msgstr ""
+
+#: dasdo/chat_settings.py:58
 msgid "Select language"
 msgstr ""
 
-#: maleto/item.py:79
+#: dasdo/item.py:78
 msgid "Your offer is too low"
 msgstr ""
 
-#: maleto/item.py:87
+#: dasdo/item.py:86
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr ""
 
-#: maleto/item.py:144 maleto/item.py:168
+#: dasdo/item.py:144 dasdo/item.py:168
 msgid "Please wait..."
 msgstr ""
 
-#: maleto/item.py:224 maleto/item.py:243
+#: dasdo/item.py:227 dasdo/item.py:246
 msgid "This item is no longer available"
 msgstr ""
 
-#: maleto/item.py:285
+#: dasdo/item.py:288
 msgid "Seller: {}"
 msgstr ""
 
-#: maleto/item.py:289
+#: dasdo/item.py:292
 msgid "Price: {}"
 msgstr ""
 
-#: maleto/item.py:296
+#: dasdo/item.py:299
 msgid "Buyer: {}"
 msgstr ""
 
-#: maleto/item.py:299
+#: dasdo/item.py:302
 msgid "Waiting List:"
 msgstr ""
 
-#: maleto/item.py:304
+#: dasdo/item.py:307
 msgid "_{} more people..._"
 msgstr ""
 
-#: maleto/item.py:318
+#: dasdo/item.py:309
+msgid "Click here to buy this item"
+msgstr ""
+
+#: dasdo/item.py:322
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: maleto/item.py:320
+#: dasdo/item.py:324
 msgid "Starting Price: {}"
 msgstr ""
 
-#: maleto/item.py:326
+#: dasdo/item.py:330
 msgid "No one has made an offer"
 msgstr ""
 
-#: maleto/item.py:331
+#: dasdo/item.py:335
 msgid "Current Bid: {}"
 msgstr ""
 
-#: maleto/item.py:337
+#: dasdo/item.py:341
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:56
+#: dasdo/item_bid.py:57
 msgid "You are the current buyer with {}"
 msgstr ""
 
-#: maleto/item_bid.py:61 maleto/item_bid.py:82
+#: dasdo/item_bid.py:62 dasdo/item_bid.py:83
 msgid "Remove Offer"
 msgstr ""
 
-#: maleto/item_bid.py:72
+#: dasdo/item_bid.py:73
 msgid "You have bidded {} and are currently {} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:79
+#: dasdo/item_bid.py:80
 msgid "Change Offer"
 msgstr ""
 
-#: maleto/item_bid.py:93
+#: dasdo/item_bid.py:94
 msgid "No ones buying, the price is {} you want it?"
 msgstr ""
 
-#: maleto/item_bid.py:98 maleto/item_bid.py:114
+#: dasdo/item_bid.py:99 dasdo/item_bid.py:115
 msgid "Make Offer"
 msgstr ""
 
-#: maleto/item_bid.py:109
+#: dasdo/item_bid.py:110
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr ""
 
-#: maleto/item_bid.py:132
+#: dasdo/item_bid.py:133
 msgid "Offer removed"
 msgstr ""
 
-#: maleto/item_bid.py:151
+#: dasdo/item_bid.py:152
 msgid "Do you want to try again?"
 msgstr ""
 
-#: maleto/item_bid.py:153
+#: dasdo/item_bid.py:154
 msgid "Enter your offer"
 msgstr ""
 
-#: maleto/item_bid.py:176
+#: dasdo/item_bid.py:177
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr ""
 
-#: maleto/item_bid.py:184
+#: dasdo/item_bid.py:185
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:202
+#: dasdo/item_bid.py:203
 msgid "Ok no problem, cancelled"
 msgstr ""
 
-#: maleto/item_create.py:31
+#: dasdo/item_create.py:30
 msgid ""
 "Ok lets add a new item. I'm going to ask you a few questions about the "
 "item you want to sell."
 msgstr ""
 
-#: maleto/item_create.py:34
+#: dasdo/item_create.py:33
 msgid ""
 "You can click on the `Cancel` button or enter `/cancel` at any time to "
 "abort"
 msgstr ""
 
-#: maleto/item_create.py:38
+#: dasdo/item_create.py:37
 msgid "To start, enter the `title` of the item you want to sell"
 msgstr ""
 
-#: maleto/item_create.py:59
+#: dasdo/item_create.py:60
 msgid "Great thanks."
 msgstr ""
 
-#: maleto/item_create.py:71
+#: dasdo/item_create.py:72
 msgid "Now send me some `photos` of the item."
 msgstr ""
 
-#: maleto/item_create.py:72
+#: dasdo/item_create.py:73
 msgid ""
 "Click on `Done` or enter `/done` when you've sent all the photos you want"
 " to add."
 msgstr ""
 
-#: maleto/item_create.py:108
+#: dasdo/item_create.py:109
 msgid "Hmm, I haven't received any photos 🤔."
 msgstr ""
 
-#: maleto/item_create.py:110
+#: dasdo/item_create.py:111
 msgid ""
 "If you've sent photos please wait for the upload to finish and then "
 "notify me again."
 msgstr ""
 
-#: maleto/item_create.py:122
+#: dasdo/item_create.py:124
 msgid "Awesome! 🎉"
 msgstr ""
 
-#: maleto/item_create.py:133
+#: dasdo/item_create.py:135
 msgid "Now enter a `description` for your item"
 msgstr ""
 
-#: maleto/item_create.py:152
+#: dasdo/item_create.py:154
 msgid "What `currency` would you like to use?"
 msgstr ""
 
-#: maleto/item_create.py:166
+#: dasdo/item_create.py:168
 msgid "I'm not familiar with that currency, please try again"
 msgstr ""
 
-#: maleto/item_create.py:180
+#: dasdo/item_create.py:182
 msgid "What `price` are you selling at?"
 msgstr ""
 
-#: maleto/item_create.py:195
+#: dasdo/item_create.py:197
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr ""
 
-#: maleto/item_create.py:211
+#: dasdo/item_create.py:214
 msgid "Alright, thats all I need 🥳🥳"
 msgstr ""
 
-#: maleto/item_create.py:213
+#: dasdo/item_create.py:216
 msgid "There are more options you can edit later on."
 msgstr ""
 
-#: maleto/item_create.py:215
+#: dasdo/item_create.py:218
 msgid "You can view all your created items anytime by entering /myitems"
 msgstr ""
 
-#: maleto/item_create.py:230
+#: dasdo/item_create.py:235
 msgid "Ok, no worries, no item created."
 msgstr ""
 
-#: maleto/item_create.py:240
+#: dasdo/item_create.py:247
 msgid "You don't have any items. Use the `/newitem` command to create one."
 msgstr ""
 
-#: maleto/item_create.py:258
+#: dasdo/item_create.py:265
 msgid "Click on one any item to view more options"
 msgstr ""
 
-#: maleto/item_settings.py:70
+#: dasdo/item_settings.py:70
 msgid "◀️ Back"
 msgstr ""
 
-#: maleto/item_settings.py:113
+#: dasdo/item_settings.py:113
 msgid "Are you sure you want to delete this item? 🙀"
 msgstr ""
 
-#: maleto/item_settings.py:120
+#: dasdo/item_settings.py:120
 msgid "Yes"
 msgstr ""
 
-#: maleto/item_settings.py:123
+#: dasdo/item_settings.py:123
 msgid "No"
 msgstr ""
 
-#: maleto/item_settings.py:145
+#: dasdo/item_settings.py:145
 msgid "Item deleted"
+msgstr ""
+
+#: dasdo/utils/currency.py:7
+msgid "US Dollars $"
+msgstr ""
+
+#: dasdo/utils/currency.py:8
+msgid "Canadian Dollars $"
+msgstr ""
+
+#: dasdo/utils/currency.py:9
+msgid "Toman"
+msgstr ""
+
+#: dasdo/utils/currency.py:10
+msgid "Pound £"
+msgstr ""
+
+#: dasdo/utils/currency.py:11
+msgid "Euroes €"
+msgstr ""
+
+#: dasdo/utils/currency.py:12
+msgid "Turkish lira ₺"
+msgstr ""
+
+#: dasdo/utils/currency.py:19 dasdo/utils/currency.py:20
+msgid "${}"
+msgstr ""
+
+#: dasdo/utils/currency.py:21
+msgid "£{}"
+msgstr ""
+
+#: dasdo/utils/currency.py:22
+msgid "€{}"
+msgstr ""
+
+#: dasdo/utils/currency.py:23
+msgid "{} Toman"
 msgstr ""
 

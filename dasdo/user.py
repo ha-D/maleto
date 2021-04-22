@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from pymongo.collection import ReturnDocument
+
 from .utils.model import Model
 
 logger = logging.getLogger(__name__)
@@ -9,7 +11,14 @@ logger = logging.getLogger(__name__)
 class User(Model):
     class Meta:
         name = "users"
-        fields = ("username", "first_name", "last_name", "chats", "lang", "chat_settings_message")
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "chats",
+            "lang",
+            "chat_settings_message",
+        )
 
     def __init__(self, **kwargs):
         super().__init__(**{"chats": [], **kwargs})
@@ -33,7 +42,12 @@ class User(Model):
                 },
                 upsert=True,
             )
-            if d is not None:
+            if d is None:
+                logger.info(
+                    f"New user created. user:{user.id} username:{user.username} name:{user.first_name or ''} {user.last_name or ''}"
+                )
+                return User.find_by_id(user.id)
+            else:
                 return cls(**d)
         return None
 

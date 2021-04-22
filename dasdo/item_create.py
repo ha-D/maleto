@@ -4,7 +4,7 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, bot_handler, split_keyboard, translator
+from .utils import Callback, bot_handler, split_keyboard, translator, metrics as mt
 from .utils.currency import get_currencies
 from .item import Item
 
@@ -40,6 +40,8 @@ def item_new(update, context):
     update.message.reply_text(
         msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup
     )
+    logger.info(f'Item creation started. item:{item.id} user:{context.user.id}')
+    mt.item_create_start.inc()
     return ITEM_TITLE
 
 
@@ -112,6 +114,7 @@ def item_photo_done(update, context):
                 ]
             )
         )
+        mt.item_create_no_photo.inc()
         return ITEM_PHOTO
 
     return item_description_ask(
@@ -153,7 +156,7 @@ def item_currency_ask(update, context, msg):
     )
     currencies = get_currencies(context)
     btns = split_keyboard([KeyboardButton(text=c) for c in currencies], 2)
-    update.message.reply_text(msg, reply_markup=btns)
+    update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup(btns))
     return ITEM_CURRENCY
 
 
@@ -200,6 +203,7 @@ def item_price(update, context):
     with Item.from_context(context) as item:
         item.base_price = int(text)
         item_end(update, context, item)
+
     return ConversationHandler.END
 
 
@@ -217,6 +221,8 @@ def item_end(update, context, item):
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
     item.active = (True,)
     item.new_settings_message(context, publish=True)
+    logger.info(f'Item creation successfully finished. item:{item.id} user:{context.user.id}')
+    mt.item_create_done.inc()
 
 
 @bot_handler
@@ -228,6 +234,8 @@ def cancel(update, context):
     update.message.reply_text(
         _("Ok, no worries, no item created."), reply_markup=ReplyKeyboardRemove()
     )
+    logger.info(f'Item creation cancelled. item:{item.id} user:{context.user.id}')
+    mt.item_create_cancel.inc()
     return ConversationHandler.END
 
 
