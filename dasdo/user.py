@@ -24,8 +24,14 @@ class User(Model):
         super().__init__(**{"chats": [], **kwargs})
 
     @classmethod
-    def create_or_update_from_api(cls, user):
+    def create_or_update_from_api(cls, user, lang=None):
         if user is not None:
+            # Don't set the lang if its the default lang (i.e, `en`) so that it
+            # could be overriden in other places (e.g, by a chat's lang). The user
+            # can set their lang to `en` manually to change this behaviour
+            if lang is None and user.language_code != 'en':
+                lang = user.language_code
+
             d = cls.col().find_one_and_update(
                 {"_id": user.id},
                 {
@@ -37,7 +43,7 @@ class User(Model):
                     },
                     "$setOnInsert": {
                         "created_at": datetime.now(),
-                        "lang": user.language_code,
+                        "lang": lang
                     },
                 },
                 upsert=True,

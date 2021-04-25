@@ -24,8 +24,14 @@ __all__ = ("main",)
 
 
 logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
+logging.getLogger("telegram.ext.updater").setLevel(logging.INFO)
+logging.getLogger("telegram.bot").setLevel(logging.INFO)
+logging.getLogger("telegram.ext.dispatcher").setLevel(logging.INFO)
+logging.getLogger("telegram.ext.conversationhandler").setLevel(logging.INFO)
+logging.getLogger("apscheduler.scheduler").setLevel(logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 

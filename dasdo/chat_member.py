@@ -3,7 +3,6 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import get_bot
 from .chat import Chat
 from .user import User
 
@@ -17,7 +16,7 @@ def on_member_status_change(update, context):
     cmu = update.chat_member
     cm = cmu.new_chat_member
     chat = Chat.create_or_update_from_api(context, cmu.chat)
-    user = User.create_or_update_from_api(cm.user)
+    user = User.create_or_update_from_api(cm.user, lang=chat.lang)
         
     with user:
         with chat:
@@ -45,7 +44,7 @@ def on_bot_status_change(update, context):
 
     if cm.status in STATUS_MEMBER:
         api_admins = context.bot.get_chat_administrators(chat.id)
-        admins = [User.create_or_update_from_api(adm.user) for adm in api_admins if not adm.user.is_bot]
+        admins = [User.create_or_update_from_api(adm.user, lang=chat.lang) for adm in api_admins if not adm.user.is_bot]
         # TODO: concurrency problems on updating users here
         with chat:
             chat.active = True

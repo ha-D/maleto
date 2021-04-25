@@ -7,27 +7,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-23 01:27+0430\n"
-"PO-Revision-Date: 2021-04-23 01:29+0430\n"
+"POT-Creation-Date: 2021-04-25 01:39+0430\n"
+"PO-Revision-Date: 2021-04-24 20:08+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
-"X-Generator: Poedit 2.4.2\n"
 
-#: dasdo/chat.py:52
+#: dasdo/chat.py:51
 msgid "Welcome!!"
 msgstr "خوش اومدی!!"
 
-#: dasdo/chat.py:54
+#: dasdo/chat.py:53
 msgid "These items are currently on sale:"
 msgstr "این جنس‌ها در حال فروشن:"
 
-#: dasdo/chat_settings.py:58
+#: dasdo/chat_settings.py:56
 msgid "Select language"
 msgstr "زبون مورد نظرت رو انتخاب کن"
 
@@ -39,25 +38,26 @@ msgstr "قیمت پیشنهادی کافی نیست"
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr "اگه میخوای قیمت رو بالا ببری باید حداقل {} از بالاترین قیمت بیشتر باشه"
 
-#: dasdo/item.py:144 dasdo/item.py:168
+#: dasdo/item.py:150 dasdo/item.py:182
 msgid "Please wait..."
 msgstr "لطفا صبر کن..."
 
-#: dasdo/item.py:227 dasdo/item.py:246
+#: dasdo/item.py:231 dasdo/item.py:249
 msgid "This item is no longer available"
 msgstr "این جنس دیگه موجود نیست"
 
-#: dasdo/item.py:288
+#: dasdo/item.py:290
 msgid "Seller: {}"
-msgstr "فروشنده: {}"
+msgstr "فروشنده:  {}"
 
-#: dasdo/item.py:292
+#: dasdo/item.py:294
+#, fuzzy
 msgid "Price: {}"
-msgstr "قیمت: {}"
+msgstr "قیمت:   {}"
 
 #: dasdo/item.py:299
 msgid "Buyer: {}"
-msgstr "خریدار: {}"
+msgstr "خریدار:  {}"
 
 #: dasdo/item.py:302
 msgid "Waiting List:"
@@ -71,31 +71,31 @@ msgstr "_{} نفر دیگه..._"
 msgid "Click here to buy this item"
 msgstr "برای خرید اینجا کلیک کنید"
 
-#: dasdo/item.py:322
+#: dasdo/item.py:324
 msgid "Published in *{}* chats"
 msgstr "منتشر شده در*{}* کانال"
 
-#: dasdo/item.py:324
+#: dasdo/item.py:326
 msgid "Starting Price: {}"
 msgstr "قیمت اولیه: {}"
 
-#: dasdo/item.py:330
+#: dasdo/item.py:332
 msgid "No one has made an offer"
 msgstr "کسی هنوز قیمتی پیشنهاد نداده"
 
-#: dasdo/item.py:335
+#: dasdo/item.py:337
 msgid "Current Bid: {}"
 msgstr "قیمت فعلی: {}"
 
-#: dasdo/item.py:341
+#: dasdo/item.py:343
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr "قیمت فعلی: {} و {} نفر در صفر انتظار"
 
-#: dasdo/item_bid.py:57
+#: dasdo/item_bid.py:58
 msgid "You are the current buyer with {}"
 msgstr "شما با قیمت {} خریدار این محصول هستی"
 
-#: dasdo/item_bid.py:62 dasdo/item_bid.py:83
+#: dasdo/item_bid.py:63 dasdo/item_bid.py:83
 msgid "Remove Offer"
 msgstr "حذف پیشنهاد"
 
@@ -107,129 +107,135 @@ msgstr "شما قیمت {} پیشنهاد دادید و نفر {} در صف ان
 msgid "Change Offer"
 msgstr "تغییر پیشنهاد"
 
-#: dasdo/item_bid.py:94
-msgid "No ones buying, the price is {} you want it?"
-msgstr "کسی پیشنهادی نداده، حداقل قیمت {} هست. میخوای قیمتی پیشنهاد بدی؟"
+#: dasdo/item_bid.py:95
+msgid "There are no offers for this item, would you like to place an offer?"
+msgstr ""
 
-#: dasdo/item_bid.py:99 dasdo/item_bid.py:115
+#: dasdo/item_bid.py:96
+msgid "The base price is {}"
+msgstr ""
+
+#: dasdo/item_bid.py:106 dasdo/item_bid.py:121
 msgid "Make Offer"
 msgstr "پیشنهاد قیمت"
 
-#: dasdo/item_bid.py:110
+#: dasdo/item_bid.py:116
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr "بالاترین پیشنهاد داده شده {} هست، میخوای قیمتی پیشنهاد بدی؟"
 
-#: dasdo/item_bid.py:133
+#: dasdo/item_bid.py:138
 msgid "Offer removed"
 msgstr "پیشنهاد شما حذف شد"
 
-#: dasdo/item_bid.py:152
+#: dasdo/item_bid.py:156
 msgid "Do you want to try again?"
 msgstr "میخوای دوباره امتحان کنی؟"
 
-#: dasdo/item_bid.py:154
+#: dasdo/item_bid.py:158
 msgid "Enter your offer"
 msgstr "پیشنهادت رو وارد کن"
 
-#: dasdo/item_bid.py:177
+#: dasdo/item_bid.py:180
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr "تبریک 🎉, شما با قیمت {} خریدار این محصول هستی"
 
-#: dasdo/item_bid.py:185
+#: dasdo/item_bid.py:188
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr "شما با قیمت {} نفر {} در صف انتظار هستی"
 
-#: dasdo/item_bid.py:203
+#: dasdo/item_bid.py:205
 msgid "Ok no problem, cancelled"
 msgstr "باشه مشکلی نیست، لغو شد"
 
-#: dasdo/item_create.py:30
+#: dasdo/item_create.py:31
 msgid ""
-"Ok lets add a new item. I'm going to ask you a few questions about the item "
-"you want to sell."
+"Ok lets add a new item. I'm going to ask you a few questions about the "
+"item you want to sell."
 msgstr "یه چندتا سوال راجب جنسی که میخوای بفروشی میپرسم."
 
-#: dasdo/item_create.py:33
+#: dasdo/item_create.py:34
 msgid ""
-"You can click on the `Cancel` button or enter `/cancel` at any time to abort"
+"You can click on the `Cancel` button or enter `/cancel` at any time to "
+"abort"
 msgstr "هرجای فرایند اگه خواستی بیخیال شی کافیه دکمه‌ی Cancel رو فشار بدی"
 
-#: dasdo/item_create.py:37
+#: dasdo/item_create.py:38
 msgid "To start, enter the `title` of the item you want to sell"
 msgstr "برای شروع *عنوان* جنسی که میخوای بفروشی رو وارد کن"
 
-#: dasdo/item_create.py:60
+#: dasdo/item_create.py:61
 msgid "Great thanks."
 msgstr "مچکرم."
 
-#: dasdo/item_create.py:72
+#: dasdo/item_create.py:73
 msgid "Now send me some `photos` of the item."
 msgstr "حالا یه چند تا عکس ازش برام برست."
 
-#: dasdo/item_create.py:73
+#: dasdo/item_create.py:74
 msgid ""
-"Click on `Done` or enter `/done` when you've sent all the photos you want to "
-"add."
+"Click on `Done` or enter `/done` when you've sent all the photos you want"
+" to add."
 msgstr "هر‍ موقع همه‌ی عکس‌هایی که میخوای رو ارسال کردی دکمه‌ی Done رو فشار بده."
 
-#: dasdo/item_create.py:109
+#: dasdo/item_create.py:111
 msgid "Hmm, I haven't received any photos 🤔."
 msgstr "همم، من عکسی دریافت نکردم 🤔."
 
-#: dasdo/item_create.py:111
+#: dasdo/item_create.py:113
 msgid ""
-"If you've sent photos please wait for the upload to finish and then notify me "
-"again."
+"If you've sent photos please wait for the upload to finish and then "
+"notify me again."
 msgstr ""
-"اگه عکس‌ها رو ارسال کردی لطفا صبر کن که کامل اپلود بشن بعد دوباره من رو خبر کن."
+"اگه عکس‌ها رو ارسال کردی لطفا صبر کن که کامل اپلود بشن بعد دوباره من رو "
+"خبر کن."
 
-#: dasdo/item_create.py:124
+#: dasdo/item_create.py:126
 msgid "Awesome! 🎉"
 msgstr "عالی! 🎉"
 
-#: dasdo/item_create.py:135
+#: dasdo/item_create.py:137
 msgid "Now enter a `description` for your item"
 msgstr "حالا برای جنسی که میخوای بفروشی یه `توضیحاتی` وارد کن"
 
-#: dasdo/item_create.py:154
+#: dasdo/item_create.py:157
 msgid "What `currency` would you like to use?"
 msgstr "از چه `ارزی` میخوای استفاده کنی؟"
 
-#: dasdo/item_create.py:168
+#: dasdo/item_create.py:171
 msgid "I'm not familiar with that currency, please try again"
 msgstr "با این `ارز` آشنا نیستم، لطفا دوباره امتحان کن"
 
-#: dasdo/item_create.py:182
+#: dasdo/item_create.py:185
 msgid "What `price` are you selling at?"
 msgstr "با چه `قیمتی` میخوای بفروشی؟"
 
-#: dasdo/item_create.py:197
+#: dasdo/item_create.py:200
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr "به نظر قیمت معتبری نمیاد، لطفا یه عدد وارد کن"
 
-#: dasdo/item_create.py:214
+#: dasdo/item_create.py:217
 msgid "Alright, thats all I need 🥳🥳"
 msgstr "ایول، همه اطلاعاتی که لازم بود رو گرفتم 🥳🥳"
 
-#: dasdo/item_create.py:216
+#: dasdo/item_create.py:219
 msgid "There are more options you can edit later on."
 msgstr "بعدا میتونی تنظیمات بیشتری وارد کنی."
 
-#: dasdo/item_create.py:218
+#: dasdo/item_create.py:221
 msgid "You can view all your created items anytime by entering /myitems"
 msgstr ""
-"اگه خواستی جنس‌هایی که اضافه کردی رو ببینی با وارد کردن دستور `myitems/` میتونی "
-"اینکار رو بکنی"
+"اگه خواستی جنس‌هایی که اضافه کردی رو ببینی با وارد کردن دستور `myitems/` "
+"میتونی اینکار رو بکنی"
 
-#: dasdo/item_create.py:235
+#: dasdo/item_create.py:238
 msgid "Ok, no worries, no item created."
 msgstr "باشه مشکلی نیست، لغو شد."
 
-#: dasdo/item_create.py:247
+#: dasdo/item_create.py:250
 msgid "You don't have any items. Use the `/newitem` command to create one."
 msgstr "شما جنسی اضافه نکردی. میتونی با دستور `newitem/` این کار رو بکنی."
 
-#: dasdo/item_create.py:265
+#: dasdo/item_create.py:268
 msgid "Click on one any item to view more options"
 msgstr "روی یه محصول کلیک کن تا تنظیمات بیشتری ببینی"
 
@@ -237,58 +243,62 @@ msgstr "روی یه محصول کلیک کن تا تنظیمات بیشتری ب
 msgid "◀️ Back"
 msgstr "برگرد"
 
-#: dasdo/item_settings.py:113
+#: dasdo/item_settings.py:112
 msgid "Are you sure you want to delete this item? 🙀"
 msgstr "مطمعنی میخوای اینو حذف کنی؟ 🙀"
 
-#: dasdo/item_settings.py:120
+#: dasdo/item_settings.py:119
 msgid "Yes"
 msgstr "اره"
 
-#: dasdo/item_settings.py:123
+#: dasdo/item_settings.py:122
 msgid "No"
 msgstr "نه"
 
-#: dasdo/item_settings.py:145
+#: dasdo/item_settings.py:143
 msgid "Item deleted"
 msgstr "جنس حذف شد"
 
-#: dasdo/utils/currency.py:7
+#: dasdo/utils/currency.py:8
 msgid "US Dollars $"
 msgstr "دلار امریکا $"
 
-#: dasdo/utils/currency.py:8
+#: dasdo/utils/currency.py:9
 msgid "Canadian Dollars $"
 msgstr "دلار کانادا $"
 
-#: dasdo/utils/currency.py:9
+#: dasdo/utils/currency.py:10
 msgid "Toman"
 msgstr "تومن"
 
-#: dasdo/utils/currency.py:10
+#: dasdo/utils/currency.py:11
 msgid "Pound £"
 msgstr "پوند £"
 
-#: dasdo/utils/currency.py:11
+#: dasdo/utils/currency.py:12
 msgid "Euroes €"
 msgstr "یورو €"
 
-#: dasdo/utils/currency.py:12
+#: dasdo/utils/currency.py:13
 msgid "Turkish lira ₺"
 msgstr "لیر ترکیه ₺"
 
-#: dasdo/utils/currency.py:19 dasdo/utils/currency.py:20
+#: dasdo/utils/currency.py:20 dasdo/utils/currency.py:21
 msgid "${}"
 msgstr "${}"
 
-#: dasdo/utils/currency.py:21
+#: dasdo/utils/currency.py:22
 msgid "£{}"
 msgstr "£{}"
 
-#: dasdo/utils/currency.py:22
+#: dasdo/utils/currency.py:23
 msgid "€{}"
 msgstr "€{}"
 
-#: dasdo/utils/currency.py:23
+#: dasdo/utils/currency.py:24
 msgid "{} Toman"
 msgstr "{} تومن"
+
+#~ msgid "No one has made an offer, the price is {} you want it?"
+#~ msgstr "کسی پیشنهادی نداده، حداقل قیمت {} هست. میخوای قیمتی پیشنهاد بدی؟"
+

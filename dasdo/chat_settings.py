@@ -3,7 +3,8 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, LANGUAGES, bot_handler, split_keyboard, translator
+from .utils import Callback,  bot_handler, split_keyboard
+from .utils.lang import _, LANGUAGES
 from .item import Item
 from .user import User
 from .chat import Chat
@@ -13,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 @bot_handler
 def list_chats(update, context):
-    _ = translator(context.lang)
     admin_chats = Chat.find(admins=context.user.id)
     kb = InlineKeyboardMarkup(
         [
@@ -33,7 +33,6 @@ class ChatSelectCallback(Callback):
 
     def perform(self, context, query, chat_id):
         chat = Chat.find_by_id(chat_id)
-        _ = translator(context.lang)
         msg = "\n".join([chat.title])
         btns = InlineKeyboardMarkup(
             [
@@ -53,7 +52,6 @@ class ChatLangCallback(Callback):
 
     def perform(self, context, query, chat_id, lang=None):
         chat = Chat.find_by_id(chat_id)
-        _ = translator(context.lang)
         if lang is None:
             msg = "\n".join([chat.title, "", _("Select language")])
             l = [

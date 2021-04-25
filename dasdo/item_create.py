@@ -4,7 +4,8 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, bot_handler, split_keyboard, translator, metrics as mt
+from .utils import Callback, bot_handler, split_keyboard, trace, metrics as mt
+from .utils.lang import _ 
 from .utils.currency import get_currencies
 from .item import Item
 
@@ -20,11 +21,11 @@ cancel_markup = ReplyKeyboardMarkup([[KeyboardButton("Cancel")]])
 
 
 @bot_handler
+@trace
 def item_new(update, context):
     item = Item.new(context.user.id)
     item.save()
     item.save_to_context(context)
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             _(
@@ -46,8 +47,8 @@ def item_new(update, context):
 
 
 @bot_handler
+@trace
 def item_title(update, context):
-    _ = translator(context.lang)
     title = update.message.text.strip()
     # TODO: title validations?
     with Item.from_context(context) as item:
@@ -62,8 +63,8 @@ def item_title(update, context):
     )
 
 
+@trace
 def item_photo_ask(update, context, msg):
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             *msg,
@@ -86,6 +87,7 @@ def item_photo_ask(update, context, msg):
 
 
 @bot_handler
+@trace
 def item_photo(update, context):
     if len(update.message.photo) == 0:
         return ITEM_PHOTO
@@ -99,8 +101,8 @@ def item_photo(update, context):
 
 
 @bot_handler
+@trace
 def item_photo_done(update, context):
-    _ = translator(context.lang)
     item = Item.from_context(context)
     if len(item.photos) == 0:
         update.message.reply_text(
@@ -126,8 +128,8 @@ def item_photo_done(update, context):
     )
 
 
+@trace
 def item_description_ask(update, context, msg):
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             *msg,
@@ -140,30 +142,31 @@ def item_description_ask(update, context, msg):
 
 
 @bot_handler
+@trace
 def item_description(update, context):
     with Item.from_context(context) as item:
         item.description = update.message.text
     return item_currency_ask(update, context, [])
 
 
+@trace
 def item_currency_ask(update, context, msg):
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             *msg,
             _("What `currency` would you like to use?"),
         ]
     )
-    currencies = get_currencies(context)
+    currencies = get_currencies()
     btns = split_keyboard([KeyboardButton(text=c) for c in currencies], 2)
     update.message.reply_text(msg, reply_markup=ReplyKeyboardMarkup(btns))
     return ITEM_CURRENCY
 
 
 @bot_handler
+@trace
 def item_currency(update, context):
-    _ = translator(context.lang)
-    currency_key = get_currencies(context).get(update.message.text)
+    currency_key = get_currencies().get(update.message.text)
     if currency_key is None:
         update.message.reply_text(_("I'm not familiar with that currency, please try again"))
         return ITEM_CURRENCY
@@ -174,8 +177,8 @@ def item_currency(update, context):
     return item_price_ask(update, context, [])
 
 
+@trace
 def item_price_ask(update, context, msg):
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             *msg,
@@ -187,9 +190,9 @@ def item_price_ask(update, context, msg):
 
 
 @bot_handler
+@trace
 def item_price(update, context):
     text = update.message.text
-    _ = translator(context.lang)
 
     if not text.isdigit():
         msg = "\n".join(
@@ -207,8 +210,8 @@ def item_price(update, context):
     return ConversationHandler.END
 
 
+@trace
 def item_end(update, context, item):
-    _ = translator(context.lang)
     msg = "\n".join(
         [
             _("Alright, thats all I need 🥳🥳"),
@@ -226,8 +229,8 @@ def item_end(update, context, item):
 
 
 @bot_handler
+@trace
 def cancel(update, context):
-    _ = translator(context.lang)
     item = Item.from_context(context)
     item.delete()
     Item.clear_context(context)
@@ -240,8 +243,8 @@ def cancel(update, context):
 
 
 @bot_handler
+@trace
 def list_items(update, context):
-    _ = translator(context.lang)
     items = Item.find(owner_id=context.user.id)
     if len(items) == 0:
         message = _(
@@ -273,8 +276,8 @@ def list_items(update, context):
 class SelectItemCallback(Callback):
     name = "select-item"
 
+    @trace
     def perform(self, context, query, item_id):
-        _ = translator(context.lang)
         item = Item.find_by_id(item_id)
         # context.bot.edit_message_media(chat_id=context.user.id, message_id=query.message.message_id, media=InputMediaPhoto(media=item.photos[0]))
         query.edit_message_reply_markup(InlineKeyboardMarkup([]))

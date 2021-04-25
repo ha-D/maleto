@@ -1,11 +1,10 @@
-from dasdo.utils import translator
 from datetime import datetime
 import logging
-from pymongo.collection import ReturnDocument
 
 from telegram import *
 
 from .utils.model import Model
+from .utils.lang import _, uselang
 
 logger = logging.getLogger(__name__)
 
@@ -45,18 +44,18 @@ class Chat(Model):
 
     def generate_info_message(self):
         from .item import Item
-        _ = translator(self.lang)
-        items = Item.find(posts__chat_id=self.id)
-        s = "\n".join(
-            [
-                _("Welcome!!"),
-                "",
-                _("These items are currently on sale:"),
-                *[item.chat_link(self.id) for item in items],
-                "",
-            ]
-        )
-        return s
+        with uselang(self.lang):
+            items = Item.find(posts__chat_id=self.id)
+            s = "\n".join(
+                [
+                    _("Welcome!!"),
+                    "",
+                    _("These items are currently on sale:"),
+                    *[item.chat_link(self.id) for item in items],
+                    "",
+                ]
+            )
+            return s
 
     @classmethod
     def get_chat_names(cls, chat_ids):

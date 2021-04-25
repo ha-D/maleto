@@ -7,14 +7,15 @@ from telegram.utils.helpers import *
 from telegram.utils import helpers
 
 from .item import Item
+from .user import User
 from .utils.currency import format_currency
+from .utils.lang import _, uselang
 from .utils import (
     Callback,
     find_best_inc,
     bot_handler,
     find_by,
     split_keyboard,
-    translator,
 )
 
 logger = logging.getLogger(__name__)
@@ -22,22 +23,23 @@ logger = logging.getLogger(__name__)
 OPTIONS, OFFER = range(2)
 
 
-def publish_bid_message(context, item, user_id, message_id=None):
-    if message_id is None:
-        message_id = item.get_bid_message(user_id)
-
-    if message_id is None:
+def publish_bid_message(context, item, user_id):
+    bmes, __ = find_by(item.bid_messages, "user_id", user_id)
+    if bmes is None:
         return
+    message_id = bmes["message_id"]
+    user = User.find_by_id(user_id)
 
-    bid, pos = find_by(item.bids, "user_id", user_id)
-    if pos == 0:
-        msg, btns = buyer(context, item, bid)
-    elif pos > 0:
-        msg, btns = in_waiting_list(context, item, bid, pos)
-    elif len(item.bids) == 0:
-        msg, btns = no_bidder(context, item)
-    else:
-        msg, btns = not_bidding(context, item)
+    with uselang(user.lang or bmes.get("lang")):
+        bid, pos = find_by(item.bids, "user_id", user_id)
+        if pos == 0:
+            msg, btns = buyer(context, item, bid)
+        elif pos > 0:
+            msg, btns = in_waiting_list(context, item, bid, pos)
+        elif len(item.bids) == 0:
+            msg, btns = no_bidder(context, item)
+        else:
+            msg, btns = not_bidding(context, item)
 
     try:
         context.bot.edit_message_caption(
@@ -53,7 +55,6 @@ def publish_bid_message(context, item, user_id, message_id=None):
 
 
 def buyer(context, item, bid):
-    _ = translator(context.lang)
     msg = _("You are the current buyer with {}").format(bid["price"])
     btns = InlineKeyboardMarkup(
         [
@@ -69,7 +70,6 @@ def buyer(context, item, bid):
 
 
 def in_waiting_list(context, item, bid, pos):
-    _ = translator(context.lang)
     msg = _("You have bidded {} and are currently {} in the waiting list").format(
         bid["price"], pos
     )
@@ -90,8 +90,15 @@ def in_waiting_list(context, item, bid, pos):
 
 
 def no_bidder(context, item):
-    _ = translator(context.lang)
-    msg = _("No ones buying, the price is {} you want it?").format(item.base_price)
+    msg = "\n".join(
+        [
+            _("There are no offers for this item, would you like to place an offer?"),
+            _("The base price is {}").format(
+                format_currency(item.currency, item.base_price)
+            ),
+        ]
+    )
+
     btns = InlineKeyboardMarkup(
         [
             [
@@ -106,7 +113,6 @@ def no_bidder(context, item):
 
 def not_bidding(context, item):
     highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
-    _ = translator(context.lang)
     msg = _("The highest bid is {}, do you want to make an offer?").format(highest_bid)
     btns = InlineKeyboardMarkup(
         [
@@ -125,7 +131,6 @@ class RevokeBidCallback(Callback):
 
     def perform(self, context, query, item_id):
         user = query.from_user
-        _ = translator(context.lang)
         with Item.find_by_id(item_id) as item:
             item.publish_bid_message(context, user.id)
             item.remove_user_bid(context, user.id)
@@ -147,7 +152,6 @@ def ask_for_bid(context, message, item, error=None):
     item.save_to_context(context)
     highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
 
-    _ = translator(context.lang)
     if error is not None:
         msg = "\n".join([error, "", _("Do you want to try again?")])
     else:
@@ -167,7 +171,6 @@ def ask_for_bid(context, message, item, error=None):
 @bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:
-        _ = translator(context.lang)
         price = int(update.message.text)
         user = update.message.from_user
         try:
@@ -175,7 +178,7 @@ def on_bid(update, context):
             if item.bids[0]["user_id"] == context.user.id:
                 update.message.reply_text(
                     _("Congrats 🎉, you're the current buyer at {}").format(
-                        format_currency(context, item.currency, price)
+                        format_currency(item.currency, price)
                     ),
                     reply_markup=ReplyKeyboardRemove(),
                 )
@@ -197,7 +200,6 @@ def on_bid(update, context):
 
 @bot_handler
 def cancel(update, context):
-    _ = translator(context.lang)
     Item.C(context, remove=True)
     update.message.reply_text(
         _("Ok no problem, cancelled"), reply_markup=ReplyKeyboardRemove()

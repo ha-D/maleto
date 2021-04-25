@@ -3,7 +3,8 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import LANGUAGES, bot_handler
+from .utils import bot_handler, split_keyboard
+from .utils.lang import LANGUAGES
 from .item import Item
 from .user import User
 
@@ -14,7 +15,7 @@ LANG_SEL = range(1)
 
 @bot_handler
 def lang_start(update, context):
-    btns = ReplyKeyboardMarkup([KeyboardButton(n) for n in LANGUAGES.keys()], 2)
+    btns = ReplyKeyboardMarkup(split_keyboard([KeyboardButton(n) for n in LANGUAGES.keys()], 2))
     update.message.reply_text(
         "Select your language", parse_mode=ParseMode.MARKDOWN, reply_markup=btns
     )

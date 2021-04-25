@@ -8,7 +8,8 @@ from telegram import *
 from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
-from .utils import find_best_inc, find_by, get_bot, translator
+from .utils import find_best_inc, find_by, get_bot, trace
+from .utils.lang import _, current_lang, uselang
 from .utils.model import Model
 from .utils.currency import format_currency
 
@@ -73,7 +74,6 @@ class Item(Model):
     def add_user_bid(self, context, user_id, price, sort=True):
         # TODO: check min price inc
 
-        _ = translator(context.lang)
         if self.base_price and price < self.base_price:
             raise ValueError(_("Your offer is too low"))
 
@@ -102,13 +102,14 @@ class Item(Model):
         chat = Chat.find_by_id(chat_id)
         post, _ = find_by(self.posts, "chat_id", chat_id)
         if not post:
-            media = [InputMediaPhoto(media=photo) for photo in self.photos]
-            media[0].caption = self.generate_sale_message(context, chat.lang)
-            media[0].parse_mode = parse_mode = ParseMode.MARKDOWN
-            messages = context.bot.send_media_group(chat_id=chat_id, media=media)
-            self.posts.append(
-                {"chat_id": chat_id, "messages": [m.message_id for m in messages]}
-            )
+            with uselang(chat.lang):
+                media = [InputMediaPhoto(media=photo) for photo in self.photos]
+                media[0].caption = self.generate_sale_message(context)
+                media[0].parse_mode = parse_mode = ParseMode.MARKDOWN
+                messages = context.bot.send_media_group(chat_id=chat_id, media=media)
+                self.posts.append(
+                    {"chat_id": chat_id, "messages": [m.message_id for m in messages]}
+                )
         # Need to save for the chat publish to work
         self.save()
         chat.publish_info_message(context)
@@ -124,9 +125,15 @@ class Item(Model):
         self.save()
         Chat.find_by_id(chat_id).publish_info_message(context)
 
-    def new_bid_message(self, context, user_id, message_id=None, publish=True):
-        prev_mes, _ = find_by(self.bid_messages, "user_id", user_id)
+    @trace
+    def new_bid_message(
+        self, context, user_id, message_id=None, lang=None, publish=True
+    ):
+        prev_mes, __ = find_by(self.bid_messages, "user_id", user_id)
         if prev_mes is not None:
+            logger.debug(
+                f"Clearing previous user bid message. user:{user_id} message:{prev_mes['message_id']}"
+            )
             # Clear previous bid message for this user
             try:
                 context.bot.edit_message_caption(
@@ -138,17 +145,25 @@ class Item(Model):
             except BadRequest as e:
                 pass
 
-        _ = translator(context.lang)
         if message_id is None:
             message = context.bot.send_photo(
-                chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
+                chat_id=user_id, photo=self.photos[0], caption=_("Please wait...")
             )
             message_id = message.message_id
+            logger.debug(
+                f"New bid message created. user:{user_id} message:{message_id}"
+            )
         if prev_mes:
             prev_mes["message_id"] = message_id
+            prev_mes["lang"] = lang
         else:
-            self.bid_messages.append({"user_id": user_id, "message_id": message_id})
+            self.bid_messages.append(
+                {"user_id": user_id, "message_id": message_id, "lang": lang}
+            )
+        if publish:
+            self.publish_bid_message(context, user_id)
 
+    @trace
     def new_settings_message(self, context, message_id=None, publish=True):
         prev_mes = self.settings_message
         if prev_mes is None:
@@ -162,7 +177,6 @@ class Item(Model):
                 )
             except BadRequest as e:
                 pass
-        _ = translator(context.lang)
         if message_id is None:
             message = context.bot.send_photo(
                 chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
@@ -171,10 +185,6 @@ class Item(Model):
         self.settings_message = {"message_id": message_id, "state": "default"}
         if publish:
             self.publish_settings_message(context)
-
-    def update_bid_message_state(self, user_id, state):
-        mes, _ = find_by(self.interaction_messages, "user_id", user_id)
-        mes["state"] = state  # TODO: handle NONE
 
     def update_settings_message_state(self, state):
         mes = self.settings_message
@@ -187,7 +197,8 @@ class Item(Model):
             chat_id = post["chat_id"]
             message_id = post["messages"][0]
             chat = Chat.find_by_id(chat_id)
-            sale_message = self.generate_sale_message(context, chat.lang)
+            with uselang(chat.lang):
+                sale_message = self.generate_sale_message(context)
             ignore_no_changes(
                 context.bot.edit_message_caption,
                 chat_id=int(chat_id),
@@ -199,23 +210,17 @@ class Item(Model):
         self.publish_settings_message(context)
 
         for mes in self.bid_messages:
-            self.publish_interaction_message(
-                context, self, mes["user_id"], mes["message_id"]
-            )
+            self.publish_bid_message(context, self, mes["user_id"])
 
     def publish_settings_message(self, context):
         from .item_settings import publish_settings_message
 
         return publish_settings_message(context, self)
 
-    def publish_bid_message(self, context, user_id, message_id=None):
+    def publish_bid_message(self, context, user_id):
         from .item_bid import publish_bid_message
 
-        return publish_bid_message(context, self, user_id, message_id)
-
-    def get_bid_message(self, user_id):
-        imes, _ = find_by(self.interaction_messages, "user_id", user_id)
-        return imes
+        return publish_bid_message(context, self, user_id)
 
     def delete_all_messages(self, context):
         for bmes in self.bid_messages:
@@ -223,7 +228,6 @@ class Item(Model):
                 user = User.find_by_id(bmes["user_id"])
                 if user is None:
                     continue
-                _ = translator(user.lang)
                 msg = "\n".join([self.title, "", _("This item is no longer available")])
                 context.bot.edit_message_caption(
                     chat_id=bmes["user_id"],
@@ -242,7 +246,6 @@ class Item(Model):
 
         if smes := self.settings_message:
             try:
-                _ = translator(context.lang)
                 msg = "\n".join([self.title, "", _("This item is no longer available")])
                 context.bot.edit_message_caption(
                     chat_id=self.owner_id,
@@ -272,12 +275,10 @@ class Item(Model):
                         exc_info=True,
                     )
 
-    def generate_sale_message(self, context, lang):
+    def generate_sale_message(self, context):
         from .user import User
 
         bot = get_bot(context)
-
-        _ = translator(lang)
 
         current_price = self.base_price
         if len(self.bids) > 0:
@@ -285,13 +286,12 @@ class Item(Model):
 
         msg = [
             f"*{self.title}*",
+            "",
             _("Seller: {}").format(self.owner.link()),
             "",
             self.description,
             "",
-            _("Price: {}").format(
-                format_currency(context, self.currency, current_price)
-            ),
+            _("Price: {}").format(format_currency(self.currency, current_price)),
         ]
 
         if len(self.bids) > 0:
@@ -307,22 +307,24 @@ class Item(Model):
                     msg.append(_("_{} more people..._").format(len(users) - 3))
 
         click_here = _("Click here to buy this item")
+        lang_arg = ""
+        if lang := current_lang():
+            lang_arg = f"-lang_{lang}"
         msg += [
             "",
-            f"[{click_here}](https://t.me/{bot.username}?start=item-{self.id})",
+            f"[{click_here}](https://t.me/{bot.username}?start=action_item-item_{self.id}{lang_arg})",
         ]
 
         return "\n".join(msg)
 
     def generate_owner_message(self, context):
-        _ = translator(context.lang)
         msg = [
             self.title,
             "",
             _("Published in *{}* chats").format(len(self.posts)),
             "",
             _("Starting Price: {}").format(
-                format_currency(context, self.currency, self.base_price)
+                format_currency(self.currency, self.base_price)
             ),
             "",
         ]
@@ -332,14 +334,14 @@ class Item(Model):
             msg.append(
                 _(
                     "Current Bid: {}".format(
-                        format_currency(context, self.currency, self.bids[0]["price"])
+                        format_currency(self.currency, self.bids[0]["price"])
                     )
                 )
             )
         else:
             msg.append(
                 _("Current Bid: {} with {} people in waiting list").format(
-                    format_currency(context, self.currency, self.bids[0]["price"]),
+                    format_currency(self.currency, self.bids[0]["price"]),
                     len(self.bids) - 1,
                 )
             )
