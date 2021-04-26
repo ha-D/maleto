@@ -5,10 +5,10 @@ import argparse
 from telegram.bot import Bot
 from telegram.ext import Updater
 from telegram.utils.request import Request
-import sentry_sdk
 
 from .utils.model import init_db
 from .utils.config import EnvDefault
+from .utils import sentry
 from . import (
     entry,
     item_bid,
@@ -38,9 +38,7 @@ logger = logging.getLogger(__name__)
 def cmd_start(args):
     logger.info(f"Starting bot in {args.mode} mode")
 
-    if args.sentry_dsn:
-        sentry_sdk.init(args.sentry_dsn, traces_sample_rate=1.0)
-
+    sentry.init_sentry(args.sentry_dsn)
     init_db(args.db_uri, args.db_name)
 
     updater = Updater(
@@ -48,8 +46,7 @@ def cmd_start(args):
     )
 
     dispatcher = updater.dispatcher
-    if args.sentry_dsn:
-        dispatcher.add_error_handler(on_error_sentry)
+    dispatcher.add_error_handler(sentry.on_error)
     dispatcher.add_error_handler(on_error)
 
     modules = [
@@ -94,10 +91,6 @@ def cmd_commands(args):
             ("changelang", "Change your preferred language"),
         ]
     )
-
-
-def on_error_sentry(update, context):
-    sentry_sdk.capture_exception(context.error)
 
 
 def on_error(update, context):
