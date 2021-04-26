@@ -23,13 +23,11 @@ __version__ = version(__name__)
 __all__ = ("main",)
 
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
-)
 logging.getLogger("telegram.ext.updater").setLevel(logging.INFO)
 logging.getLogger("telegram.bot").setLevel(logging.INFO)
 logging.getLogger("telegram.ext.dispatcher").setLevel(logging.INFO)
 logging.getLogger("telegram.ext.conversationhandler").setLevel(logging.INFO)
+logging.getLogger("telegram.ext.utils.webhookhandler").setLevel(logging.INFO)
 logging.getLogger("apscheduler.scheduler").setLevel(logging.INFO)
 
 logger = logging.getLogger(__name__)
@@ -178,6 +176,14 @@ def main():
         envvar="BOT_METRICS_PORT",
         required=False,
     )
+    parser.add_argument(
+        "--log",
+        type=str,
+        help="",
+        action=EnvDefault,
+        envvar="BOT_LOG_FILE",
+        required=False,
+    )
 
     parser.add_argument(
         "command",
@@ -191,5 +197,12 @@ def main():
     args = parser.parse_args()
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
+
+    log_args = {"filename": args.log, "filemode": "a"} if args.log else {}
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.DEBUG,
+        **log_args,
+    )
 
     {"start": cmd_start, "setcommands": cmd_commands}[args.command](args)

@@ -138,7 +138,7 @@ class DeleteCallback(Callback):
                 publish_settings_message(context, item)
                 query.answer()
             elif action == "yes":
-                item.delete_all_messages(context, user.id)
+                item.delete_all_messages(context)
                 item.delete()
                 query.answer(_("Item deleted"))
             elif action == "no":
