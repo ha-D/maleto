@@ -92,6 +92,13 @@ def cmd_commands(args):
     )
 
 
+def cmd_shell(args):
+    init_db(args.db_uri, args.db_name)
+    bot = Bot(args.token, request=Request(proxy_url=args.proxy))
+
+    start_shell(bot)
+
+
 def on_error(update, context):
     logger.exception(context.error)
 
@@ -206,8 +213,6 @@ def main():
         **log_args,
     )
 
-    {
-        "start": cmd_start,
-        "setcommands": cmd_commands,
-        "shell": lambda *_: start_shell(),
-    }[args.command](args)
+    {"start": cmd_start, "setcommands": cmd_commands, "shell": cmd_shell,}[
+        args.command
+    ](args)

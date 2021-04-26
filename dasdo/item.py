@@ -199,11 +199,12 @@ class Item(Model):
             chat = Chat.find_by_id(chat_id)
             with uselang(chat.lang):
                 sale_message = self.generate_sale_message(context)
+            print("CHIIIIIIIIIIIIIIIIIIIIIT", chat_id, int(chat_id))
             ignore_no_changes(
                 context.bot.edit_message_caption,
                 chat_id=int(chat_id),
                 message_id=message_id,
-                parse_mode=ParseMode.MARKDOWN_V2,
+                parse_mode=ParseMode.MARKDOWN,
                 caption=sale_message,
             )
 
