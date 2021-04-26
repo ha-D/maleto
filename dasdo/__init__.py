@@ -1,24 +1,25 @@
-from importlib.metadata import version
-import logging
 import argparse
+import logging
+import os
+from importlib.metadata import version
 
 from telegram.bot import Bot
 from telegram.ext import Updater
 from telegram.utils.request import Request
 
-from dasdo.utils.model import init_db
-from dasdo.utils.config import EnvDefault
-from dasdo.utils import sentry
-from dasdo.utils.shell import start_shell
 from dasdo import (
+    chat_member,
+    chat_settings,
     entry,
     item_bid,
     item_create,
     item_settings,
-    chat_member,
-    chat_settings,
     user_settings,
 )
+from dasdo.utils import sentry
+from dasdo.utils.config import EnvDefault
+from dasdo.utils.model import init_db
+from dasdo.utils.shell import start_shell
 
 __version__ = version(__name__)
 __all__ = ("main",)
@@ -103,7 +104,26 @@ def on_error(update, context):
     logger.exception(context.error)
 
 
+def read_config_envs():
+    try:
+        with open("config.env") as f:
+            for num, line in enumerate(f.readlines()):
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.count("=") != 1:
+                    raise ValueError(f"Invalid config.env file at line {num + 1}")
+                key, val = line.split("=")
+                if val[0] in ['"', "'"] and val[-1] == val[0]:
+                    val = val[1:-1]
+                os.environ[key.strip()] = val.strip()
+    except FileNotFoundError:
+        raise
+
+
 def main():
+    read_config_envs()
+
     parser = argparse.ArgumentParser(description="Sale Bot")
     parser.add_argument(
         "--token",
