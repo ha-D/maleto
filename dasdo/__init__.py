@@ -111,10 +111,10 @@ def read_config_envs():
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                eqpos = line.index('=')
+                eqpos = line.index("=")
                 if eqpos == -1:
                     raise ValueError(f"Invalid config.env file at line {num + 1}")
-                key, val = line[:eqpos], line[eqpos+1:]
+                key, val = line[:eqpos], line[eqpos + 1 :]
                 if val[0] in ['"', "'"] and val[-1] == val[0]:
                     val = val[1:-1]
                 os.environ[key.strip()] = val.strip()
@@ -206,12 +206,30 @@ def main():
         required=False,
     )
     parser.add_argument(
-        "--log",
+        "--log-file",
         type=str,
         help="",
         action=EnvDefault,
         envvar="BOT_LOG_FILE",
         required=False,
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        help="",
+        choices=(
+            "debug",
+            "DEBUG",
+            "info",
+            "INFO",
+            "warning",
+            "WARNING",
+            "error",
+            "ERROR",
+        ),
+        action=EnvDefault,
+        envvar="BOT_LOG_LEVEL",
+        default="INFO",
     )
 
     parser.add_argument(
@@ -227,10 +245,11 @@ def main():
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
 
-    log_args = {"filename": args.log, "filemode": "a"} if args.log else {}
+    log_args = {"filename": args.log_file, "filemode": "a"} if args.log_file else {}
+    log_level = logging.getLevelName(args.log_level.upper())
     logging.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.DEBUG,
+        level=log_level,
         **log_args,
     )
 
