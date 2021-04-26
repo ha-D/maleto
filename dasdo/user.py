@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pymongo.collection import ReturnDocument
 
-from .utils.model import Model
+from dasdo.utils.model import Model
 
 logger = logging.getLogger(__name__)
 

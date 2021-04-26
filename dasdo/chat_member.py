@@ -3,8 +3,8 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .chat import Chat
-from .user import User
+from dasdo.chat import Chat
+from dasdo.user import User
 
 logger = logging.getLogger(__name__)
 

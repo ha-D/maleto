@@ -7,11 +7,11 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .item import Item
-from .user import User
-from .utils import Callback 
-from .utils.lang import _
-from .chat import Chat
+from dasdo.item import Item
+from dasdo.user import User
+from dasdo.utils import Callback 
+from dasdo.utils.lang import _
+from dasdo.chat import Chat
 
 logger = logging.getLogger(__name__)
 

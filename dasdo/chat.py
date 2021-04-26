@@ -3,8 +3,8 @@ import logging
 
 from telegram import *
 
-from .utils.model import Model
-from .utils.lang import _, uselang
+from dasdo.utils.model import Model
+from dasdo.utils.lang import _, uselang
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Chat(Model):
             )
 
     def generate_info_message(self):
-        from .item import Item
+        from dasdo.item import Item
         with uselang(self.lang):
             items = Item.find(posts__chat_id=self.id)
             s = "\n".join(

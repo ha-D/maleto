@@ -6,10 +6,11 @@ from telegram.bot import Bot
 from telegram.ext import Updater
 from telegram.utils.request import Request
 
-from .utils.model import init_db
-from .utils.config import EnvDefault
-from .utils import sentry
-from . import (
+from dasdo.utils.model import init_db
+from dasdo.utils.config import EnvDefault
+from dasdo.utils import sentry
+from dasdo.utils.shell import start_shell
+from dasdo import (
     entry,
     item_bid,
     item_create,
@@ -189,7 +190,7 @@ def main():
         "command",
         metavar="command",
         type=str,
-        choices=["start", "setcommands"],
+        choices=["start", "setcommands", "shell"],
         nargs="?",
         default="start",
     )
@@ -205,4 +206,8 @@ def main():
         **log_args,
     )
 
-    {"start": cmd_start, "setcommands": cmd_commands}[args.command](args)
+    {
+        "start": cmd_start,
+        "setcommands": cmd_commands,
+        "shell": lambda *_: start_shell(),
+    }[args.command](args)

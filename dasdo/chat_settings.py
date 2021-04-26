@@ -3,11 +3,11 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from .utils import Callback,  bot_handler, split_keyboard
-from .utils.lang import _, LANGUAGES
-from .item import Item
-from .user import User
-from .chat import Chat
+from dasdo.utils import Callback,  bot_handler, split_keyboard
+from dasdo.utils.lang import _, LANGUAGES
+from dasdo.item import Item
+from dasdo.user import User
+from dasdo.chat import Chat
 
 logger = logging.getLogger(__name__)
 

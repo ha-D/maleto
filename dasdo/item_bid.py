@@ -6,11 +6,11 @@ from telegram import *
 from telegram.utils.helpers import *
 from telegram.utils import helpers
 
-from .item import Item
-from .user import User
-from .utils.currency import format_currency
-from .utils.lang import _, uselang
-from .utils import (
+from dasdo.item import Item
+from dasdo.user import User
+from dasdo.utils.currency import format_currency
+from dasdo.utils.lang import _, uselang
+from dasdo.utils import (
     Callback,
     find_best_inc,
     bot_handler,

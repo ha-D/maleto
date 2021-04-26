@@ -1,13 +1,15 @@
 import logging
 
-from telegram.ext import *
 from telegram import *
+from telegram.ext import *
 from telegram.utils.helpers import *
 
-from .utils import Callback, bot_handler, split_keyboard, trace, metrics as mt
-from .utils.lang import _ 
-from .utils.currency import get_currencies
-from .item import Item
+from dasdo.item import Item
+from dasdo.utils import Callback, bot_handler
+from dasdo.utils import metrics as mt
+from dasdo.utils import split_keyboard, trace
+from dasdo.utils.currency import get_currencies
+from dasdo.utils.lang import _
 
 logger = logging.getLogger(__name__)
 

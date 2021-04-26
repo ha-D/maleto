@@ -8,10 +8,10 @@ from telegram import *
 from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
-from .utils import find_best_inc, find_by, get_bot, trace
-from .utils.lang import _, current_lang, uselang
-from .utils.model import Model
-from .utils.currency import format_currency
+from dasdo.utils import find_best_inc, find_by, get_bot, trace
+from dasdo.utils.lang import _, current_lang, uselang
+from dasdo.utils.model import Model
+from dasdo.utils.currency import format_currency
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class Item(Model):
 
     @property
     def owner(self):
-        from .user import User
+        from dasdo.user import User
 
         return User.find_by_id(self.owner_id)
 
@@ -97,7 +97,7 @@ class Item(Model):
         self.bids = sorted(self.bids, key=lambda b: (b["price"], b["ts"]), reverse=True)
 
     def add_to_chat(self, context, chat_id):
-        from .chat import Chat
+        from dasdo.chat import Chat
 
         chat = Chat.find_by_id(chat_id)
         post, _ = find_by(self.posts, "chat_id", chat_id)
@@ -115,7 +115,7 @@ class Item(Model):
         chat.publish_info_message(context)
 
     def remove_from_chat(self, context, chat_id):
-        from .chat import Chat
+        from dasdo.chat import Chat
 
         post, idx = find_by(self.posts, "chat_id", chat_id)
         if post:
@@ -191,7 +191,7 @@ class Item(Model):
         mes["state"] = state
 
     def publish(self, context):
-        from .chat import Chat
+        from dasdo.chat import Chat
 
         for post in self.posts:
             chat_id = post["chat_id"]
@@ -213,12 +213,12 @@ class Item(Model):
             self.publish_bid_message(context, self, mes["user_id"])
 
     def publish_settings_message(self, context):
-        from .item_settings import publish_settings_message
+        from dasdo.item_settings import publish_settings_message
 
         return publish_settings_message(context, self)
 
     def publish_bid_message(self, context, user_id):
-        from .item_bid import publish_bid_message
+        from dasdo.item_bid import publish_bid_message
 
         return publish_bid_message(context, self, user_id)
 
@@ -276,7 +276,7 @@ class Item(Model):
                     )
 
     def generate_sale_message(self, context):
-        from .user import User
+        from dasdo.user import User
 
         bot = get_bot(context)
 
