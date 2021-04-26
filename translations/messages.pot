@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-25 01:39+0430\n"
+"POT-Creation-Date: 2021-04-27 01:01+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.9.0\n"
 
 #: dasdo/chat.py:51
-msgid "Welcome!!"
-msgstr ""
-
-#: dasdo/chat.py:53
-msgid "These items are currently on sale:"
+msgid "Items on sale:"
 msgstr ""
 
 #: dasdo/chat_settings.py:56
@@ -45,47 +41,47 @@ msgstr ""
 msgid "This item is no longer available"
 msgstr ""
 
-#: dasdo/item.py:290
+#: dasdo/item.py:293
 msgid "Seller: {}"
 msgstr ""
 
-#: dasdo/item.py:294
+#: dasdo/item.py:297
 msgid "Price: {}"
 msgstr ""
 
-#: dasdo/item.py:299
+#: dasdo/item.py:302
 msgid "Buyer: {}"
 msgstr ""
 
-#: dasdo/item.py:302
+#: dasdo/item.py:305
 msgid "Waiting List:"
 msgstr ""
 
-#: dasdo/item.py:307
+#: dasdo/item.py:310
 msgid "_{} more people..._"
 msgstr ""
 
-#: dasdo/item.py:309
+#: dasdo/item.py:312
 msgid "Click here to buy this item"
 msgstr ""
 
-#: dasdo/item.py:324
+#: dasdo/item.py:327
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: dasdo/item.py:326
+#: dasdo/item.py:329
 msgid "Starting Price: {}"
 msgstr ""
 
-#: dasdo/item.py:332
+#: dasdo/item.py:335
 msgid "No one has made an offer"
 msgstr ""
 
-#: dasdo/item.py:337
+#: dasdo/item.py:340
 msgid "Current Bid: {}"
 msgstr ""
 
-#: dasdo/item.py:343
+#: dasdo/item.py:346
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr ""
 
@@ -145,91 +141,91 @@ msgstr ""
 msgid "Ok no problem, cancelled"
 msgstr ""
 
-#: dasdo/item_create.py:31
+#: dasdo/item_create.py:33
 msgid ""
 "Ok lets add a new item. I'm going to ask you a few questions about the "
 "item you want to sell."
 msgstr ""
 
-#: dasdo/item_create.py:34
+#: dasdo/item_create.py:36
 msgid ""
 "You can click on the `Cancel` button or enter `/cancel` at any time to "
 "abort"
 msgstr ""
 
-#: dasdo/item_create.py:38
+#: dasdo/item_create.py:40
 msgid "To start, enter the `title` of the item you want to sell"
 msgstr ""
 
-#: dasdo/item_create.py:61
+#: dasdo/item_create.py:63
 msgid "Great thanks."
 msgstr ""
 
-#: dasdo/item_create.py:73
+#: dasdo/item_create.py:75
 msgid "Now send me some `photos` of the item."
 msgstr ""
 
-#: dasdo/item_create.py:74
+#: dasdo/item_create.py:76
 msgid ""
 "Click on `Done` or enter `/done` when you've sent all the photos you want"
 " to add."
 msgstr ""
 
-#: dasdo/item_create.py:111
+#: dasdo/item_create.py:113
 msgid "Hmm, I haven't received any photos 🤔."
 msgstr ""
 
-#: dasdo/item_create.py:113
+#: dasdo/item_create.py:115
 msgid ""
 "If you've sent photos please wait for the upload to finish and then "
 "notify me again."
 msgstr ""
 
-#: dasdo/item_create.py:126
+#: dasdo/item_create.py:128
 msgid "Awesome! 🎉"
 msgstr ""
 
-#: dasdo/item_create.py:137
+#: dasdo/item_create.py:139
 msgid "Now enter a `description` for your item"
 msgstr ""
 
-#: dasdo/item_create.py:157
+#: dasdo/item_create.py:159
 msgid "What `currency` would you like to use?"
 msgstr ""
 
-#: dasdo/item_create.py:171
+#: dasdo/item_create.py:173
 msgid "I'm not familiar with that currency, please try again"
 msgstr ""
 
-#: dasdo/item_create.py:185
+#: dasdo/item_create.py:187
 msgid "What `price` are you selling at?"
 msgstr ""
 
-#: dasdo/item_create.py:200
+#: dasdo/item_create.py:202
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr ""
 
-#: dasdo/item_create.py:217
+#: dasdo/item_create.py:219
 msgid "Alright, thats all I need 🥳🥳"
 msgstr ""
 
-#: dasdo/item_create.py:219
+#: dasdo/item_create.py:221
 msgid "There are more options you can edit later on."
 msgstr ""
 
-#: dasdo/item_create.py:221
+#: dasdo/item_create.py:223
 msgid "You can view all your created items anytime by entering /myitems"
 msgstr ""
 
-#: dasdo/item_create.py:238
+#: dasdo/item_create.py:240
 msgid "Ok, no worries, no item created."
 msgstr ""
 
-#: dasdo/item_create.py:250
+#: dasdo/item_create.py:252
 msgid "You don't have any items. Use the `/newitem` command to create one."
 msgstr ""
 
-#: dasdo/item_create.py:268
+#: dasdo/item_create.py:270
 msgid "Click on one any item to view more options"
 msgstr ""
 

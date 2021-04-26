@@ -1,10 +1,10 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from telegram import *
 
-from dasdo.utils.model import Model
 from dasdo.utils.lang import _, uselang
+from dasdo.utils.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,8 @@ class Chat(Model):
             items = Item.find(posts__chat_id=self.id)
             s = "\n".join(
                 [
-                    _("Welcome!!"),
+                    _("Items on sale:"),
                     "",
-                    _("These items are currently on sale:"),
                     *[item.chat_link(self.id) for item in items],
                     "",
                 ]

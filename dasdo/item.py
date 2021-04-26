@@ -284,6 +284,9 @@ class Item(Model):
         if len(self.bids) > 0:
             current_price = self.bids[0]["price"]
 
+        from dasdo.utils.lang import current_lang
+        clang = current_lang()
+        
         msg = [
             f"*{self.title}*",
             "",
@@ -351,7 +354,7 @@ class Item(Model):
     def chat_link(self, chat_id):
         post, _ = find_by(self.posts, "chat_id", chat_id)
         chat_id = int(str(chat_id)[4:])
-        return f'[{self.title}](https://t.me/c/{chat_id}/{post["messages"][0]}'
+        return f'[{self.title}](https://t.me/c/{chat_id}/{post["messages"][0]})'
 
 
 def ignore_no_changes(f, **kwargs):

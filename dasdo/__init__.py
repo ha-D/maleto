@@ -111,9 +111,10 @@ def read_config_envs():
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                if line.count("=") != 1:
+                eqpos = line.index('=')
+                if eqpos == -1:
                     raise ValueError(f"Invalid config.env file at line {num + 1}")
-                key, val = line.split("=")
+                key, val = line[:eqpos], line[eqpos+1:]
                 if val[0] in ['"', "'"] and val[-1] == val[0]:
                     val = val[1:-1]
                 os.environ[key.strip()] = val.strip()
