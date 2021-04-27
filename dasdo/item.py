@@ -65,9 +65,7 @@ class Item(Model):
         return User.find_by_id(self.owner_id)
 
     def remove_user_bid(self, context, user_id, sort=True):
-        for bid in self.bids:
-            bid["users"] = [u for u in bid["users"] if u != user_id]
-        self.bids = [b for b in self.bids if len(b["users"]) > 0]
+        self.bids = [b for b in self.bids if b['user'] != user_id]
         if sort:
             self._sort_bids()
 
@@ -85,10 +83,10 @@ class Item(Model):
             raise ValueError(
                 _(
                     "You need to increase by at least {} if you want to offer a higher price"
-                ).format(format_currency(context, self.currency, min_price_inc))
+                ).format(format_currency(context, self.currency))
             )
 
-        self.remove_user_bid(user_id, sort=False)
+        self.remove_user_bid(context, user_id, sort=False)
         self.bids.append({"user_id": user_id, "price": price, "ts": time.time()})
         if sort:
             self._sort_bids()
@@ -210,7 +208,7 @@ class Item(Model):
         self.publish_settings_message(context)
 
         for mes in self.bid_messages:
-            self.publish_bid_message(context, self, mes["user_id"])
+            self.publish_bid_message(context, mes["user_id"])
 
     def publish_settings_message(self, context):
         from dasdo.item_settings import publish_settings_message
@@ -285,8 +283,9 @@ class Item(Model):
             current_price = self.bids[0]["price"]
 
         from dasdo.utils.lang import current_lang
+
         clang = current_lang()
-        
+
         msg = [
             f"*{self.title}*",
             "",
@@ -294,20 +293,28 @@ class Item(Model):
             "",
             self.description,
             "",
-            _("Price: {}").format(format_currency(self.currency, current_price)),
         ]
 
-        if len(self.bids) > 0:
-            users = [User.find_by_id(uid) for uid in self.bids[-1]["users"]]
-            msg += [_("Buyer: {}").format(users[0].link())]
-            if len(users) > 1:
-                users = users[1:]
+        def bidline(bid):
+            user = User.find_by_id(bid["user_id"])
+            return "{}  {}".format(
+                user.link(), format_currency(self.currency, bid["price"])
+            )
+
+        if len(self.bids) == 0:
+            msg.append(
+                _("Price: {}").format(format_currency(self.currency, current_price))
+            )
+        elif len(self.bids) > 0:
+            msg += [_("Buyer: {}").format(bidline(self.bids[0]))]
+            if len(self.bids) > 1:
+                bids = self.bids[1:]
                 msg.append(_("Waiting List:"))
-                if len(users) <= 4:
-                    msg += [f"{i+1}. {u.link()}" for i, u in enumerate(users)]
-                elif len(users) > 4:
-                    msg += [f"{i+1}. {u.link()}" for i, u in enumerate(users[:3])]
-                    msg.append(_("_{} more people..._").format(len(users) - 3))
+                if len(bids) <= 4:
+                    msg += [f"{i+1}. {bidline(b)}" for i, b in enumerate(bids)]
+                elif len(bids) > 4:
+                    msg += [f"{i+1}. {bidline(b)}" for i, b in enumerate(bids[:3])]
+                    msg.append(_("_{} more people..._").format(len(bids) - 3))
 
         click_here = _("Click here to buy this item")
         lang_arg = ""

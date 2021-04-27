@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-27 01:01+0430\n"
-"PO-Revision-Date: 2021-04-27 01:02+0430\n"
+"POT-Creation-Date: 2021-04-27 12:34+0430\n"
+"PO-Revision-Date: 2021-04-27 12:35+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
@@ -104,42 +104,46 @@ msgid "Change Offer"
 msgstr "تغییر پیشنهاد"
 
 #: dasdo/item_bid.py:95
-msgid "There are no offers for this item, would you like to place an offer?"
-msgstr "کسی برای این کالا هنوز قیمتی پیشنهاد نداده، میخوای قیمت پیشنهاد بدی؟"
+msgid "There are no offers for this item"
+msgstr "پیشنهادی برای این کالا هنوز وجود نداره"
 
 #: dasdo/item_bid.py:96
-msgid "The base price is {}"
-msgstr "قیمت اولیه {} هست"
+msgid "Base Price: {}"
+msgstr "قیمت پایه:   {} "
 
-#: dasdo/item_bid.py:106 dasdo/item_bid.py:121
+#: dasdo/item_bid.py:100
+msgid "Would you like to place an offer?"
+msgstr "میخوای قیمت پیشنهاد بدی؟"
+
+#: dasdo/item_bid.py:108 dasdo/item_bid.py:123
 msgid "Make Offer"
 msgstr "پیشنهاد قیمت"
 
-#: dasdo/item_bid.py:116
+#: dasdo/item_bid.py:118
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr "بالاترین پیشنهاد داده شده {} هست، میخوای قیمتی پیشنهاد بدی؟"
 
-#: dasdo/item_bid.py:138
+#: dasdo/item_bid.py:140
 msgid "Offer removed"
 msgstr "پیشنهاد شما حذف شد"
 
-#: dasdo/item_bid.py:156
+#: dasdo/item_bid.py:160
 msgid "Do you want to try again?"
 msgstr "میخوای دوباره امتحان کنی؟"
 
-#: dasdo/item_bid.py:158
-msgid "Enter your offer"
-msgstr "پیشنهادت رو وارد کن"
+#: dasdo/item_bid.py:162
+msgid "Enter your offer in {}"
+msgstr "قیمت پیشنهادیت رو به {} وارد کن"
 
-#: dasdo/item_bid.py:180
+#: dasdo/item_bid.py:184
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr "تبریک 🎉, شما با قیمت {} خریدار این محصول هستی"
 
-#: dasdo/item_bid.py:188
+#: dasdo/item_bid.py:192
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr "شما با قیمت {} نفر {} در صف انتظار هستی"
 
-#: dasdo/item_bid.py:205
+#: dasdo/item_bid.py:209
 msgid "Ok no problem, cancelled"
 msgstr "باشه مشکلی نیست، لغو شد"
 
@@ -277,19 +281,19 @@ msgstr "یورو €"
 msgid "Turkish lira ₺"
 msgstr "لیر ترکیه ₺"
 
-#: dasdo/utils/currency.py:20 dasdo/utils/currency.py:21
+#: dasdo/utils/currency.py:28 dasdo/utils/currency.py:29
 msgid "${}"
 msgstr "${}"
 
-#: dasdo/utils/currency.py:22
+#: dasdo/utils/currency.py:30
 msgid "£{}"
 msgstr "£{}"
 
-#: dasdo/utils/currency.py:23
+#: dasdo/utils/currency.py:31
 msgid "€{}"
 msgstr "€{}"
 
-#: dasdo/utils/currency.py:24
+#: dasdo/utils/currency.py:32
 msgid "{} Toman"
 msgstr "{} تومن"
 

@@ -1,6 +1,6 @@
-from babel import numbers
+from babel import Locale, numbers
 
-from .lang import _, convert_number
+from .lang import _, convert_number, current_lang, deconvert_number
 
 
 def get_currencies():
@@ -12,6 +12,14 @@ def get_currencies():
         _("Euroes €"): "EUR",
         _("Turkish lira ₺"): "TRY",
     }
+
+
+def currency_name(currency_code):
+    currencies = get_currencies()
+    for name, code in currencies.items():
+        if code == currency_code:
+            return name
+    return ""
 
 
 def format_currency(currency, price):
@@ -29,5 +37,14 @@ def format_currency(currency, price):
 
 
 def format_number(num):
-    num = numbers.format_number(num)
+    lang = current_lang()
+    if lang is None or lang == '':
+        lang = 'en'
+    locale = Locale(lang)
+    num = numbers.format_number(num, locale)
     return convert_number(num)
+
+
+def deformat_number(num):
+    num = str(num).replace(",", "")
+    return deconvert_number(num)

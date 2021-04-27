@@ -8,7 +8,7 @@ from telegram.utils import helpers
 
 from dasdo.item import Item
 from dasdo.user import User
-from dasdo.utils.currency import format_currency
+from dasdo.utils.currency import currency_name, deformat_number, format_currency, format_number
 from dasdo.utils.lang import _, uselang
 from dasdo.utils import (
     Callback,
@@ -92,10 +92,13 @@ def in_waiting_list(context, item, bid, pos):
 def no_bidder(context, item):
     msg = "\n".join(
         [
-            _("There are no offers for this item, would you like to place an offer?"),
-            _("The base price is {}").format(
+            _("There are no offers for this item"),
+            _("Base Price: {}").format(
                 format_currency(item.currency, item.base_price)
             ),
+            "",
+            _("Would you like to place an offer?"),
+            "",
         ]
     )
 
@@ -132,10 +135,12 @@ class RevokeBidCallback(Callback):
     def perform(self, context, query, item_id):
         user = query.from_user
         with Item.find_by_id(item_id) as item:
-            item.publish_bid_message(context, user.id)
-            item.remove_user_bid(context, user.id)
-            item.publish(context)
-            query.answer(_("Offer removed"))
+            bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+            with uselang(bmes.get('lang')):
+                item.publish_bid_message(context, user.id)
+                item.remove_user_bid(context, user.id)
+                item.publish(context)
+                query.answer(_("Offer removed"))
 
 
 class BidCallback(Callback):
@@ -143,24 +148,28 @@ class BidCallback(Callback):
 
     def perform(self, context, query, item_id):
         with Item.find_by_id(item_id) as item:
-            ask_for_bid(context, query.message, item)
+            bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+            with uselang(bmes.get('lang')):
+                ask_for_bid(context, query.message, item)
         query.answer()
         return OFFER
 
 
 def ask_for_bid(context, message, item, error=None):
     item.save_to_context(context)
-    highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
+    highest_bid = item.base_price
+    if item.bids:
+        highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
 
     if error is not None:
         msg = "\n".join([error, "", _("Do you want to try again?")])
     else:
-        msg = _("Enter your offer")
+        msg = _("Enter your offer in {}").format(currency_name(item.currency))
 
     min_price_inc = item.min_price_inc or find_best_inc(item.base_price)
     prices = [highest_bid + min_price_inc * i for i in range(4)]
     btns = split_keyboard(
-        [KeyboardButton(str(p)) for p in prices] + [KeyboardButton("Cancel")], 2
+        [KeyboardButton(format_number(p)) for p in prices] + [KeyboardButton("Cancel")], 2
     )
     message.reply_markdown(
         text=msg,
@@ -171,7 +180,8 @@ def ask_for_bid(context, message, item, error=None):
 @bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:
-        price = int(update.message.text)
+
+        price = deformat_number(update.message.text)
         user = update.message.from_user
         try:
             item.add_user_bid(context, user.id, price)
@@ -213,6 +223,6 @@ def handlers():
         warnings.simplefilter("ignore", category=UserWarning)
         yield ConversationHandler(
             entry_points=[RevokeBidCallback(), BidCallback()],
-            states={OFFER: [MessageHandler(Filters.text, on_bid)]},
+            states={OFFER: [canceler, MessageHandler(Filters.text, on_bid)]},
             fallbacks=[canceler],
         )
