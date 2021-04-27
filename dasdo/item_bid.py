@@ -8,7 +8,12 @@ from telegram.utils import helpers
 
 from dasdo.item import Item
 from dasdo.user import User
-from dasdo.utils.currency import currency_name, deformat_number, format_currency, format_number
+from dasdo.utils.currency import (
+    currency_name,
+    deformat_number,
+    format_currency,
+    format_number,
+)
 from dasdo.utils.lang import _, uselang
 from dasdo.utils import (
     Callback,
@@ -93,9 +98,7 @@ def no_bidder(context, item):
     msg = "\n".join(
         [
             _("There are no offers for this item"),
-            _("Base Price: {}").format(
-                format_currency(item.currency, item.base_price)
-            ),
+            _("Base Price: {}").format(format_currency(item.currency, item.base_price)),
             "",
             _("Would you like to place an offer?"),
             "",
@@ -136,7 +139,7 @@ class RevokeBidCallback(Callback):
         user = query.from_user
         with Item.find_by_id(item_id) as item:
             bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
-            with uselang(bmes.get('lang')):
+            with uselang(bmes.get("lang")):
                 item.publish_bid_message(context, user.id)
                 item.remove_user_bid(context, user.id)
                 item.publish(context)
@@ -149,7 +152,7 @@ class BidCallback(Callback):
     def perform(self, context, query, item_id):
         with Item.find_by_id(item_id) as item:
             bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
-            with uselang(bmes.get('lang')):
+            with uselang(bmes.get("lang")):
                 ask_for_bid(context, query.message, item)
         query.answer()
         return OFFER
@@ -169,7 +172,8 @@ def ask_for_bid(context, message, item, error=None):
     min_price_inc = item.min_price_inc or find_best_inc(item.base_price)
     prices = [highest_bid + min_price_inc * i for i in range(4)]
     btns = split_keyboard(
-        [KeyboardButton(format_number(p)) for p in prices] + [KeyboardButton("Cancel")], 2
+        [KeyboardButton(format_number(p)) for p in prices] + [KeyboardButton("Cancel")],
+        2,
     )
     message.reply_markdown(
         text=msg,
@@ -180,10 +184,19 @@ def ask_for_bid(context, message, item, error=None):
 @bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:
-
-        price = deformat_number(update.message.text)
-        user = update.message.from_user
         try:
+            price = deformat_number(update.message.text)
+        except ValueError as e:
+            ask_for_bid(
+                context,
+                update.message,
+                item,
+                _("That is not a valid price, please enter a number"),
+            )
+            return OFFER
+
+        try:
+            user = update.message.from_user
             item.add_user_bid(context, user.id, price)
             if item.bids[0]["user_id"] == context.user.id:
                 update.message.reply_text(
@@ -204,13 +217,17 @@ def on_bid(update, context):
             item.publish(context)
             return ConversationHandler.END
         except ValueError as e:
-            ask_for_bid(context, update.message, item, e.message)
+            if len(e.args):
+                err = e.args[0]
+            else:
+                err = _("Something went wrong please try again")
+            ask_for_bid(context, update.message, item, err)
             return OFFER
 
 
 @bot_handler
 def cancel(update, context):
-    Item.C(context, remove=True)
+    Item.clear_context(context)
     update.message.reply_text(
         _("Ok no problem, cancelled"), reply_markup=ReplyKeyboardRemove()
     )

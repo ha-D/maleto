@@ -10,7 +10,7 @@ from bson.int64 import Int64
 from threading import Lock
 from collections import defaultdict
 
-from .lang import uselang
+from dasdo.utils.lang import uselang
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +37,13 @@ class Callback(CallbackQueryHandler):
         return "#".join([cls.name, *pargs])
 
     def _perform(self, update, context):
-        from ..user import User
+        from dasdo.user import User
+        from dasdo.chat import Chat
 
         user = User.create_or_update_from_api(update.effective_user)
         context.user = user
+        
+        context.chat = Chat.find_by_id(update.effective_chat.id)
 
         query = update.callback_query
         parts = query.data.split("#")
@@ -106,10 +109,12 @@ def split_keyboard(btns, cols=2):
 def bot_handler(f):
     def inner(update, context):
         from dasdo.user import User
+        from dasdo.chat import Chat
 
         api_user = update.effective_user
         user = User.create_or_update_from_api(api_user)
         context.user = user
+        context.chat = Chat.find_by_id(update.effective_chat.id)
         with uselang(user.lang):
             return f(update, context)
 

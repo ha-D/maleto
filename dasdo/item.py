@@ -65,7 +65,7 @@ class Item(Model):
         return User.find_by_id(self.owner_id)
 
     def remove_user_bid(self, context, user_id, sort=True):
-        self.bids = [b for b in self.bids if b['user'] != user_id]
+        self.bids = [b for b in self.bids if b["user_id"] != user_id]
         if sort:
             self._sort_bids()
 
@@ -74,6 +74,10 @@ class Item(Model):
 
         if self.base_price and price < self.base_price:
             raise ValueError(_("Your offer is too low"))
+
+        previous_winner = None
+        if self.bids:
+            previous_winner = self.bids[0]
 
         min_price_inc = self.min_price_inc or find_best_inc(self.base_price)
         highest_bid = self.base_price
@@ -87,12 +91,62 @@ class Item(Model):
             )
 
         self.remove_user_bid(context, user_id, sort=False)
-        self.bids.append({"user_id": user_id, "price": price, "ts": time.time()})
+
+        src_chat = None
+        if context.chat:
+            src_chat = context.chat.id
+        self.bids.append(
+            {
+                "user_id": user_id,
+                "price": price,
+                "ts": time.time(),
+                "src_chat_id": src_chat,
+            }
+        )
         if sort:
             self._sort_bids()
 
+        self._handle_winner_change(context, previous_winner, self.bids[0])
+
     def _sort_bids(self):
         self.bids = sorted(self.bids, key=lambda b: (b["price"], b["ts"]), reverse=True)
+
+    def _handle_winner_change(self, context, prev_winner, new_winner):
+        if (
+            prev_winner is not None
+            and new_winner is not None
+            and prev_winner["user_id"] == new_winner["user_id"]
+        ):
+            return
+
+        if prev_winner is not None:
+            link = self.title
+            if src_chat := prev_winner.get("src_chat_id"):
+                link = self.chat_link(src_chat)
+            context.bot.send_message(
+                chat_id=prev_winner["user_id"],
+                text="\n".join(
+                    [
+                        _("🙀 You are no longer the winning bidder for this item:"),
+                        "",
+                        link,
+                    ]
+                ),
+            )
+        if new_winner is not None and context.user.id != new_winner["user_id"]:
+            link = self.title
+            if src_chat := new_winner.get("src_chat_id"):
+                link = self.chat_link(src_chat)
+            context.bot.send_message(
+                chat_id=new_winner["user_id"],
+                text="\n".join(
+                    [
+                        _("🥳 You are now the winning bidder for this item:"),
+                        "",
+                        link,
+                    ]
+                ),
+            )
 
     def add_to_chat(self, context, chat_id):
         from dasdo.chat import Chat

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-27 12:34+0430\n"
-"PO-Revision-Date: 2021-04-27 12:35+0430\n"
+"POT-Creation-Date: 2021-04-27 18:35+0430\n"
+"PO-Revision-Date: 2021-04-27 18:36+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
@@ -27,63 +27,71 @@ msgstr "کالاهای در حال فروش:"
 msgid "Select language"
 msgstr "زبون مورد نظرت رو انتخاب کن"
 
-#: dasdo/item.py:78
+#: dasdo/item.py:76
 msgid "Your offer is too low"
 msgstr "قیمت پیشنهادی کافی نیست"
 
-#: dasdo/item.py:86
+#: dasdo/item.py:88
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr "اگه میخوای قیمت رو بالا ببری باید حداقل {} از بالاترین قیمت بیشتر باشه"
 
-#: dasdo/item.py:150 dasdo/item.py:182
+#: dasdo/item.py:125
+msgid "🙀 You are no longer the winning bidder for this item:"
+msgstr "🙀  شما دیگه خریدار کالای زیر نیستید:"
+
+#: dasdo/item.py:139
+msgid "🥳 You are now the winning bidder for this item:"
+msgstr "🥳  شما خریدار کالای زیر شدید:"
+
+#: dasdo/item.py:197 dasdo/item.py:229
 msgid "Please wait..."
 msgstr "لطفا صبر کن..."
 
-#: dasdo/item.py:231 dasdo/item.py:249
+#: dasdo/item.py:278 dasdo/item.py:296
 msgid "This item is no longer available"
 msgstr "این جنس دیگه موجود نیست"
 
-#: dasdo/item.py:293
+#: dasdo/item.py:341
 msgid "Seller: {}"
 msgstr "فروشنده:  {}"
 
-#: dasdo/item.py:297
+#: dasdo/item.py:355
 msgid "Price: {}"
 msgstr "قیمت:   {}"
 
-#: dasdo/item.py:302
+#: dasdo/item.py:358
 msgid "Buyer: {}"
 msgstr "خریدار:  {}"
 
-#: dasdo/item.py:305
+#: dasdo/item.py:361
 msgid "Waiting List:"
 msgstr "صف انتظار:"
 
-#: dasdo/item.py:310
+#: dasdo/item.py:366
 msgid "_{} more people..._"
 msgstr "_{} نفر دیگه..._"
 
-#: dasdo/item.py:312
+#: dasdo/item.py:368
 msgid "Click here to buy this item"
 msgstr "برای خرید اینجا کلیک کنید"
 
-#: dasdo/item.py:327
+#: dasdo/item.py:383
 msgid "Published in *{}* chats"
 msgstr "منتشر شده در*{}* کانال"
 
-#: dasdo/item.py:329
+#: dasdo/item.py:385
 msgid "Starting Price: {}"
 msgstr "قیمت اولیه: {}"
 
-#: dasdo/item.py:335
+#: dasdo/item.py:391
 msgid "No one has made an offer"
 msgstr "کسی هنوز قیمتی پیشنهاد نداده"
 
-#: dasdo/item.py:340
+#: dasdo/item.py:396
 msgid "Current Bid: {}"
 msgstr "قیمت فعلی: {}"
 
-#: dasdo/item.py:346
+#: dasdo/item.py:402
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr "قیمت فعلی: {} و {} نفر در صفر انتظار"
 
@@ -109,41 +117,41 @@ msgstr "پیشنهادی برای این کالا هنوز وجود نداره"
 
 #: dasdo/item_bid.py:96
 msgid "Base Price: {}"
-msgstr "قیمت پایه:   {} "
+msgstr "قیمت پایه:   {}"
 
 #: dasdo/item_bid.py:100
 msgid "Would you like to place an offer?"
 msgstr "میخوای قیمت پیشنهاد بدی؟"
 
-#: dasdo/item_bid.py:108 dasdo/item_bid.py:123
+#: dasdo/item_bid.py:109 dasdo/item_bid.py:124
 msgid "Make Offer"
 msgstr "پیشنهاد قیمت"
 
-#: dasdo/item_bid.py:118
+#: dasdo/item_bid.py:119
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr "بالاترین پیشنهاد داده شده {} هست، میخوای قیمتی پیشنهاد بدی؟"
 
-#: dasdo/item_bid.py:140
+#: dasdo/item_bid.py:143
 msgid "Offer removed"
 msgstr "پیشنهاد شما حذف شد"
 
-#: dasdo/item_bid.py:160
+#: dasdo/item_bid.py:165
 msgid "Do you want to try again?"
 msgstr "میخوای دوباره امتحان کنی؟"
 
-#: dasdo/item_bid.py:162
+#: dasdo/item_bid.py:167
 msgid "Enter your offer in {}"
 msgstr "قیمت پیشنهادیت رو به {} وارد کن"
 
-#: dasdo/item_bid.py:184
+#: dasdo/item_bid.py:190
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr "تبریک 🎉, شما با قیمت {} خریدار این محصول هستی"
 
-#: dasdo/item_bid.py:192
+#: dasdo/item_bid.py:198
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr "شما با قیمت {} نفر {} در صف انتظار هستی"
 
-#: dasdo/item_bid.py:209
+#: dasdo/item_bid.py:215
 msgid "Ok no problem, cancelled"
 msgstr "باشه مشکلی نیست، لغو شد"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-27 12:34+0430\n"
+"POT-Creation-Date: 2021-04-27 18:35+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,63 +25,71 @@ msgstr ""
 msgid "Select language"
 msgstr ""
 
-#: dasdo/item.py:78
+#: dasdo/item.py:76
 msgid "Your offer is too low"
 msgstr ""
 
-#: dasdo/item.py:86
+#: dasdo/item.py:88
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr ""
 
-#: dasdo/item.py:150 dasdo/item.py:182
+#: dasdo/item.py:125
+msgid "🙀 You are no longer the winning bidder for this item:"
+msgstr ""
+
+#: dasdo/item.py:139
+msgid "🥳 You are now the winning bidder for this item:"
+msgstr ""
+
+#: dasdo/item.py:197 dasdo/item.py:229
 msgid "Please wait..."
 msgstr ""
 
-#: dasdo/item.py:231 dasdo/item.py:249
+#: dasdo/item.py:278 dasdo/item.py:296
 msgid "This item is no longer available"
 msgstr ""
 
-#: dasdo/item.py:293
+#: dasdo/item.py:341
 msgid "Seller: {}"
 msgstr ""
 
-#: dasdo/item.py:297
+#: dasdo/item.py:355
 msgid "Price: {}"
 msgstr ""
 
-#: dasdo/item.py:302
+#: dasdo/item.py:358
 msgid "Buyer: {}"
 msgstr ""
 
-#: dasdo/item.py:305
+#: dasdo/item.py:361
 msgid "Waiting List:"
 msgstr ""
 
-#: dasdo/item.py:310
+#: dasdo/item.py:366
 msgid "_{} more people..._"
 msgstr ""
 
-#: dasdo/item.py:312
+#: dasdo/item.py:368
 msgid "Click here to buy this item"
 msgstr ""
 
-#: dasdo/item.py:327
+#: dasdo/item.py:383
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: dasdo/item.py:329
+#: dasdo/item.py:385
 msgid "Starting Price: {}"
 msgstr ""
 
-#: dasdo/item.py:335
+#: dasdo/item.py:391
 msgid "No one has made an offer"
 msgstr ""
 
-#: dasdo/item.py:340
+#: dasdo/item.py:396
 msgid "Current Bid: {}"
 msgstr ""
 
-#: dasdo/item.py:346
+#: dasdo/item.py:402
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr ""
 
@@ -113,35 +121,35 @@ msgstr ""
 msgid "Would you like to place an offer?"
 msgstr ""
 
-#: dasdo/item_bid.py:108 dasdo/item_bid.py:123
+#: dasdo/item_bid.py:109 dasdo/item_bid.py:124
 msgid "Make Offer"
 msgstr ""
 
-#: dasdo/item_bid.py:118
+#: dasdo/item_bid.py:119
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr ""
 
-#: dasdo/item_bid.py:140
+#: dasdo/item_bid.py:143
 msgid "Offer removed"
 msgstr ""
 
-#: dasdo/item_bid.py:160
+#: dasdo/item_bid.py:165
 msgid "Do you want to try again?"
 msgstr ""
 
-#: dasdo/item_bid.py:162
+#: dasdo/item_bid.py:167
 msgid "Enter your offer in {}"
 msgstr ""
 
-#: dasdo/item_bid.py:184
+#: dasdo/item_bid.py:190
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr ""
 
-#: dasdo/item_bid.py:192
+#: dasdo/item_bid.py:198
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr ""
 
-#: dasdo/item_bid.py:209
+#: dasdo/item_bid.py:215
 msgid "Ok no problem, cancelled"
 msgstr ""
 
