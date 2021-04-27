@@ -368,14 +368,14 @@ class Item(Model):
                 _("Price: {}").format(format_currency(self.currency, current_price))
             )
         elif len(self.bids) > 0:
-            msg += [_("Buyer: {}").format(bidline(self.bids[0]))]
+            msg += [_("Buyer: {}").format(bidline(self.bids[0])), ""]
             if len(self.bids) > 1:
                 bids = self.bids[1:]
                 msg.append(_("Waiting List:"))
                 if len(bids) <= 4:
-                    msg += [f"{i+1}. {bidline(b)}" for i, b in enumerate(bids)]
+                    msg += [f"{bidline(b)}" for i, b in enumerate(bids)]
                 elif len(bids) > 4:
-                    msg += [f"{i+1}. {bidline(b)}" for i, b in enumerate(bids[:3])]
+                    msg += [f"{bidline(b)}" for i, b in enumerate(bids[:3])]
                     msg.append(_("_{} more people..._").format(len(bids) - 3))
 
         click_here = _("Click here to buy this item")
