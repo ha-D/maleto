@@ -9,7 +9,7 @@ from telegram.utils.helpers import *
 from telegram.error import BadRequest
 
 from dasdo.utils import find_best_inc, find_by, get_bot, trace
-from dasdo.utils.lang import _, current_lang, uselang
+from dasdo.utils.lang import _, convert_number, current_lang, uselang
 from dasdo.utils.model import Model
 from dasdo.utils.currency import format_currency
 
@@ -152,6 +152,10 @@ class Item(Model):
         from dasdo.chat import Chat
 
         chat = Chat.find_by_id(chat_id)
+        with chat:
+            index = chat.index_counter
+            chat.index_counter += 1
+
         post, _ = find_by(self.posts, "chat_id", chat_id)
         if not post:
             with uselang(chat.lang):
@@ -160,7 +164,11 @@ class Item(Model):
                 media[0].parse_mode = parse_mode = ParseMode.MARKDOWN
                 messages = context.bot.send_media_group(chat_id=chat_id, media=media)
                 self.posts.append(
-                    {"chat_id": chat_id, "messages": [m.message_id for m in messages]}
+                    {
+                        "chat_id": chat_id,
+                        "messages": [m.message_id for m in messages],
+                        "index": index,
+                    }
                 )
         # Need to save for the chat publish to work
         self.save()
@@ -415,7 +423,7 @@ class Item(Model):
     def chat_link(self, chat_id):
         post, _ = find_by(self.posts, "chat_id", chat_id)
         chat_id = int(str(chat_id)[4:])
-        return f'[{self.title}](https://t.me/c/{chat_id}/{post["messages"][0]})'
+        return f"{convert_number(post['index'])}. [{self.title}](https://t.me/c/{chat_id}/{post['messages'][0]})"
 
 
 def ignore_no_changes(f, **kwargs):

@@ -20,10 +20,11 @@ class Chat(Model):
             "active",
             "admins",
             "lang",
+            "next_index",
         )
 
     def __init__(self, **kwargs):
-        super().__init__(**{"admins": [], **kwargs})
+        super().__init__(**{"admins": [], "next_index": 1, **kwargs})
 
     def publish_info_message(self, context):
         if self.info_message_id is None:
