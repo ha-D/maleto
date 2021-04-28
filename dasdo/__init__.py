@@ -37,7 +37,7 @@ def cmd_start(args):
     sentry.init_sentry(args.sentry_dsn)
     init_db(args.db_uri)
 
-    defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=True)
+    defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=False)
     updater = Updater(
         token=args.token,
         request_kwargs={"proxy_url": args.proxy},
@@ -109,8 +109,8 @@ def init_logging(args):
     log_level = logging.getLevelName(args.log_level.upper())
 
     lib_loggers = (
-        ("telegram.*", logging.INFO),
-        ("apscheduler.*", logging.INFO),
+        ("telegram.*", logging.DEBUG),
+        ("apscheduler.*", logging.DEBUG),
         ("PYMONGOIM*", logging.WARNING),
     )
     for logger_name in logging.root.manager.loggerDict:
