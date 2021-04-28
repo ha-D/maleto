@@ -234,7 +234,7 @@ def item_end(update, context, item):
         ]
     )
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
-    item.active = (True,)
+    item.active = True
     item.new_settings_message(context, publish=True)
     logger.info(
         f"Item creation successfully finished. item:{item.id} user:{context.user.id}"

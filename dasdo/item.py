@@ -37,6 +37,7 @@ class Item(Model):
     def __init__(self, **kwargs):
         super().__init__(
             **{
+                "active": False,
                 "photos": [],
                 "bids": [],
                 "posts": [],
