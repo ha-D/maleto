@@ -109,8 +109,8 @@ def init_logging(args):
     log_level = logging.getLevelName(args.log_level.upper())
 
     lib_loggers = (
-        ("telegram.*", logging.DEBUG),
-        ("apscheduler.*", logging.DEBUG),
+        ("telegram.*", logging.INFO),
+        ("apscheduler.*", logging.INFO),
         ("PYMONGOIM*", logging.WARNING),
     )
     for logger_name in logging.root.manager.loggerDict:

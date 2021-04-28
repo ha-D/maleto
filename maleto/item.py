@@ -292,7 +292,10 @@ class Item(Model):
         return publish_bid_message(context, self, user_id)
 
     @sentry.span
+    @trace
     def delete_all_messages(self, context):
+        from maleto.user import User
+
         for bmes in self.bid_messages:
             try:
                 user = User.find_by_id(bmes["user_id"])
@@ -309,7 +312,7 @@ class Item(Model):
             except BadRequest as e:
                 logger.warning(
                     "Unable to disable bid message (%d, %d)",
-                    bmes["chat_id"],
+                    bmes["user_id"],
                     bmes["message_id"],
                     exc_info=True,
                 )

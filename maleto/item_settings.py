@@ -9,7 +9,7 @@ from telegram.utils.helpers import *
 
 from maleto.item import Item
 from maleto.user import User
-from maleto.utils import Callback, sentry
+from maleto.utils import Callback, sentry, trace
 from maleto.utils.lang import _
 from maleto.chat import Chat
 
@@ -131,6 +131,8 @@ def settings_deleting(context, item):
 class DeleteCallback(Callback):
     name = "delete"
 
+    @sentry.transaction
+    @trace
     def perform(self, context, query, item_id, action=""):
         with Item.find_by_id(item_id) as item:
             user = query.from_user
