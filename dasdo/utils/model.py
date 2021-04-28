@@ -9,16 +9,25 @@ from dasdo.utils import omit
 
 logger = logging.getLogger(__name__)
 
+from pymongo_inmemory import MongoClient as MemMongo
 
 db = None
 
 
-def init_db(db_uri, db_name):
+def init_db(db_uri):
     global db
-    client = MongoClient(db_uri)
-    db = client[db_name]
-    client.server_info()
-    logger.info('DB connected')
+    if db_uri == "mem" or db_uri == "memory":
+        logger.warning(
+            "Using in-memory database, all data will be lost once the process exits"
+        )
+        client = MemMongo()
+        db = client["dasdo"]
+    else:
+        logger.debug("Connecting to DB")
+        client = MongoClient(db_uri)
+        client.server_info()
+        db = client.get_default_database()
+    logger.info("DB connected")
 
 
 class Model:

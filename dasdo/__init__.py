@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import fnmatch
 from importlib.metadata import version
 
 from telegram.bot import Bot
@@ -25,13 +26,6 @@ __version__ = version(__name__)
 __all__ = ("main",)
 
 
-logging.getLogger("telegram.ext.updater").setLevel(logging.INFO)
-logging.getLogger("telegram.bot").setLevel(logging.INFO)
-logging.getLogger("telegram.ext.dispatcher").setLevel(logging.INFO)
-logging.getLogger("telegram.ext.conversationhandler").setLevel(logging.INFO)
-logging.getLogger("telegram.ext.utils.webhookhandler").setLevel(logging.INFO)
-logging.getLogger("apscheduler.scheduler").setLevel(logging.INFO)
-
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +33,7 @@ def cmd_start(args):
     logger.info(f"Starting bot in {args.mode} mode")
 
     sentry.init_sentry(args.sentry_dsn)
-    init_db(args.db_uri, args.db_name)
+    init_db(args.db_uri)
 
     updater = Updater(
         token=args.token, request_kwargs={"proxy_url": args.proxy}, use_context=True
@@ -94,7 +88,7 @@ def cmd_commands(args):
 
 
 def cmd_shell(args):
-    init_db(args.db_uri, args.db_name)
+    init_db(args.db_uri)
     bot = Bot(args.token, request=Request(proxy_url=args.proxy))
 
     start_shell(bot)
@@ -103,6 +97,28 @@ def cmd_shell(args):
 def on_error(update, context):
     logger.exception(context.error)
 
+
+def init_logging(args):
+    log_args = {"filename": args.log_file, "filemode": "a"} if args.log_file else {}
+    log_level = logging.getLevelName(args.log_level.upper())
+
+    lib_loggers = (
+        ("telegram.*", logging.INFO),
+        ("apscheduler.*", logging.INFO),
+        ("PYMONGOIM*", logging.WARNING),
+    )
+    for logger_name in logging.root.manager.loggerDict:
+        for match_with, level in lib_loggers:
+            if fnmatch.fnmatch(logger_name, match_with):
+                print(logger_name, match_with)
+                logging.getLogger(logger_name).setLevel(max(level, log_level))
+    logging.getLogger('apscheduler.scheduler').setLevel(max(logging.INFO, log_level))
+
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=log_level,
+        **log_args,
+    )
 
 def read_config_envs():
     try:
@@ -130,7 +146,7 @@ def main():
         "--token",
         "-t",
         type=str,
-        help="Bot API token",
+        help="Telegram Bot API token",
         action=EnvDefault,
         envvar="BOT_TOKEN",
         required=True,
@@ -138,7 +154,7 @@ def main():
     parser.add_argument(
         "--proxy",
         type=str,
-        help="Proxy used if polling",
+        help="Proxy to use for connecting to Telegram API server. Only used in 'poll' mode.",
         action=EnvDefault,
         envvar="BOT_PROXY",
         required=False,
@@ -147,7 +163,7 @@ def main():
         "--mode",
         "-m",
         type=str,
-        help="Mode",
+        help="Specifies the method to use for receiving updates from Telegram.",
         choices=["poll", "webhook"],
         action=EnvDefault,
         envvar="BOT_MODE",
@@ -156,38 +172,37 @@ def main():
     parser.add_argument(
         "--host",
         type=str,
-        help="",
+        help="The host address to listen to for incoming webhook requests. Only used in 'webhook' mode.",
         action=EnvDefault,
         envvar="BOT_HOST",
         default="0.0.0.0",
     )
     parser.add_argument(
-        "--port", type=int, help="", action=EnvDefault, envvar="BOT_PORT", default=8443
+        "--port",
+        "-p",
+        type=int,
+        help="The port to listen on for incoming webhook requests. Only used in 'webhook' mode.",
+        action=EnvDefault,
+        envvar="BOT_PORT",
+        default=8443,
     )
     parser.add_argument(
         "--url",
         "-u",
         type=str,
-        help="",
+        help="The URL which Telegram should send updates to if using 'webhook' mode",
         action=EnvDefault,
         envvar="BOT_URL",
         required=False,
     )
     parser.add_argument(
         "--db-uri",
+        "-d",
         type=str,
-        help="",
+        help="MongoDB URI to connect to. Use 'mem' to use in-memory database.",
         action=EnvDefault,
-        envvar="BOT_DB_URI",
+        envvar="BOT_MONGO_URI",
         default="mongodb://127.0.0.1:27017",
-    )
-    parser.add_argument(
-        "--db-name",
-        type=str,
-        help="",
-        action=EnvDefault,
-        envvar="BOT_DB_NAME",
-        default="maleto",
     )
     parser.add_argument(
         "--sentry-dsn",
@@ -207,26 +222,18 @@ def main():
     )
     parser.add_argument(
         "--log-file",
+        "-o",
         type=str,
-        help="",
+        help="The file to write log messages to. Will log to stdout/stderr if not specified.",
         action=EnvDefault,
         envvar="BOT_LOG_FILE",
         required=False,
     )
     parser.add_argument(
         "--log-level",
+        "-l",
         type=str,
-        help="",
-        choices=(
-            "debug",
-            "DEBUG",
-            "info",
-            "INFO",
-            "warning",
-            "WARNING",
-            "error",
-            "ERROR",
-        ),
+        help="The minimum level at which messages are logged",
         action=EnvDefault,
         envvar="BOT_LOG_LEVEL",
         default="INFO",
@@ -244,14 +251,10 @@ def main():
     args = parser.parse_args()
     if args.mode == "webhook" and not args.url:
         parser.error("--url option required in webhook mode")
+    if args.log_level.lower() not in ["debug", "info", "warning", "error", "critical"]:
+        parser.error(f"Invalid log level: {args.log_level}")
 
-    log_args = {"filename": args.log_file, "filemode": "a"} if args.log_file else {}
-    log_level = logging.getLevelName(args.log_level.upper())
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=log_level,
-        **log_args,
-    )
+    init_logging(args)
 
     {"start": cmd_start, "setcommands": cmd_commands, "shell": cmd_shell,}[
         args.command
