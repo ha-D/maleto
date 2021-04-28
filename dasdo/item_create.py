@@ -39,7 +39,7 @@ def item_new(update, context):
                 "You can click on the `Cancel` button or enter `/cancel` at any time to abort"
             ),
             "",
-            _("To start, enter the `title` of the item you want to sell"),
+            _("To start, enter the *title* of the item you want to sell"),
         ]
     )
     update.message.reply_text(
@@ -95,7 +95,6 @@ def item_photo_ask(update, context, msg):
 @bot_handler
 @trace
 def item_photo(update, context):
-    print("PHOOOOOOOOOOOOOOOOOOOOOOTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
     if len(update.message.photo) == 0:
         return ITEM_PHOTO
 
@@ -142,7 +141,7 @@ def item_description_ask(update, context, msg):
         [
             *msg,
             "",
-            _("Now enter a `description` for your item"),
+            _("Now enter a *description* for your item"),
         ]
     )
     update.message.reply_text(msg, reply_markup=cancel_markup)
@@ -163,7 +162,7 @@ def item_currency_ask(update, context, msg):
     msg = "\n".join(
         [
             *msg,
-            _("What `currency` would you like to use?"),
+            _("What *currency* would you like to use?"),
         ]
     )
     currencies = get_currencies()
@@ -194,7 +193,7 @@ def item_price_ask(update, context, msg):
     msg = "\n".join(
         [
             *msg,
-            _("What `price` are you selling at?"),
+            _("What *price* are you selling at?"),
         ]
     )
     update.message.reply_text(msg, reply_markup=cancel_markup)

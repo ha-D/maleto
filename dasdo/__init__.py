@@ -205,7 +205,7 @@ def main():
         "--db-uri",
         "-d",
         type=str,
-        help="MongoDB URI to connect to. Use 'mem' to use in-memory database.",
+        help="MongoDB URI to connect to. Use 'mem' to use an in-memory database.",
         action=EnvDefault,
         envvar="BOT_MONGO_URI",
         default="mongodb://127.0.0.1:27017",

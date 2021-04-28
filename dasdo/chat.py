@@ -57,6 +57,31 @@ class Chat(Model):
                     "",
                     *[item.chat_link(self.id) for item in items],
                     "",
+                    "",
+                    _("*Frequently Asked Questions:*"),
+                    "",
+                    _("*What is this?*"),
+                    " ".join([_("These items are on sale by the members of this group."),
+                        _("The sale is performed through an auction, you can place a bid on any item you like."),
+                        _("The bid with the highest price will be the buyer of that item.")
+                    ]),
+                    "",
+                    _("*How can I place a bid?*"),
+                    " ".join([_("Below each item is a purchase link."),
+                        _("Click on the link and you will be redirected to the Bot."),
+                        _("Click on the Start button and follow the steps to place a bid.")
+                    ]),
+                    "",
+                    _("*Can I add items for sale?*"),
+                    " ".join([_("This is an open channel, all joined members can add items."),
+                        _("To add an item first join this channel, then [click here](https://t.me/DasdoBot) to go to the Bot."),
+                        _("Enter the `/newitem` command and follow the steps to create a new item.")
+                    ]),
+                    "",
+                    _("*I have a feature suggestion*"),
+                    " ".join([_("DasdoBot is an open source project."),
+                        _("Contributions and suggestions are welcome at the [Github Page](https://github.com/ha-D/dasdo)"),
+                    ]),
                 ]
             )
             return s
