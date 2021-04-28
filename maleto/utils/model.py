@@ -5,7 +5,7 @@ from collections import defaultdict
 from threading import RLock
 import logging
 
-from dasdo.utils import omit, sentry
+from maleto.utils import omit, sentry
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def init_db(db_uri):
             "Using in-memory database, all data will be lost once the process exits"
         )
         client = MemMongo()
-        db = client["dasdo"]
+        db = client["maleto"]
     else:
         logger.debug("Connecting to DB")
         client = MongoClient(db_uri)

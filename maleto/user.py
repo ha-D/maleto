@@ -3,8 +3,8 @@ from datetime import datetime
 
 from pymongo.collection import ReturnDocument
 
-from dasdo.utils.model import Model
-from dasdo.utils import sentry
+from maleto.utils.model import Model
+from maleto.utils import sentry
 
 logger = logging.getLogger(__name__)
 

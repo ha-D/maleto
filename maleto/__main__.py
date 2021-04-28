@@ -1,4 +1,4 @@
-from dasdo import main
+from maleto import main
 
 if __name__ == "__main__":
     main()

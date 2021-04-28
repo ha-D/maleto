@@ -3,9 +3,9 @@ from datetime import datetime
 
 from telegram import *
 
-from dasdo.utils.lang import _, uselang
-from dasdo.utils.model import Model
-from dasdo.utils import sentry
+from maleto.utils.lang import _, uselang
+from maleto.utils.model import Model
+from maleto.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,7 @@ class Chat(Model):
             )
             self.info_message_id = info_msg.message_id
             info_msg.pin(disable_notification=True)
+            self.save()
         else:
             context.bot.edit_message_text(
                 chat_id=self.id,
@@ -47,7 +48,7 @@ class Chat(Model):
 
     @sentry.span
     def generate_info_message(self):
-        from dasdo.item import Item
+        from maleto.item import Item
 
         with uselang(self.lang):
             items = Item.find(posts__chat_id=self.id)
@@ -74,13 +75,13 @@ class Chat(Model):
                     "",
                     _("*Can I add items for sale?*"),
                     " ".join([_("This is an open channel, all joined members can add items."),
-                        _("To add an item first join this channel, then [click here](https://t.me/DasdoBot) to go to the Bot."),
+                        _("To add an item first join this channel, then [click here](https://t.me/MaletoBot) to go to the Bot."),
                         _("Enter the `/newitem` command and follow the steps to create a new item.")
                     ]),
                     "",
                     _("*I have a feature suggestion*"),
-                    " ".join([_("DasdoBot is an open source project."),
-                        _("Contributions and suggestions are welcome at the [Github Page](https://github.com/ha-D/dasdo)"),
+                    " ".join([_("MaletoBot is an open source project."),
+                        _("Contributions and suggestions are welcome at the [Github Page](https://github.com/ha-D/maleto)"),
                     ]),
                 ]
             )

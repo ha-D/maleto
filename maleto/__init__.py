@@ -10,7 +10,7 @@ from telegram.ext import Updater, Defaults
 from telegram.parsemode import ParseMode
 from telegram.utils.request import Request
 
-from dasdo import (
+from maleto import (
     chat_member,
     chat_settings,
     entry,
@@ -19,10 +19,10 @@ from dasdo import (
     item_settings,
     user_settings,
 )
-from dasdo.utils import sentry
-from dasdo.utils.config import EnvDefault
-from dasdo.utils.model import init_db
-from dasdo.utils.shell import start_shell
+from maleto.utils import sentry
+from maleto.utils.config import EnvDefault
+from maleto.utils.model import init_db
+from maleto.utils.shell import start_shell
 
 __version__ = version(__name__)
 __all__ = ("main",)

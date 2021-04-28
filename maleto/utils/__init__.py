@@ -11,7 +11,7 @@ from bson.int64 import Int64
 from threading import Lock
 from collections import defaultdict
 
-from dasdo.utils.lang import uselang
+from maleto.utils.lang import uselang
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +38,8 @@ class Callback(CallbackQueryHandler):
         return "#".join([cls.name, *pargs])
 
     def _perform(self, update, context):
-        from dasdo.user import User
-        from dasdo.chat import Chat
+        from maleto.user import User
+        from maleto.chat import Chat
 
         user = User.create_or_update_from_api(update.effective_user)
         context.user = user
@@ -110,8 +110,8 @@ def split_keyboard(btns, cols=2):
 def bot_handler(f):
     @wraps(f)
     def inner(update, context):
-        from dasdo.user import User
-        from dasdo.chat import Chat
+        from maleto.user import User
+        from maleto.chat import Chat
 
         api_user = update.effective_user
         user = User.create_or_update_from_api(api_user)

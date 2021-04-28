@@ -4,13 +4,13 @@ from telegram import *
 from telegram.ext import *
 from telegram.utils.helpers import *
 
-from dasdo.item import Item
-from dasdo.utils import Callback, bot_handler
-from dasdo.utils import metrics as mt
-from dasdo.utils import split_keyboard, trace
-from dasdo.utils import sentry
-from dasdo.utils.currency import get_currencies
-from dasdo.utils.lang import _
+from maleto.item import Item
+from maleto.utils import Callback, bot_handler
+from maleto.utils import metrics as mt
+from maleto.utils import split_keyboard, trace
+from maleto.utils import sentry
+from maleto.utils.currency import get_currencies
+from maleto.utils.lang import _
 
 logger = logging.getLogger(__name__)
 

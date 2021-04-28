@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "dasdo"
-version = "0.0.16"
+name = "maleto"
+version = "0.0.17"
 description = ""
 authors = ["Hadi Zo <hadi.zolfaghaari@gmail.com>"]
 
@@ -23,4 +23,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-dasdo = 'dasdo:main'
+maleto = 'maleto:main'

@@ -3,10 +3,10 @@ from telegram.ext import *
 from telegram import *
 from telegram.utils.helpers import *
 
-from dasdo.utils import bot_handler, split_keyboard
-from dasdo.utils.lang import LANGUAGES
-from dasdo.item import Item
-from dasdo.user import User
+from maleto.utils import bot_handler, split_keyboard
+from maleto.utils.lang import LANGUAGES
+from maleto.item import Item
+from maleto.user import User
 
 logger = logging.getLogger(__name__)
 

@@ -7,9 +7,9 @@ from telegram.ext import *
 from telegram.utils import helpers
 from telegram.utils.helpers import *
 
-from dasdo.item import Item
-from dasdo.user import User
-from dasdo.utils import (
+from maleto.item import Item
+from maleto.user import User
+from maleto.utils import (
     Callback,
     bot_handler,
     find_best_inc,
@@ -17,13 +17,13 @@ from dasdo.utils import (
     sentry,
     split_keyboard,
 )
-from dasdo.utils.currency import (
+from maleto.utils.currency import (
     currency_name,
     deformat_number,
     format_currency,
     format_number,
 )
-from dasdo.utils.lang import _, uselang
+from maleto.utils.lang import _, uselang
 
 logger = logging.getLogger(__name__)
 

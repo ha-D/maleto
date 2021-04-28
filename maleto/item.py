@@ -8,10 +8,10 @@ from telegram.error import BadRequest
 from telegram.ext import *
 from telegram.utils.helpers import *
 
-from dasdo.utils import find_best_inc, find_by, get_bot, sentry, trace
-from dasdo.utils.currency import format_currency
-from dasdo.utils.lang import _, convert_number, current_lang, uselang
-from dasdo.utils.model import Model
+from maleto.utils import find_best_inc, find_by, get_bot, sentry, trace
+from maleto.utils.currency import format_currency
+from maleto.utils.lang import _, convert_number, current_lang, uselang
+from maleto.utils.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class Item(Model):
 
     @property
     def owner(self):
-        from dasdo.user import User
+        from maleto.user import User
 
         return User.find_by_id(self.owner_id)
 
@@ -154,7 +154,7 @@ class Item(Model):
 
     @sentry.span
     def add_to_chat(self, context, chat_id):
-        from dasdo.chat import Chat
+        from maleto.chat import Chat
 
         chat = Chat.find_by_id(chat_id)
         with chat:
@@ -181,7 +181,7 @@ class Item(Model):
 
     @sentry.span
     def remove_from_chat(self, context, chat_id):
-        from dasdo.chat import Chat
+        from maleto.chat import Chat
 
         post, idx = find_by(self.posts, "chat_id", chat_id)
         if post:
@@ -260,7 +260,7 @@ class Item(Model):
 
     @sentry.span
     def publish(self, context):
-        from dasdo.chat import Chat
+        from maleto.chat import Chat
 
         for post in self.posts:
             chat_id = post["chat_id"]
@@ -282,12 +282,12 @@ class Item(Model):
             self.publish_bid_message(context, mes["user_id"])
 
     def publish_settings_message(self, context):
-        from dasdo.item_settings import publish_settings_message
+        from maleto.item_settings import publish_settings_message
 
         return publish_settings_message(context, self)
 
     def publish_bid_message(self, context, user_id):
-        from dasdo.item_bid import publish_bid_message
+        from maleto.item_bid import publish_bid_message
 
         return publish_bid_message(context, self, user_id)
 
@@ -347,7 +347,7 @@ class Item(Model):
 
     @sentry.span
     def generate_sale_message(self, context):
-        from dasdo.user import User
+        from maleto.user import User
 
         bot = get_bot(context)
 
@@ -355,7 +355,7 @@ class Item(Model):
         if len(self.bids) > 0:
             current_price = self.bids[0]["price"]
 
-        from dasdo.utils.lang import current_lang
+        from maleto.utils.lang import current_lang
 
         clang = current_lang()
 

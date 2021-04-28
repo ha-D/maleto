@@ -1,8 +1,8 @@
 import IPython
 
-from dasdo.item import Item
-from dasdo.user import User
-from dasdo.chat import Chat
+from maleto.item import Item
+from maleto.user import User
+from maleto.chat import Chat
 
 
 def start_shell(_bot):

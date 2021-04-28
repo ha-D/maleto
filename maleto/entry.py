@@ -3,8 +3,8 @@ import logging
 from telegram.ext import CommandHandler, Filters
 from telegram.ext.callbackcontext import CallbackContext
 
-from dasdo.item import Item
-from dasdo.utils import bot_handler, trace
+from maleto.item import Item
+from maleto.utils import bot_handler, trace
 
 
 logger = logging.getLogger(__name__)
