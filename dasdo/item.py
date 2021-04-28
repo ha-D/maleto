@@ -158,8 +158,8 @@ class Item(Model):
 
         chat = Chat.find_by_id(chat_id)
         with chat:
-            index = chat.index_counter
-            chat.index_counter += 1
+            index = chat.next_index
+            chat.next_index += 1
 
         post, _ = find_by(self.posts, "chat_id", chat_id)
         if not post:
@@ -396,6 +396,7 @@ class Item(Model):
         msg += [
             "",
             f"[{click_here}](https://t.me/{bot.username}?start=action_item-item_{self.id}{lang_arg})",
+            "",
         ]
 
         return "\n".join(msg)

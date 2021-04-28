@@ -72,15 +72,18 @@ class Model:
         self._lock.acquire()
         doc_lock = self.doc_locks[self.id]
         self._lock.release()
+        doc_lock.release()
 
     def __enter__(self):
         self.lock()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None:
-            self.save()
-        self.release()
+        try:
+            if exc_type is None:
+                self.save()
+        finally:
+            self.release()
 
     def save_to_context(self, context):
         context.user_data[self.Meta.name] = self.id

@@ -303,28 +303,25 @@ class SelectItemCallback(Callback):
 
 
 def handlers():
-    """
-    TODO: running async breaks uploading multiple images in a wierd way, check why
-    """
-    canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel,  run_async=False)
+    canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
     yield ConversationHandler(
-        entry_points=[CommandHandler("newitem", item_new, run_async=False)],
+        entry_points=[CommandHandler("newitem", item_new)],
         states={
-            ITEM_TITLE: [canceler, MessageHandler(Filters.text, item_title, run_async=False)],
+            ITEM_TITLE: [canceler, MessageHandler(Filters.text, item_title)],
             ITEM_PHOTO: [
                 canceler,
-                MessageHandler(Filters.photo, item_photo,  run_async=False),
-                MessageHandler(Filters.regex(r"/?[dD]one"), item_photo_done, run_async=False),
+                # TODO: running async breaks uploading multiple images in a wierd way, check why
+                MessageHandler(Filters.photo, item_photo, run_async=False),
+                MessageHandler(Filters.regex(r"/?[dD]one"), item_photo_done),
             ],
             ITEM_DESCRIPTION: [
                 canceler,
-                MessageHandler(Filters.text, item_description, run_async=False),
+                MessageHandler(Filters.text, item_description),
             ],
-            ITEM_CURRENCY: [canceler, MessageHandler(Filters.text, item_currency, run_async=False)],
-            ITEM_PRICE: [canceler, MessageHandler(Filters.text, item_price, run_async=False)],
+            ITEM_CURRENCY: [canceler, MessageHandler(Filters.text, item_currency)],
+            ITEM_PRICE: [canceler, MessageHandler(Filters.text, item_price)],
         },
         fallbacks=[canceler],
-        run_async=False,
     )
 
     yield from (CommandHandler("myitems", list_items), SelectItemCallback())

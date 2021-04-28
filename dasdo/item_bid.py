@@ -9,10 +9,20 @@ from telegram.utils.helpers import *
 
 from dasdo.item import Item
 from dasdo.user import User
-from dasdo.utils import (Callback, bot_handler, find_best_inc, find_by, sentry,
-                         split_keyboard)
-from dasdo.utils.currency import (currency_name, deformat_number,
-                                  format_currency, format_number)
+from dasdo.utils import (
+    Callback,
+    bot_handler,
+    find_best_inc,
+    find_by,
+    sentry,
+    split_keyboard,
+)
+from dasdo.utils.currency import (
+    currency_name,
+    deformat_number,
+    format_currency,
+    format_number,
+)
 from dasdo.utils.lang import _, uselang
 
 logger = logging.getLogger(__name__)
@@ -112,7 +122,9 @@ def no_bidder(context, item):
 
 def not_bidding(context, item):
     highest_bid = max(item.bids, key=lambda b: b["price"])["price"]
-    msg = _("The highest bid is {}, do you want to make an offer?").format(highest_bid)
+    msg = _("The highest bid is {}, do you want to make an offer?").format(
+        format_currency(item.currency, highest_bid)
+    )
     btns = InlineKeyboardMarkup(
         [
             [
@@ -181,45 +193,47 @@ def ask_for_bid(context, message, item, error=None):
 @bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:
-        try:
-            price = deformat_number(update.message.text)
-        except ValueError as e:
-            ask_for_bid(
-                context,
-                update.message,
-                item,
-                _("That is not a valid price, please enter a number"),
-            )
-            return OFFER
+        bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+        with uselang(context.user.lang or bmes.get("lang")):
+            try:
+                price = deformat_number(update.message.text)
+            except ValueError as e:
+                ask_for_bid(
+                    context,
+                    update.message,
+                    item,
+                    _("That is not a valid price, please enter a number"),
+                )
+                return OFFER
 
-        try:
-            user = update.message.from_user
-            item.add_user_bid(context, user.id, price)
-            if item.bids[0]["user_id"] == context.user.id:
-                update.message.reply_text(
-                    _("Congrats 🎉, you're the current buyer at {}").format(
-                        format_currency(item.currency, price)
-                    ),
-                    reply_markup=ReplyKeyboardRemove(),
-                )
-            else:
-                __, pos = find_by(item.bids, "user_id", context.user.id)
-                update.message.reply_text(
-                    _(
-                        "You've made an offer for {} and are #{} in the waiting list"
-                    ).format(price, pos),
-                    reply_markup=ReplyKeyboardRemove(),
-                )
-            item.clear_context(context)
-            item.publish(context)
-            return ConversationHandler.END
-        except ValueError as e:
-            if len(e.args):
-                err = e.args[0]
-            else:
-                err = _("Something went wrong please try again")
-            ask_for_bid(context, update.message, item, err)
-            return OFFER
+            try:
+                user = update.message.from_user
+                item.add_user_bid(context, user.id, price)
+                if item.bids[0]["user_id"] == context.user.id:
+                    update.message.reply_text(
+                        _("Congrats 🎉, you're the current buyer at {}").format(
+                            format_currency(item.currency, price)
+                        ),
+                        reply_markup=ReplyKeyboardRemove(),
+                    )
+                else:
+                    __, pos = find_by(item.bids, "user_id", context.user.id)
+                    update.message.reply_text(
+                        _(
+                            "You've made an offer for {} and are #{} in the waiting list"
+                        ).format(price, pos),
+                        reply_markup=ReplyKeyboardRemove(),
+                    )
+                item.clear_context(context)
+                item.publish(context)
+                return ConversationHandler.END
+            except ValueError as e:
+                if len(e.args):
+                    err = e.args[0]
+                else:
+                    err = _("Something went wrong please try again")
+                ask_for_bid(context, update.message, item, err)
+                return OFFER
 
 
 @bot_handler

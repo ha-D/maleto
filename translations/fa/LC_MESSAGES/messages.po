@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-04-28 15:28+0430\n"
-"PO-Revision-Date: 2021-04-28 15:40+0430\n"
+"PO-Revision-Date: 2021-04-28 16:00+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
@@ -33,7 +33,7 @@ msgstr "*این چیه؟*"
 
 #: dasdo/chat.py:64
 msgid "These items are on sale by the members of this group."
-msgstr "این کالا رو اعضای گروه دارن میفرشون."
+msgstr "این کالاها رو اعضای گروه دارن میفرشون."
 
 #: dasdo/chat.py:65
 msgid ""
