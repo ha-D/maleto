@@ -9,13 +9,14 @@ from telegram.utils.helpers import *
 
 from dasdo.item import Item
 from dasdo.user import User
-from dasdo.utils import Callback 
+from dasdo.utils import Callback, sentry
 from dasdo.utils.lang import _
 from dasdo.chat import Chat
 
 logger = logging.getLogger(__name__)
 
 
+@sentry.span
 def publish_settings_message(context, item):
     smes = item.settings_message
     if smes is None:

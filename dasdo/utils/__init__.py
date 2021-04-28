@@ -1,3 +1,4 @@
+from functools import wraps
 import logging
 import time
 
@@ -107,6 +108,7 @@ def split_keyboard(btns, cols=2):
 
 
 def bot_handler(f):
+    @wraps(f)
     def inner(update, context):
         from dasdo.user import User
         from dasdo.chat import Chat
@@ -122,6 +124,7 @@ def bot_handler(f):
 
 
 def trace(f):
+    @wraps(f)
     def inner(*args, **kwargs):
         before = time.perf_counter()
         result = f(*args, **kwargs)

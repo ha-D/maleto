@@ -8,6 +8,7 @@ from dasdo.item import Item
 from dasdo.utils import Callback, bot_handler
 from dasdo.utils import metrics as mt
 from dasdo.utils import split_keyboard, trace
+from dasdo.utils import sentry
 from dasdo.utils.currency import get_currencies
 from dasdo.utils.lang import _
 
@@ -22,6 +23,7 @@ STORE_NAME = range(1)
 cancel_markup = ReplyKeyboardMarkup([[KeyboardButton("Cancel")]])
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_new(update, context):
@@ -43,11 +45,12 @@ def item_new(update, context):
     update.message.reply_text(
         msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup
     )
-    logger.info(f'Item creation started. item:{item.id} user:{context.user.id}')
+    logger.info(f"Item creation started. item:{item.id} user:{context.user.id}")
     mt.item_create_start.inc()
     return ITEM_TITLE
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_title(update, context):
@@ -88,6 +91,7 @@ def item_photo_ask(update, context, msg):
     return ITEM_PHOTO
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_photo(update, context):
@@ -102,6 +106,7 @@ def item_photo(update, context):
     return ITEM_PHOTO
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_photo_done(update, context):
@@ -143,6 +148,7 @@ def item_description_ask(update, context, msg):
     return ITEM_DESCRIPTION
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_description(update, context):
@@ -165,12 +171,15 @@ def item_currency_ask(update, context, msg):
     return ITEM_CURRENCY
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_currency(update, context):
     currency_key = get_currencies().get(update.message.text)
     if currency_key is None:
-        update.message.reply_text(_("I'm not familiar with that currency, please try again"))
+        update.message.reply_text(
+            _("I'm not familiar with that currency, please try again")
+        )
         return ITEM_CURRENCY
 
     with Item.from_context(context) as item:
@@ -191,6 +200,7 @@ def item_price_ask(update, context, msg):
     return ITEM_PRICE
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def item_price(update, context):
@@ -226,7 +236,9 @@ def item_end(update, context, item):
     update.message.reply_text(msg, reply_markup=ReplyKeyboardRemove())
     item.active = (True,)
     item.new_settings_message(context, publish=True)
-    logger.info(f'Item creation successfully finished. item:{item.id} user:{context.user.id}')
+    logger.info(
+        f"Item creation successfully finished. item:{item.id} user:{context.user.id}"
+    )
     mt.item_create_done.inc()
 
 
@@ -239,11 +251,12 @@ def cancel(update, context):
     update.message.reply_text(
         _("Ok, no worries, no item created."), reply_markup=ReplyKeyboardRemove()
     )
-    logger.info(f'Item creation cancelled. item:{item.id} user:{context.user.id}')
+    logger.info(f"Item creation cancelled. item:{item.id} user:{context.user.id}")
     mt.item_create_cancel.inc()
     return ConversationHandler.END
 
 
+@sentry.transaction
 @bot_handler
 @trace
 def list_items(update, context):
@@ -307,7 +320,7 @@ def handlers():
             ITEM_PRICE: [canceler, MessageHandler(Filters.text, item_price)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
-        # run_async=True # Run sync break multiple images
+        run_async=False,  # TODO: running async breaks uploading multiple images, check why
     )
 
     yield from (CommandHandler("myitems", list_items), SelectItemCallback())

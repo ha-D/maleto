@@ -41,3 +41,47 @@ def filter_event(event, hint):
     except (KeyError, IndexError):
         pass
     return event
+
+
+def transaction(f):
+    name = f"{f.__module__}:{f.__qualname__}"
+
+    def inner(*args, **kwargs):
+        with sentry_sdk.start_transaction(op="task", name=name):
+            return f(*args, **kwargs)
+
+    return inner
+
+
+def span(f):
+    name = f"{f.__module__}:{f.__qualname__}"
+
+    def inner(*args, **kwargs):
+        with sentry_sdk.start_span(op=name, description=""):
+            return f(*args, **kwargs)
+
+    return inner
+
+
+def set_span_tag(key, val):
+    span = sentry_sdk.Hub.current.scope.span
+    if span == None:
+        logger.warning("Attempting to set tag on non-existing sentry span")
+        return
+    span.set_tag(key, val)
+
+
+def set_span_data(key, val):
+    span = sentry_sdk.Hub.current.scope.span
+    if span == None:
+        logger.warning("Attempting to set data on non-existing sentry span")
+        return
+    span.set_data(key, val)
+
+
+def set_span_status(val):
+    span = sentry_sdk.Hub.current.scope.span
+    if span == None:
+        logger.warning("Attempting to set status on non-existing sentry span")
+        return
+    span.set_status(val)

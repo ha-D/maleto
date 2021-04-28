@@ -1,33 +1,26 @@
 import logging
 import warnings
+
+from telegram import *
 from telegram.error import BadRequest
 from telegram.ext import *
-from telegram import *
-from telegram.utils.helpers import *
 from telegram.utils import helpers
+from telegram.utils.helpers import *
 
 from dasdo.item import Item
 from dasdo.user import User
-from dasdo.utils.currency import (
-    currency_name,
-    deformat_number,
-    format_currency,
-    format_number,
-)
+from dasdo.utils import (Callback, bot_handler, find_best_inc, find_by, sentry,
+                         split_keyboard)
+from dasdo.utils.currency import (currency_name, deformat_number,
+                                  format_currency, format_number)
 from dasdo.utils.lang import _, uselang
-from dasdo.utils import (
-    Callback,
-    find_best_inc,
-    bot_handler,
-    find_by,
-    split_keyboard,
-)
 
 logger = logging.getLogger(__name__)
 
 OPTIONS, OFFER = range(2)
 
 
+@sentry.span
 def publish_bid_message(context, item, user_id):
     bmes, __ = find_by(item.bid_messages, "user_id", user_id)
     if bmes is None:
@@ -135,6 +128,7 @@ def not_bidding(context, item):
 class RevokeBidCallback(Callback):
     name = "revoke"
 
+    @sentry.transaction
     def perform(self, context, query, item_id):
         user = query.from_user
         with Item.find_by_id(item_id) as item:
@@ -149,6 +143,7 @@ class RevokeBidCallback(Callback):
 class BidCallback(Callback):
     name = "bid"
 
+    @sentry.transaction
     def perform(self, context, query, item_id):
         with Item.find_by_id(item_id) as item:
             bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
@@ -158,6 +153,7 @@ class BidCallback(Callback):
         return OFFER
 
 
+@sentry.span
 def ask_for_bid(context, message, item, error=None):
     item.save_to_context(context)
     highest_bid = item.base_price
@@ -181,6 +177,7 @@ def ask_for_bid(context, message, item, error=None):
     )
 
 
+@sentry.transaction
 @bot_handler
 def on_bid(update, context):
     with Item.from_context(context) as item:

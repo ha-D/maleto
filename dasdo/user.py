@@ -4,6 +4,7 @@ from datetime import datetime
 from pymongo.collection import ReturnDocument
 
 from dasdo.utils.model import Model
+from dasdo.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class User(Model):
         super().__init__(**{"chats": [], **kwargs})
 
     @classmethod
+    @sentry.span
     def create_or_update_from_api(cls, user, lang=None):
         if user is not None:
             # Don't set the lang if its the default lang (i.e, `en`) so that it
@@ -49,11 +51,13 @@ class User(Model):
                 upsert=True,
             )
             if d is None:
+                sentry.set_span_tag("created", True)
                 logger.info(
                     f"New user created. user:{user.id} username:{user.username} name:{user.first_name or ''} {user.last_name or ''}"
                 )
                 return User.find_by_id(user.id)
             else:
+                sentry.set_span_tag("created", False)
                 return cls(**d)
         return None
 

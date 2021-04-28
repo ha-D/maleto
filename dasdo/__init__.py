@@ -3,9 +3,11 @@ import logging
 import os
 import fnmatch
 from importlib.metadata import version
+import pytz
 
 from telegram.bot import Bot
-from telegram.ext import Updater
+from telegram.ext import Updater, Defaults
+from telegram.parsemode import ParseMode
 from telegram.utils.request import Request
 
 from dasdo import (
@@ -35,8 +37,12 @@ def cmd_start(args):
     sentry.init_sentry(args.sentry_dsn)
     init_db(args.db_uri)
 
+    defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=False)
     updater = Updater(
-        token=args.token, request_kwargs={"proxy_url": args.proxy}, use_context=True
+        token=args.token,
+        request_kwargs={"proxy_url": args.proxy},
+        use_context=True,
+        defaults=defaults,
     )
 
     dispatcher = updater.dispatcher
@@ -110,15 +116,15 @@ def init_logging(args):
     for logger_name in logging.root.manager.loggerDict:
         for match_with, level in lib_loggers:
             if fnmatch.fnmatch(logger_name, match_with):
-                print(logger_name, match_with)
                 logging.getLogger(logger_name).setLevel(max(level, log_level))
-    logging.getLogger('apscheduler.scheduler').setLevel(max(logging.INFO, log_level))
+    logging.getLogger("apscheduler.scheduler").setLevel(max(logging.INFO, log_level))
 
     logging.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=log_level,
         **log_args,
     )
+
 
 def read_config_envs():
     try:

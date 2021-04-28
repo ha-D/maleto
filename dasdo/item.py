@@ -1,17 +1,17 @@
 import logging
-import string
 import random
+import string
 import time
 
-from telegram.ext import *
 from telegram import *
-from telegram.utils.helpers import *
 from telegram.error import BadRequest
+from telegram.ext import *
+from telegram.utils.helpers import *
 
-from dasdo.utils import find_best_inc, find_by, get_bot, trace
+from dasdo.utils import find_best_inc, find_by, get_bot, sentry, trace
+from dasdo.utils.currency import format_currency
 from dasdo.utils.lang import _, convert_number, current_lang, uselang
 from dasdo.utils.model import Model
-from dasdo.utils.currency import format_currency
 
 logger = logging.getLogger(__name__)
 
@@ -69,6 +69,7 @@ class Item(Model):
         if sort:
             self._sort_bids()
 
+    @sentry.span
     def add_user_bid(self, context, user_id, price, sort=True):
         # TODO: check min price inc
 
@@ -108,9 +109,11 @@ class Item(Model):
 
         self._handle_winner_change(context, previous_winner, self.bids[0])
 
+    @sentry.span
     def _sort_bids(self):
         self.bids = sorted(self.bids, key=lambda b: (b["price"], b["ts"]), reverse=True)
 
+    @sentry.span
     def _handle_winner_change(self, context, prev_winner, new_winner):
         if (
             prev_winner is not None
@@ -148,6 +151,7 @@ class Item(Model):
                 ),
             )
 
+    @sentry.span
     def add_to_chat(self, context, chat_id):
         from dasdo.chat import Chat
 
@@ -174,6 +178,7 @@ class Item(Model):
         self.save()
         chat.publish_info_message(context)
 
+    @sentry.span
     def remove_from_chat(self, context, chat_id):
         from dasdo.chat import Chat
 
@@ -185,6 +190,7 @@ class Item(Model):
         self.save()
         Chat.find_by_id(chat_id).publish_info_message(context)
 
+    @sentry.span
     @trace
     def new_bid_message(
         self, context, user_id, message_id=None, lang=None, publish=True
@@ -223,6 +229,7 @@ class Item(Model):
         if publish:
             self.publish_bid_message(context, user_id)
 
+    @sentry.span
     @trace
     def new_settings_message(self, context, message_id=None, publish=True):
         prev_mes = self.settings_message
@@ -250,6 +257,7 @@ class Item(Model):
         mes = self.settings_message
         mes["state"] = state
 
+    @sentry.span
     def publish(self, context):
         from dasdo.chat import Chat
 
@@ -282,6 +290,7 @@ class Item(Model):
 
         return publish_bid_message(context, self, user_id)
 
+    @sentry.span
     def delete_all_messages(self, context):
         for bmes in self.bid_messages:
             try:
@@ -335,6 +344,7 @@ class Item(Model):
                         exc_info=True,
                     )
 
+    @sentry.span
     def generate_sale_message(self, context):
         from dasdo.user import User
 
@@ -389,6 +399,7 @@ class Item(Model):
 
         return "\n".join(msg)
 
+    @sentry.span
     def generate_owner_message(self, context):
         msg = [
             self.title,

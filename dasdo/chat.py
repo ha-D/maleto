@@ -5,6 +5,7 @@ from telegram import *
 
 from dasdo.utils.lang import _, uselang
 from dasdo.utils.model import Model
+from dasdo.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class Chat(Model):
     def __init__(self, **kwargs):
         super().__init__(**{"admins": [], "next_index": 1, **kwargs})
 
+    @sentry.span
     def publish_info_message(self, context):
         if self.info_message_id is None:
             info_msg = context.bot.send_message(
@@ -43,8 +45,10 @@ class Chat(Model):
                 parse_mode=ParseMode.MARKDOWN,
             )
 
+    @sentry.span
     def generate_info_message(self):
         from dasdo.item import Item
+
         with uselang(self.lang):
             items = Item.find(posts__chat_id=self.id)
             s = "\n".join(
@@ -63,6 +67,7 @@ class Chat(Model):
         return {c.id: c.title for c in chats}
 
     @classmethod
+    @sentry.span
     def create_or_update_from_api(cls, context, api_chat):
         if api_chat is not None:
             d = cls.col().find_one_and_update(
@@ -82,6 +87,7 @@ class Chat(Model):
                 upsert=True,
             )
             if d is None:
+                sentry.set_span_tag("created", True)
                 logger.info(
                     f"New chat created. chat:{api_chat.id} title:{api_chat.title}"
                 )
@@ -89,5 +95,6 @@ class Chat(Model):
                 chat.publish_info_message(context)
                 return chat
             else:
+                sentry.set_span_tag("created", False)
                 return cls(**d)
         return None

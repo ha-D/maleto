@@ -5,7 +5,7 @@ from collections import defaultdict
 from threading import RLock
 import logging
 
-from dasdo.utils import omit
+from dasdo.utils import omit, sentry
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,7 @@ class Model:
             return
         return super().__setattr__(key, val)
 
+    @sentry.span
     def save(self):
         now = datetime.now()
         self.col().update_one(
@@ -84,6 +85,7 @@ class Model:
     def save_to_context(self, context):
         context.user_data[self.Meta.name] = self.id
 
+    @sentry.span
     def delete(self):
         self.col().delete_one({"_id": self.id})
 
@@ -97,6 +99,7 @@ class Model:
         return db[cls.Meta.name]
 
     @classmethod
+    @sentry.span
     def find(cls, **kwargs):
         if "text" in kwargs:
             kwargs["$text"] = {"$search": kwargs.pop("text")}
