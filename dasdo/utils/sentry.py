@@ -47,6 +47,9 @@ def transaction(f):
     name = f"{f.__module__}:{f.__qualname__}"
 
     def inner(*args, **kwargs):
+        global sentry_enabled
+        if not sentry_enabled:
+            return f(*args, **kwargs)
         with sentry_sdk.start_transaction(op="task", name=name):
             return f(*args, **kwargs)
 
@@ -57,12 +60,16 @@ def span(f):
     name = f"{f.__module__}:{f.__qualname__}"
 
     def inner(*args, **kwargs):
+        global sentry_enabled
+        if not sentry_enabled:
+            return f(*args, **kwargs)
         with sentry_sdk.start_span(op=name, description=""):
             return f(*args, **kwargs)
 
     return inner
 
 
+@if_sentry_enabled
 def set_span_tag(key, val):
     span = sentry_sdk.Hub.current.scope.span
     if span == None:
@@ -71,6 +78,7 @@ def set_span_tag(key, val):
     span.set_tag(key, val)
 
 
+@if_sentry_enabled
 def set_span_data(key, val):
     span = sentry_sdk.Hub.current.scope.span
     if span == None:
@@ -79,6 +87,7 @@ def set_span_data(key, val):
     span.set_data(key, val)
 
 
+@if_sentry_enabled
 def set_span_status(val):
     span = sentry_sdk.Hub.current.scope.span
     if span == None:
