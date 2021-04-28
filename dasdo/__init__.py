@@ -37,7 +37,7 @@ def cmd_start(args):
     sentry.init_sentry(args.sentry_dsn)
     init_db(args.db_uri)
 
-    defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=False)
+    defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=True)
     updater = Updater(
         token=args.token,
         request_kwargs={"proxy_url": args.proxy},

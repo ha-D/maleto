@@ -14,7 +14,7 @@ def init_sentry(dsn):
     if dsn:
         logger.debug("Initializing sentry")
         sentry_enabled = True
-        sentry_sdk.init(dsn, traces_sample_rate=1.0, before_send=filter_event)
+        sentry_sdk.init(dsn, traces_sample_rate=0.5, before_send=filter_event)
 
 
 def if_sentry_enabled(f):
