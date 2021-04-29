@@ -14,6 +14,7 @@ from maleto.utils import (
     bot_handler,
     find_best_inc,
     find_by,
+    parse_start_params,
     sentry,
     split_keyboard,
     trace,
@@ -24,7 +25,7 @@ from maleto.utils.currency import (
     format_currency,
     format_number,
 )
-from maleto.utils.lang import _, uselang
+from maleto.utils.lang import _, convert_number, uselang
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ def buyer(context, item, bid):
 
 def in_waiting_list(context, item, bid, pos):
     msg = _("You have bidded {} and are currently {} in the waiting list").format(
-        bid["price"], pos
+        format_currency(item.currency, bid["price"]), convert_number(pos)
     )
     btns = InlineKeyboardMarkup(
         [
@@ -208,6 +209,11 @@ def ask_for_bid(context, message, item, error=None):
 @sentry.transaction
 @bot_handler
 def on_bid(update, context):
+    # This is to handle the case where the user forgets to click on the Start button
+    # before click on the bid button (from a previous bid_message)
+    if update.message.text.startswith('/start'):
+        return None
+
     with Item.from_context(context) as item:
         bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
         if bmes is None:
@@ -243,7 +249,7 @@ def on_bid(update, context):
                     update.message.reply_text(
                         _(
                             "You've made an offer for {} and are #{} in the waiting list"
-                        ).format(format_currency(item.currency, price), pos),
+                        ).format(format_currency(item.currency, price), convert_number(pos)),
                         reply_markup=ReplyKeyboardRemove(),
                     )
                 item.clear_context(context)
@@ -273,6 +279,6 @@ def handlers():
         warnings.simplefilter("ignore", category=UserWarning)
         yield ConversationHandler(
             entry_points=[RevokeBidCallback(), BidCallback()],
-            states={OFFER: [canceler, MessageHandler(Filters.text, on_bid)]},
+            states={OFFER: [canceler, MessageHandler(Filters.text, on_bid), RevokeBidCallback(), BidCallback()]},
             fallbacks=[canceler],
         )

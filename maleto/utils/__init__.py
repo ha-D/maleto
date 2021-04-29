@@ -150,3 +150,17 @@ def get_bot(context):
     if bot is None:
         bot = context.bot.get_me()
     return bot
+
+
+def parse_start_params(params_str):
+    kwargs = {}
+    for arg in params_str.split('-'):
+        if not arg:
+            continue
+        key, val = arg.split('_')
+        kwargs[key] = val
+    return kwargs
+        
+
+def create_start_params(**params):
+    return '-'.join([f"{k}_{params[k]}" for k in params])

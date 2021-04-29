@@ -8,7 +8,14 @@ from telegram.error import BadRequest
 from telegram.ext import *
 from telegram.utils.helpers import *
 
-from maleto.utils import find_best_inc, find_by, get_bot, sentry, trace
+from maleto.utils import (
+    create_start_params,
+    find_best_inc,
+    find_by,
+    get_bot,
+    sentry,
+    trace,
+)
 from maleto.utils.currency import format_currency
 from maleto.utils.lang import _, convert_number, current_lang, uselang
 from maleto.utils.model import Model
@@ -396,12 +403,13 @@ class Item(Model):
                     msg.append(_("_{} more people..._").format(len(bids) - 3))
 
         click_here = _("Click here to buy this item")
-        lang_arg = ""
+
+        params = {"action": "item", "item": self.id}
         if lang := current_lang():
-            lang_arg = f"-lang_{lang}"
+            params["lang"] = lang
         msg += [
             "",
-            f"[{click_here}](https://t.me/{bot.username}?start=action_item-item_{self.id}{lang_arg})",
+            f"[{click_here}](https://t.me/{bot.username}?start={create_start_params(**params)})",
             "",
         ]
 

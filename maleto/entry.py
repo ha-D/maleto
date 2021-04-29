@@ -1,10 +1,9 @@
 import logging
 
 from telegram.ext import CommandHandler, Filters
-from telegram.ext.callbackcontext import CallbackContext
 
 from maleto.item import Item
-from maleto.utils import bot_handler, trace
+from maleto.utils import bot_handler, parse_start_params, trace
 
 
 logger = logging.getLogger(__name__)
@@ -16,13 +15,7 @@ def on_start(update, context):
     if len(context.args) == 0 or context.args[0] == "":
         return
 
-    kwargs = {}
-    for arg in context.args[0].split('-'):
-        if not arg:
-            continue
-        key, val = arg.split('_')
-        kwargs[key] = val
-
+    kwargs = parse_start_params(context.args[0])
     action = kwargs.pop('action')
 
     if action == "item":
