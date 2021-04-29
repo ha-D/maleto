@@ -171,7 +171,7 @@ class BidCallback(Callback):
         with Item.find_by_id(item_id) as item:
             bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
             if bmes is None:
-                logger.error(f"Missing bid_message in BidCallback. item={item.id} user={context.user.id}")
+                logger.error(f"Missing bid_message in BidCallback", extra=dict(item=item.id, user=context.user.id))
                 item.new_bid_message(context, context.user.id, publish=True)
                 query.answer(_("Something went wrong please try again"))
                 return None
@@ -211,6 +211,7 @@ def on_bid(update, context):
     with Item.from_context(context) as item:
         bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
         if bmes is None:
+            logger.error(f"Missing bid_message in `on_bid`", extra=dict(item=item.id, user=context.user.id))
             update.message.reply_text(_("Something went wrong please try again"))
             item.new_bid_message(context, context.user.id, publish=True)
             return None

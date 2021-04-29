@@ -31,7 +31,7 @@ class User(Model):
             # Don't set the lang if its the default lang (i.e, `en`) so that it
             # could be overriden in other places (e.g, by a chat's lang). The user
             # can set their lang to `en` manually to change this behaviour
-            if lang is None and user.language_code != 'en':
+            if lang is None and user.language_code != "en":
                 lang = user.language_code
 
             d = cls.col().find_one_and_update(
@@ -43,17 +43,19 @@ class User(Model):
                         "last_name": user.last_name,
                         "updated_at": datetime.now(),
                     },
-                    "$setOnInsert": {
-                        "created_at": datetime.now(),
-                        "lang": lang
-                    },
+                    "$setOnInsert": {"created_at": datetime.now(), "lang": lang},
                 },
                 upsert=True,
             )
             if d is None:
                 sentry.set_span_tag("created", True)
                 logger.info(
-                    f"New user created. user:{user.id} username:{user.username} name:{user.first_name or ''} {user.last_name or ''}"
+                    f"New user created",
+                    extra=dict(
+                        user=user.id,
+                        username=user.username,
+                        name=f"{user.first_name or ''} {user.last_name or ''}",
+                    ),
                 )
                 return User.find_by_id(user.id)
             else:

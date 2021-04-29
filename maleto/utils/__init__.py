@@ -43,7 +43,7 @@ class Callback(CallbackQueryHandler):
 
         user = User.create_or_update_from_api(update.effective_user)
         context.user = user
-        
+
         context.chat = Chat.find_by_id(update.effective_chat.id)
 
         query = update.callback_query
@@ -128,13 +128,15 @@ def trace(f):
     def inner(*args, **kwargs):
         before = time.perf_counter()
         result = f(*args, **kwargs)
-        user = ""
+        extra = None
         for arg in args:
             if type(arg) == CallbackContext:
-                user = f' user:{arg.user.id} username:{arg.user.username}'
+                extra = {"user": arg.user.id, "username": arg.user.username}
                 break
         tm = time.perf_counter() - before
-        logger.debug(f"trace call [{f.__module__}.{f.__name__}]{user} time:{tm:.2f}s")
+        logger.debug(
+            f"trace call [{f.__module__}.{f.__name__}] time:{tm:.2f}s", extra=extra
+        )
         return result
 
     return inner

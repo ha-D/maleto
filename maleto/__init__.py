@@ -20,6 +20,7 @@ from maleto import (
     user_settings,
 )
 from maleto.utils import sentry
+from maleto.utils.logging import init_logging
 from maleto.utils.config import EnvDefault
 from maleto.utils.model import init_db
 from maleto.utils.shell import start_shell
@@ -29,12 +30,13 @@ __all__ = ("main",)
 
 
 logger = logging.getLogger(__name__)
+unhandled_error_logger = logging.getLogger(f"{__name__}.unhandled")
 
 
 def cmd_start(args):
     logger.info(f"Starting bot in {args.mode} mode")
 
-    sentry.init_sentry(args.sentry_dsn)
+    sentry.init_sentry(args.sentry_dsn, ignore_loggers=[unhandled_error_logger.name])
     init_db(args.db_uri)
 
     defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=True)
@@ -101,29 +103,7 @@ def cmd_shell(args):
 
 
 def on_error(update, context):
-    logger.exception(context.error)
-
-
-def init_logging(args):
-    log_args = {"filename": args.log_file, "filemode": "a"} if args.log_file else {}
-    log_level = logging.getLevelName(args.log_level.upper())
-
-    lib_loggers = (
-        ("telegram.*", logging.INFO),
-        ("apscheduler.*", logging.INFO),
-        ("PYMONGOIM*", logging.WARNING),
-    )
-    for logger_name in logging.root.manager.loggerDict:
-        for match_with, level in lib_loggers:
-            if fnmatch.fnmatch(logger_name, match_with):
-                logging.getLogger(logger_name).setLevel(max(level, log_level))
-    logging.getLogger("apscheduler.scheduler").setLevel(max(logging.INFO, log_level))
-
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=log_level,
-        **log_args,
-    )
+    unhandled_error_logger.error("Unhandled exception", exc_info=context.error)
 
 
 def read_config_envs():
@@ -260,7 +240,7 @@ def main():
     if args.log_level.lower() not in ["debug", "info", "warning", "error", "critical"]:
         parser.error(f"Invalid log level: {args.log_level}")
 
-    init_logging(args)
+    init_logging(args.log_file, args.log_level)
 
     {"start": cmd_start, "setcommands": cmd_commands, "shell": cmd_shell,}[
         args.command

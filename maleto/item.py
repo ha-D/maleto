@@ -112,7 +112,9 @@ class Item(Model):
 
     @sentry.span
     def _sort_bids(self):
-        self.bids = sorted(self.bids, key=lambda b: (b["price"], -b["ts"]), reverse=True)
+        self.bids = sorted(
+            self.bids, key=lambda b: (b["price"], -b["ts"]), reverse=True
+        )
 
     @sentry.span
     def _handle_winner_change(self, context, prev_winner, new_winner):
@@ -199,7 +201,8 @@ class Item(Model):
         prev_mes, __ = find_by(self.bid_messages, "user_id", user_id)
         if prev_mes is not None:
             logger.debug(
-                f"Clearing previous user bid message. user:{user_id} message:{prev_mes['message_id']}"
+                f"Clearing previous user bid message",
+                extra=dict(user=user_id, msg_id=prev_mes["message_id"]),
             )
             # Clear previous bid message for this user
             try:
@@ -218,7 +221,7 @@ class Item(Model):
             )
             message_id = message.message_id
             logger.debug(
-                f"New bid message created. user:{user_id} message:{message_id}"
+                f"New bid message created", extra=dict(user=user_id, msg_id=message_id)
             )
         if prev_mes:
             prev_mes["message_id"] = message_id

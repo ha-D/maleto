@@ -45,7 +45,7 @@ def item_new(update, context):
     update.message.reply_text(
         msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup
     )
-    logger.info(f"Item creation started. item:{item.id} user:{context.user.id}")
+    logger.info(f"Item creation started", extra=dict(item=item.id, user=context.user.id))
     mt.item_create_start.inc()
     return ITEM_TITLE
 
@@ -237,7 +237,7 @@ def item_end(update, context, item):
     item.active = True
     item.new_settings_message(context, publish=True)
     logger.info(
-        f"Item creation successfully finished. item:{item.id} user:{context.user.id}"
+        f"Item creation successfully finished", extra=dict(item=item.id, user=context.user.id)
     )
     mt.item_create_done.inc()
 
@@ -251,7 +251,7 @@ def cancel(update, context):
     update.message.reply_text(
         _("Ok, no worries, no item created."), reply_markup=ReplyKeyboardRemove()
     )
-    logger.info(f"Item creation cancelled. item:{item.id} user:{context.user.id}")
+    logger.info(f"Item creation cancelled", extra=dict(item=item.id, user=context.user.id))
     mt.item_create_cancel.inc()
     return ConversationHandler.END
 
