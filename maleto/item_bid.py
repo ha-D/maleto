@@ -16,6 +16,7 @@ from maleto.utils import (
     find_by,
     sentry,
     split_keyboard,
+    trace,
 )
 from maleto.utils.currency import (
     currency_name,
@@ -49,6 +50,12 @@ def publish_bid_message(context, item, user_id):
         else:
             msg, btns = not_bidding(context, item)
 
+    msg = "\n".join([
+        f"*{item.title}*",
+        "",
+        msg
+    ])
+
     try:
         context.bot.edit_message_caption(
             chat_id=user_id,
@@ -63,7 +70,9 @@ def publish_bid_message(context, item, user_id):
 
 
 def buyer(context, item, bid):
-    msg = _("You are the current buyer with {}").format(bid["price"])
+    msg = _("You are the current buyer with {}").format(
+        format_currency(item.currency, bid["price"])
+    )
     btns = InlineKeyboardMarkup(
         [
             [
@@ -141,6 +150,7 @@ class RevokeBidCallback(Callback):
     name = "revoke"
 
     @sentry.transaction
+    @trace
     def perform(self, context, query, item_id):
         user = query.from_user
         with Item.find_by_id(item_id) as item:
@@ -156,9 +166,15 @@ class BidCallback(Callback):
     name = "bid"
 
     @sentry.transaction
+    @trace
     def perform(self, context, query, item_id):
         with Item.find_by_id(item_id) as item:
             bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+            if bmes is None:
+                logger.error(f"Missing bid_message in BidCallback. item={item.id} user={context.user.id}")
+                item.new_bid_message(context, context.user.id, publish=True)
+                query.answer(_("Something went wrong please try again"))
+                return None
             with uselang(bmes.get("lang")):
                 ask_for_bid(context, query.message, item)
         query.answer()
@@ -194,6 +210,11 @@ def ask_for_bid(context, message, item, error=None):
 def on_bid(update, context):
     with Item.from_context(context) as item:
         bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+        if bmes is None:
+            update.message.reply_text(_("Something went wrong please try again"))
+            item.new_bid_message(context, context.user.id, publish=True)
+            return None
+
         with uselang(context.user.lang or bmes.get("lang")):
             try:
                 price = deformat_number(update.message.text)
@@ -221,7 +242,7 @@ def on_bid(update, context):
                     update.message.reply_text(
                         _(
                             "You've made an offer for {} and are #{} in the waiting list"
-                        ).format(price, pos),
+                        ).format(format_currency(item.currency, price), pos),
                         reply_markup=ReplyKeyboardRemove(),
                     )
                 item.clear_context(context)

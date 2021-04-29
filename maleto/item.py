@@ -112,7 +112,7 @@ class Item(Model):
 
     @sentry.span
     def _sort_bids(self):
-        self.bids = sorted(self.bids, key=lambda b: (b["price"], b["ts"]), reverse=True)
+        self.bids = sorted(self.bids, key=lambda b: (b["price"], -b["ts"]), reverse=True)
 
     @sentry.span
     def _handle_winner_change(self, context, prev_winner, new_winner):
