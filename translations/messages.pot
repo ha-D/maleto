@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-28 15:28+0430\n"
+"POT-Creation-Date: 2021-04-29 14:59+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,217 +17,241 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: maleto/chat.py:56
+#: maleto/chat.py:57
 msgid "Items on sale:"
 msgstr ""
 
-#: maleto/chat.py:61
+#: maleto/chat.py:62
 msgid "*Frequently Asked Questions:*"
 msgstr ""
 
-#: maleto/chat.py:63
+#: maleto/chat.py:64
 msgid "*What is this?*"
 msgstr ""
 
-#: maleto/chat.py:64
+#: maleto/chat.py:65
 msgid "These items are on sale by the members of this group."
 msgstr ""
 
-#: maleto/chat.py:65
+#: maleto/chat.py:66
 msgid ""
 "The sale is performed through an auction, you can place a bid on any item"
 " you like."
 msgstr ""
 
-#: maleto/chat.py:66
+#: maleto/chat.py:67
 msgid "The bid with the highest price will be the buyer of that item."
 msgstr ""
 
-#: maleto/chat.py:69
+#: maleto/chat.py:70
 msgid "*How can I place a bid?*"
 msgstr ""
 
-#: maleto/chat.py:70
+#: maleto/chat.py:71
 msgid "Below each item is a purchase link."
 msgstr ""
 
-#: maleto/chat.py:71
+#: maleto/chat.py:72
 msgid "Click on the link and you will be redirected to the Bot."
 msgstr ""
 
-#: maleto/chat.py:72
+#: maleto/chat.py:73
 msgid "Click on the Start button and follow the steps to place a bid."
 msgstr ""
 
-#: maleto/chat.py:75
+#: maleto/chat.py:76
 msgid "*Can I add items for sale?*"
 msgstr ""
 
-#: maleto/chat.py:76
+#: maleto/chat.py:77
 msgid "This is an open channel, all joined members can add items."
 msgstr ""
 
-#: maleto/chat.py:77
+#: maleto/chat.py:78
 msgid ""
 "To add an item first join this channel, then [click "
 "here](https://t.me/MaletoBot) to go to the Bot."
 msgstr ""
 
-#: maleto/chat.py:78
+#: maleto/chat.py:79
 msgid "Enter the `/newitem` command and follow the steps to create a new item."
 msgstr ""
 
-#: maleto/chat.py:80
-msgid "*I have a feature suggestion*"
-msgstr ""
-
-#: maleto/chat.py:81
-msgid "MaletoBot is an open source project."
-msgstr ""
-
 #: maleto/chat.py:82
+msgid "*Can I use this in other groups or channels?*"
+msgstr ""
+
+#: maleto/chat.py:83
+msgid "Yup, you can use MaletoBot anywhere you like."
+msgstr ""
+
+#: maleto/chat.py:84
+msgid "Just add the Bot to your group or channel."
+msgstr ""
+
+#: maleto/chat.py:85
+msgid "All members of the group will be able to publish items to the chat."
+msgstr ""
+
+#: maleto/chat.py:88
+msgid "*I found a bug or have a feature suggestion, what should I do?*"
+msgstr ""
+
+#: maleto/chat.py:89
+msgid "MaletoBot is an open source project and under development."
+msgstr ""
+
+#: maleto/chat.py:90
 msgid ""
-"Contributions and suggestions are welcome at the [Github "
-"Page](https://github.com/ha-D/maleto)"
+"If you've encountered a bug, have suggestions or want to contribute visit"
+" our [Github Page](https://github.com/ha-D/maleto)"
 msgstr ""
 
 #: maleto/chat_settings.py:56
 msgid "Select language"
 msgstr ""
 
-#: maleto/item.py:78
+#: maleto/item.py:85
 msgid "Your offer is too low"
 msgstr ""
 
-#: maleto/item.py:90
+#: maleto/item.py:97
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr ""
 
-#: maleto/item.py:134
+#: maleto/item.py:143
 msgid "🙀 You are no longer the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:148
+#: maleto/item.py:157
 msgid "🥳 You are now the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:217 maleto/item.py:250
+#: maleto/item.py:227 maleto/item.py:260
 msgid "Please wait..."
 msgstr ""
 
-#: maleto/item.py:301 maleto/item.py:319
+#: maleto/item.py:314 maleto/item.py:332
 msgid "This item is no longer available"
 msgstr ""
 
-#: maleto/item.py:365
+#: maleto/item.py:378
 msgid "Seller: {}"
 msgstr ""
 
-#: maleto/item.py:379
+#: maleto/item.py:392
 msgid "Price: {}"
 msgstr ""
 
-#: maleto/item.py:382
+#: maleto/item.py:395
 msgid "Buyer: {}"
 msgstr ""
 
-#: maleto/item.py:385
+#: maleto/item.py:398
 msgid "Waiting List:"
 msgstr ""
 
-#: maleto/item.py:390
+#: maleto/item.py:403
 msgid "_{} more people..._"
 msgstr ""
 
-#: maleto/item.py:392
+#: maleto/item.py:405
 msgid "Click here to buy this item"
 msgstr ""
 
-#: maleto/item.py:408
+#: maleto/item.py:423
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: maleto/item.py:410
+#: maleto/item.py:425
 msgid "Starting Price: {}"
 msgstr ""
 
-#: maleto/item.py:416
+#: maleto/item.py:431
 msgid "No one has made an offer"
 msgstr ""
 
-#: maleto/item.py:421
+#: maleto/item.py:436
 msgid "Current Bid: {}"
 msgstr ""
 
-#: maleto/item.py:427
+#: maleto/item.py:442
 msgid "Current Bid: {} with {} people in waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:56
+#: maleto/item_bid.py:82
 msgid "You are the current buyer with {}"
 msgstr ""
 
-#: maleto/item_bid.py:61 maleto/item_bid.py:81
+#: maleto/item_bid.py:89 maleto/item_bid.py:110
 msgid "Remove Offer"
 msgstr ""
 
-#: maleto/item_bid.py:71
+#: maleto/item_bid.py:99
 msgid "You have bidded {} and are currently {} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:78
+#: maleto/item_bid.py:106
 msgid "Change Offer"
 msgstr ""
 
-#: maleto/item_bid.py:93
+#: maleto/item_bid.py:122
 msgid "There are no offers for this item"
 msgstr ""
 
-#: maleto/item_bid.py:94
+#: maleto/item_bid.py:123
 msgid "Base Price: {}"
 msgstr ""
 
-#: maleto/item_bid.py:96
+#: maleto/item_bid.py:125
 msgid "Would you like to place an offer?"
 msgstr ""
 
-#: maleto/item_bid.py:105 maleto/item_bid.py:120
+#: maleto/item_bid.py:134 maleto/item_bid.py:152
 msgid "Make Offer"
 msgstr ""
 
-#: maleto/item_bid.py:115
+#: maleto/item_bid.py:145
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr ""
 
-#: maleto/item_bid.py:140
-msgid "Offer removed"
-msgstr ""
-
-#: maleto/item_bid.py:164
-msgid "Do you want to try again?"
-msgstr ""
-
-#: maleto/item_bid.py:166
-msgid "Enter your offer in {}"
-msgstr ""
-
-#: maleto/item_bid.py:191
-msgid "That is not a valid price, please enter a number"
-msgstr ""
-
-#: maleto/item_bid.py:200
-msgid "Congrats 🎉, you're the current buyer at {}"
-msgstr ""
-
-#: maleto/item_bid.py:208
-msgid "You've made an offer for {} and are #{} in the waiting list"
-msgstr ""
-
-#: maleto/item_bid.py:220
+#: maleto/item_bid.py:175 maleto/item_bid.py:253 maleto/item_bid.py:300
 msgid "Something went wrong please try again"
 msgstr ""
 
-#: maleto/item_bid.py:229
+#: maleto/item_bid.py:202
+msgid "Select your offer"
+msgstr ""
+
+#: maleto/item_bid.py:216
+msgid "Back"
+msgstr ""
+
+#: maleto/item_bid.py:219
+msgid "Custom Price"
+msgstr ""
+
+#: maleto/item_bid.py:231
+msgid "Do you want to try again?"
+msgstr ""
+
+#: maleto/item_bid.py:233
+msgid "Enter your offer in {}"
+msgstr ""
+
+#: maleto/item_bid.py:268
+msgid "That is not a valid price, please enter a number"
+msgstr ""
+
+#: maleto/item_bid.py:277
+msgid "Congrats 🎉, you're the current buyer at {}"
+msgstr ""
+
+#: maleto/item_bid.py:286
+msgid "You've made an offer for {} and are #{} in the waiting list"
+msgstr ""
+
+#: maleto/item_bid.py:309
 msgid "Ok no problem, cancelled"
 msgstr ""
 
@@ -335,7 +359,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: maleto/item_settings.py:144
+#: maleto/item_settings.py:146
 msgid "Item deleted"
 msgstr ""
 

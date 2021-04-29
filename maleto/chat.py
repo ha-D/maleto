@@ -79,9 +79,15 @@ class Chat(Model):
                         _("Enter the `/newitem` command and follow the steps to create a new item.")
                     ]),
                     "",
-                    _("*I have a feature suggestion*"),
-                    " ".join([_("MaletoBot is an open source project."),
-                        _("Contributions and suggestions are welcome at the [Github Page](https://github.com/ha-D/maleto)"),
+                    _("*Can I use this in other groups or channels?*"),
+                    " ".join([_("Yup, you can use MaletoBot anywhere you like."),
+                        _("Just add the Bot to your group or channel."),
+                        _("All members of the group will be able to publish items to the chat.")
+                    ]),
+                    "",
+                    _("*I found a bug or have a feature suggestion, what should I do?*"),
+                    " ".join([_("MaletoBot is an open source project and under development."),
+                        _("If you've encountered a bug, have suggestions or want to contribute visit our [Github Page](https://github.com/ha-D/maleto)"),
                     ]),
                 ]
             )

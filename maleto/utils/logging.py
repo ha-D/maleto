@@ -7,7 +7,6 @@ BASE_FORMAT = "%(asctime)s - %(levelname)5s - %(message)s"
 
 
 def init_logging(log_file, log_level):
-    log_args = {"filename": log_file, "filemode": "a"} if log_file else {}
     log_level = logging.getLevelName(log_level.upper())
 
     lib_loggers = (
@@ -22,12 +21,15 @@ def init_logging(log_file, log_level):
                 logging.getLogger(logger_name).setLevel(max(level, log_level))
     logging.getLogger("apscheduler.scheduler").setLevel(max(logging.INFO, log_level))
 
-    handler = logging.StreamHandler()
+    if log_file:
+        handler = logging.FileHandler(log_file)
+    else:
+        handler = logging.StreamHandler()
     handler.setFormatter(Formatter(BASE_FORMAT))
+
     logging.basicConfig(
         level=log_level,
         handlers=[handler],
-        **log_args,
     )
 
 
