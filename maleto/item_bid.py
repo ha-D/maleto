@@ -243,7 +243,14 @@ def on_custom_bid(update, context):
     if update.message.text.startswith("/start"):
         return None
 
-    with Item.from_context(context) as item:
+    try:
+        item = Item.from_context(context)
+    except Exception:
+        logger.error("Empty context in on_custom_bid", extra=dict(user=context.user.id))
+        update.message.reply_text(_("Something went wrong please try again"))
+        return
+
+    with item:
         bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
         if bmes is None:
             logger.error(

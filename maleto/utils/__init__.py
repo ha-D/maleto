@@ -40,11 +40,12 @@ class Callback(CallbackQueryHandler):
     def _perform(self, update, context):
         from maleto.user import User
         from maleto.chat import Chat
+        from maleto.utils.sentry import set_user
 
         user = User.create_or_update_from_api(update.effective_user)
         context.user = user
-
         context.chat = Chat.find_by_id(update.effective_chat.id)
+        set_user(user)
 
         query = update.callback_query
         parts = query.data.split("#")
@@ -112,11 +113,13 @@ def bot_handler(f):
     def inner(update, context):
         from maleto.user import User
         from maleto.chat import Chat
+        from maleto.utils.sentry import set_user
 
         api_user = update.effective_user
         user = User.create_or_update_from_api(api_user)
         context.user = user
         context.chat = Chat.find_by_id(update.effective_chat.id)
+        set_user(user)
         with uselang(user.lang):
             return f(update, context)
 
@@ -154,13 +157,13 @@ def get_bot(context):
 
 def parse_start_params(params_str):
     kwargs = {}
-    for arg in params_str.split('-'):
+    for arg in params_str.split("-"):
         if not arg:
             continue
-        key, val = arg.split('_')
+        key, val = arg.split("_")
         kwargs[key] = val
     return kwargs
-        
+
 
 def create_start_params(**params):
-    return '-'.join([f"{k}_{params[k]}" for k in params])
+    return "-".join([f"{k}_{params[k]}" for k in params])

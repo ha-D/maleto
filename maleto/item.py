@@ -49,11 +49,16 @@ class Item(Model):
                 "bids": [],
                 "posts": [],
                 "stores": [],
-                "settings_message": [],
                 "bid_messages": [],
                 **kwargs,
             }
         )
+
+    def __str__(self):
+        return f"Item [{self.id}] {self.title}"
+
+    def __repr__(self):
+        return str(self)
 
     @classmethod
     def new(cls, owner_id):
@@ -64,7 +69,7 @@ class Item(Model):
 
     @classmethod
     def find(cls, **kwargs):
-        return super().find(active=True, **kwargs)
+        return super().find(**{"active": True, **kwargs})
 
     @property
     def owner(self):
@@ -244,8 +249,8 @@ class Item(Model):
     @trace
     def new_settings_message(self, context, message_id=None, publish=True):
         prev_mes = self.settings_message
-        if prev_mes is None:
-            # Clear previous bid message for this user
+        if prev_mes is not None:
+            # Clear previous settings message for this user
             try:
                 context.bot.edit_message_caption(
                     chat_id=self.owner_id,

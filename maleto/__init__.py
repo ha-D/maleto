@@ -1,9 +1,7 @@
 import argparse
 import logging
 import os
-import fnmatch
 from importlib.metadata import version
-import pytz
 
 from telegram.bot import Bot
 from telegram.ext import Updater, Defaults
@@ -36,7 +34,11 @@ unhandled_error_logger = logging.getLogger(f"{__name__}.unhandled")
 def cmd_start(args):
     logger.info(f"Starting bot in {args.mode} mode")
 
-    sentry.init_sentry(args.sentry_dsn, ignore_loggers=[unhandled_error_logger.name])
+    sentry.init_sentry(
+        args.sentry_dsn,
+        version=__version__,
+        ignore_loggers=[unhandled_error_logger.name, "httplib"],
+    )
     init_db(args.db_uri)
 
     defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=True)

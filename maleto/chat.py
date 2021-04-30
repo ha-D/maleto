@@ -27,6 +27,12 @@ class Chat(Model):
     def __init__(self, **kwargs):
         super().__init__(**{"admins": [], "next_index": 1, **kwargs})
 
+    def __str__(self):
+        return f"Chat [{self.id}] {self.title}"
+
+    def __repr__(self):
+        return str(self)
+
     @sentry.span
     def publish_info_message(self, context):
         if self.info_message_id is None:

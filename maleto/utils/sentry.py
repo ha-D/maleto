@@ -1,4 +1,5 @@
 from collections import defaultdict
+from importlib.metadata import version
 import logging
 
 from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
@@ -10,7 +11,7 @@ seen_events = defaultdict(lambda: 0)
 duplicate_event_limit = 100
 
 
-def init_sentry(dsn, ignore_loggers):
+def init_sentry(dsn, version, ignore_loggers):
     global sentry_enabled
     if dsn:
         logger.debug("Initializing sentry")
@@ -26,7 +27,12 @@ def init_sentry(dsn, ignore_loggers):
             traces_sample_rate=0.5,
             before_send=filter_event,
             integrations=[sentry_logging],
+            release=version,
         )
+
+
+def set_user(user):
+    sentry_sdk.set_user({"id": user.id, "username": user.username})
 
 
 def if_sentry_enabled(f):

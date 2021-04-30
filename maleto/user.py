@@ -24,6 +24,12 @@ class User(Model):
     def __init__(self, **kwargs):
         super().__init__(**{"chats": [], **kwargs})
 
+    def __str__(self):
+        return f"User [{self.id}] {self.username}"
+
+    def __repr__(self):
+        return str(self)
+
     @classmethod
     @sentry.span
     def create_or_update_from_api(cls, user, lang=None):
