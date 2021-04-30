@@ -60,7 +60,7 @@ class User(Model):
                     extra=dict(
                         user=user.id,
                         username=user.username,
-                        name=f"{user.first_name or ''} {user.last_name or ''}",
+                        fullname=f"{user.first_name or ''} {user.last_name or ''}",
                     ),
                 )
                 return User.find_by_id(user.id)

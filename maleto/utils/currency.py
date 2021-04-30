@@ -23,6 +23,9 @@ def currency_name(currency_code):
 
 
 def format_currency(currency, price):
+    if price is None:
+        raise ValueError("Cannot format currency for 'None' price")
+
     price = format_number(price)
     m = {
         "USD": _("${}").format(price),
@@ -37,6 +40,9 @@ def format_currency(currency, price):
 
 
 def format_number(num):
+    if num is None:
+        raise ValueError("Cannot format 'None' number")
+
     lang = current_lang()
     if lang is None or lang == '':
         lang = 'en'
@@ -46,5 +52,7 @@ def format_number(num):
 
 
 def deformat_number(num):
+    if num is None:
+        raise ValueError("Cannot deformat 'None' number")
     num = str(num).replace(",", "")
     return deconvert_number(num)

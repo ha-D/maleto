@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-from importlib.metadata import version
 
 from telegram.bot import Bot
 from telegram.ext import Updater, Defaults
@@ -23,12 +22,29 @@ from maleto.utils.config import EnvDefault
 from maleto.utils.model import init_db
 from maleto.utils.shell import start_shell
 
-__version__ = version(__name__)
+
 __all__ = ("main",)
 
 
 logger = logging.getLogger(__name__)
 unhandled_error_logger = logging.getLogger(f"{__name__}.unhandled")
+
+
+def get_version():
+    import subprocess
+    from importlib.metadata import version
+
+    try:
+        return (
+            subprocess.check_output(["git", "describe", "--tags"])
+            .strip()
+            .decode("utf-8")
+        )
+    except:
+        return version(__name__)
+
+
+__version__ = get_version()
 
 
 def cmd_start(args):
@@ -243,6 +259,7 @@ def main():
         parser.error(f"Invalid log level: {args.log_level}")
 
     init_logging(args.log_file, args.log_level)
+    logger.info(f"Running version {__version__}")
 
     {"start": cmd_start, "setcommands": cmd_commands, "shell": cmd_shell,}[
         args.command
