@@ -1,11 +1,11 @@
 import logging
-from telegram.ext import *
-from telegram import *
-from telegram.utils.helpers import *
+
+from telegram.ext import ChatMemberHandler
 
 from maleto.chat import Chat
+from maleto.core.bot import callback
+from maleto.core.metrics import user_join_chat, user_leave_chat
 from maleto.user import User
-from maleto.utils.metrics import user_join_chat, user_leave_chat
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +13,7 @@ STATUS_MEMBER = ["member", "creator", "administrator"]
 STATUS_ADMIN = ["creator", "administrator"]
 
 
+@callback
 def on_member_status_change(update, context):
     cmu = update.chat_member
     cm = cmu.new_chat_member
@@ -34,6 +35,7 @@ def on_member_status_change(update, context):
                 handle_admin_leave(user, chat)
 
 
+@callback
 def on_bot_status_change(update, context):
     """ Called when bot leaves or enters grpup """
     cmu = update.my_chat_member

@@ -1,36 +1,33 @@
 import logging
 
-from telegram import *
-from telegram.ext import *
-from telegram.utils.helpers import *
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram.ext import CommandHandler, ConversationHandler, Filters, MessageHandler
 
+from maleto.core.bot import callback
+from maleto.core.lang import LANGUAGES
+from maleto.core.utils import split_keyboard
 from maleto.user import User
-from maleto.utils import bot_handler, split_keyboard
-from maleto.utils.lang import LANGUAGES
 
 logger = logging.getLogger(__name__)
 
 LANG_SEL = range(1)
 
 
-@bot_handler
+@callback
 def lang_start(update, context):
     btns = ReplyKeyboardMarkup(
         split_keyboard([KeyboardButton(n) for n in LANGUAGES.keys()], 2)
     )
-    update.message.reply_text(
-        "Select your language", parse_mode=ParseMode.MARKDOWN, reply_markup=btns
-    )
+    update.message.reply_text("Select your language", reply_markup=btns)
     return LANG_SEL
 
 
-@bot_handler
+@callback
 def lang_select(update, context):
     lang = update.message.text
     if lang not in LANGUAGES.keys():
         update.message.reply_text(
             "Language not recognized",
-            parse_mode=ParseMode.MARKDOWN,
             reply_markup=ReplyKeyboardRemove(),
         )
     else:
@@ -38,13 +35,12 @@ def lang_select(update, context):
             user.lang = LANGUAGES[lang]
     update.message.reply_text(
         "Language changed",
-        parse_mode=ParseMode.MARKDOWN,
         reply_markup=ReplyKeyboardRemove(),
     )
     return ConversationHandler.END
 
 
-@bot_handler
+@callback
 def cancel(update, context):
     return ConversationHandler.END
 
@@ -57,5 +53,4 @@ def handlers():
             LANG_SEL: [canceler, MessageHandler(Filters.text, lang_select)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
-        # run_async=True # Run sync break multiple images
     )

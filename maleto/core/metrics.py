@@ -1,4 +1,4 @@
-from prometheus_client import Counter, start_http_server
+from prometheus_client import Counter, Histogram, start_http_server
 
 
 def init_monitoring(metrics_port):
@@ -35,7 +35,12 @@ user_leave_chat = Counter(
 
 chat_create = Counter("maleto_chat_create", "Chats created")
 
-transaction_success = Counter("maleto_error", "Unhanlded errors occurred")
-transaction_error= Counter("maleto_error", "Unhanlded errors occurred")
-
-
+request_success = Counter(
+    "maleto_request_success", "Successful requests", ["transaction"]
+)
+request_error = Counter(
+    "maleto_request_error", "Unhandled errors occurred", ["transaction"]
+)
+request_time = Histogram(
+    "malto_request_time", "Request time in seconds", ["transaction"]
+)

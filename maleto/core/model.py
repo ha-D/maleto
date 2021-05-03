@@ -1,11 +1,11 @@
-from datetime import datetime
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from collections import defaultdict
-from threading import RLock
 import logging
+from collections import defaultdict
+from datetime import datetime
+from threading import RLock
 
-from maleto.utils import omit, sentry
+from maleto.core import sentry
+from maleto.core.utils import omit
+from pymongo import MongoClient
 
 logger = logging.getLogger(__name__)
 
@@ -115,21 +115,29 @@ class Model:
     def find_one(cls, **kwargs):
         docs = cls.find(**kwargs)
         if len(docs) == 0:
-            raise ValueError("No items found")
+            return None
         if len(docs) > 1:
-            raise ValueError("More than one item found")
+            raise ModelException("More than one item found")
         return docs[0]
 
     @classmethod
     def find_by_id(cls, id):
         doc = cls.col().find_one({"_id": id})
         if doc is None:
-            return None
+            raise DoesNotExist(f"No {cls.__name__} with id {id} exists")
         return cls(**doc)
 
     @classmethod
     def from_context(cls, context):
         doc_id = context.user_data.get(cls.Meta.name, None)
         if not doc_id:
-            raise ValueError("No item id found in context")
+            raise ModelException("No item id found in context")
         return cls.find_by_id(doc_id)
+
+
+class ModelException(Exception):
+    pass
+
+
+class DoesNotExist(ModelException):
+    pass

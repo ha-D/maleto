@@ -3,23 +3,15 @@ import random
 import string
 import time
 
-from telegram import *
+from telegram import InlineKeyboardMarkup, InputMediaPhoto, ParseMode
 from telegram.error import BadRequest
-from telegram.ext import *
-from telegram.utils.helpers import *
 
-from maleto.utils import (
-    create_start_params,
-    find_best_inc,
-    find_by,
-    get_bot,
-    metrics,
-    sentry,
-    trace,
-)
-from maleto.utils.currency import format_currency
-from maleto.utils.lang import _, convert_number, uselang
-from maleto.utils.model import Model
+from maleto.core import metrics, sentry
+from maleto.core.bot import create_start_params, get_bot, trace
+from maleto.core.currency import format_currency
+from maleto.core.lang import _, convert_number, uselang
+from maleto.core.model import Model
+from maleto.core.utils import find_best_inc, find_by
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +73,7 @@ class Item(Model):
     def _remove_user_bid(self, context, user_id):
         self.bids = [b for b in self.bids if b["user_id"] != user_id]
 
-    @sentry.span
+    @trace
     def remove_user_bid(self, context, user_id, sort=True):
         self._remove_user_bid(context, user_id)
         if sort:
@@ -89,7 +81,7 @@ class Item(Model):
         logger.info("Bid removed", extra=dict(item=self.id, user=user_id))
         metrics.item_bid_remove.inc()
 
-    @sentry.span
+    @trace
     def add_user_bid(self, context, user_id, price, sort=True):
         # TODO: check min price inc
 
@@ -132,13 +124,13 @@ class Item(Model):
 
         self._handle_winner_change(context, previous_winner, self.bids[0])
 
-    @sentry.span
+    @trace
     def _sort_bids(self):
         self.bids = sorted(
             self.bids, key=lambda b: (b["price"], -b["ts"]), reverse=True
         )
 
-    @sentry.span
+    @trace
     def _handle_winner_change(self, context, prev_winner, new_winner):
         if (
             prev_winner is not None
@@ -189,7 +181,7 @@ class Item(Model):
                 ),
             )
 
-    @sentry.span
+    @trace
     def add_to_chat(self, context, chat_id):
         from maleto.chat import Chat
 
@@ -203,7 +195,7 @@ class Item(Model):
             with uselang(chat.lang):
                 media = [InputMediaPhoto(media=photo) for photo in self.photos]
                 media[0].caption = self.generate_sale_message(context)
-                media[0].parse_mode = parse_mode = ParseMode.MARKDOWN
+                media[0].parse_mode = ParseMode.MARKDOWN
                 messages = context.bot.send_media_group(chat_id=chat_id, media=media)
                 self.posts.append(
                     {
@@ -216,7 +208,7 @@ class Item(Model):
         self.save()
         chat.publish_info_message(context)
 
-    @sentry.span
+    @trace
     def remove_from_chat(self, context, chat_id):
         from maleto.chat import Chat
 
@@ -228,7 +220,7 @@ class Item(Model):
         self.save()
         Chat.find_by_id(chat_id).publish_info_message(context)
 
-    @sentry.span
+    @trace
     @trace
     def new_bid_message(
         self, context, user_id, message_id=None, lang=None, publish=True
@@ -268,7 +260,7 @@ class Item(Model):
         if publish:
             self.publish_bid_message(context, user_id)
 
-    @sentry.span
+    @trace
     @trace
     def new_settings_message(self, context, message_id=None, publish=True):
         prev_mes = self.settings_message
@@ -284,6 +276,7 @@ class Item(Model):
             except BadRequest as e:
                 pass
         if message_id is None:
+            print("PHOOOOOOOOTOOOOOOO", self.photos[0])
             message = context.bot.send_photo(
                 chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
             )
@@ -296,7 +289,7 @@ class Item(Model):
         mes = self.settings_message
         mes["state"] = state
 
-    @sentry.span
+    @trace
     def publish(self, context):
         from maleto.chat import Chat
 
@@ -329,7 +322,7 @@ class Item(Model):
 
         return publish_bid_message(context, self, user_id)
 
-    @sentry.span
+    @trace
     @trace
     def delete_all_messages(self, context):
         from maleto.user import User
@@ -386,7 +379,7 @@ class Item(Model):
                         exc_info=True,
                     )
 
-    @sentry.span
+    @trace
     def generate_sale_message(self, context):
         from maleto.user import User
 
@@ -396,7 +389,7 @@ class Item(Model):
         if len(self.bids) > 0:
             current_price = self.bids[0]["price"]
 
-        from maleto.utils.lang import current_lang
+        from maleto.core.lang import current_lang
 
         clang = current_lang()
 
@@ -443,7 +436,7 @@ class Item(Model):
 
         return "\n".join(msg)
 
-    @sentry.span
+    @trace
     def generate_owner_message(self, context):
         msg = [
             self.title,

@@ -1,15 +1,25 @@
 import logging
 
-from telegram import *
-from telegram.ext import *
-from telegram.utils.helpers import *
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+)
+from telegram.ext import CommandHandler, ConversationHandler, Filters, MessageHandler
 
+from maleto.core import metrics
+from maleto.core.bot import (
+    InlineButtonCallback,
+    callback,
+    inline_button_callback,
+    trace,
+)
+from maleto.core.currency import get_currencies
+from maleto.core.lang import _
+from maleto.core.utils import split_keyboard
 from maleto.item import Item
-from maleto.utils import Callback, bot_handler
-from maleto.utils import metrics
-from maleto.utils import sentry, split_keyboard, trace
-from maleto.utils.currency import get_currencies
-from maleto.utils.lang import _
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +32,7 @@ STORE_NAME = range(1)
 cancel_markup = ReplyKeyboardMarkup([[KeyboardButton("Cancel")]])
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_new(update, context):
     item = Item.new(context.user.id)
     item.save()
@@ -41,17 +49,15 @@ def item_new(update, context):
             _("To start, enter the *title* of the item you want to sell"),
         ]
     )
-    update.message.reply_text(
-        msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup
+    update.message.reply_text(msg, reply_markup=cancel_markup)
+    logger.info(
+        f"Item creation started", extra=dict(item=item.id, user=context.user.id)
     )
-    logger.info(f"Item creation started", extra=dict(item=item.id, user=context.user.id))
     metrics.item_create_start.inc()
     return ITEM_TITLE
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_title(update, context):
     title = update.message.text.strip()
     # TODO: title validations?
@@ -82,7 +88,6 @@ def item_photo_ask(update, context, msg):
     )
     update.message.reply_text(
         msg,
-        parse_mode=ParseMode.MARKDOWN,
         reply_markup=ReplyKeyboardMarkup(
             [[KeyboardButton("Done")], [KeyboardButton("Cancel")]]
         ),
@@ -90,9 +95,7 @@ def item_photo_ask(update, context, msg):
     return ITEM_PHOTO
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_photo(update, context):
     if len(update.message.photo) == 0:
         return ITEM_PHOTO
@@ -105,9 +108,7 @@ def item_photo(update, context):
     return ITEM_PHOTO
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_photo_done(update, context):
     item = Item.from_context(context)
     if len(item.photos) == 0:
@@ -147,9 +148,7 @@ def item_description_ask(update, context, msg):
     return ITEM_DESCRIPTION
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_description(update, context):
     with Item.from_context(context) as item:
         item.description = update.message.text
@@ -170,9 +169,7 @@ def item_currency_ask(update, context, msg):
     return ITEM_CURRENCY
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_currency(update, context):
     currency_key = get_currencies().get(update.message.text)
     if currency_key is None:
@@ -199,9 +196,7 @@ def item_price_ask(update, context, msg):
     return ITEM_PRICE
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def item_price(update, context):
     text = update.message.text
 
@@ -236,13 +231,13 @@ def item_end(update, context, item):
     item.active = True
     item.new_settings_message(context, publish=True)
     logger.info(
-        f"Item creation successfully finished", extra=dict(item=item.id, user=context.user.id)
+        f"Item creation successfully finished",
+        extra=dict(item=item.id, user=context.user.id),
     )
     metrics.item_create_done.inc()
 
 
-@bot_handler
-@trace
+@callback
 def cancel(update, context):
     item = Item.from_context(context)
     item.delete()
@@ -250,28 +245,28 @@ def cancel(update, context):
     update.message.reply_text(
         _("Ok, no worries, no item created."), reply_markup=ReplyKeyboardRemove()
     )
-    logger.info(f"Item creation cancelled", extra=dict(item=item.id, user=context.user.id))
+    logger.info(
+        f"Item creation cancelled", extra=dict(item=item.id, user=context.user.id)
+    )
     metrics.item_create_cancel.inc()
     return ConversationHandler.END
 
 
-@sentry.transaction
-@bot_handler
-@trace
+@callback
 def list_items(update, context):
     items = Item.find(owner_id=context.user.id)
     if len(items) == 0:
         message = _(
             "You don't have any items. Use the `/newitem` command to create one."
         )
-        update.message.reply_text(text=message, parse_mode=ParseMode.MARKDOWN)
+        update.message.reply_text(text=message)
     else:
         kb = InlineKeyboardMarkup(
             [
                 [
                     InlineKeyboardButton(
                         s.title,
-                        callback_data=SelectItemCallback.data(s.id),
+                        callback_data=select_item_callback.data(s.id),
                     ),
                 ]
                 for s in items
@@ -282,23 +277,16 @@ def list_items(update, context):
                 _("Click on one any item to view more options"),
             ]
         )
-        update.message.reply_text(
-            text=message, parse_mode=ParseMode.MARKDOWN, reply_markup=kb
-        )
+        update.message.reply_text(text=message, reply_markup=kb)
 
 
-class SelectItemCallback(Callback):
-    name = "select-item"
-
-    @sentry.transaction
-    @trace
-    def perform(self, context, query, item_id):
-        item = Item.find_by_id(item_id)
-        # context.bot.edit_message_media(chat_id=context.user.id, message_id=query.message.message_id, media=InputMediaPhoto(media=item.photos[0]))
-        query.edit_message_reply_markup(InlineKeyboardMarkup([]))
-        with item:
-            item.new_settings_message(context, publish=True)
-        query.answer()
+@inline_button_callback("selectitem")
+def select_item_callback(update, context, item_id):
+    item = Item.find_by_id(item_id)
+    update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup([]))
+    with item:
+        item.new_settings_message(context, publish=True)
+    update.callback_query.answer()
 
 
 def handlers():
@@ -323,4 +311,7 @@ def handlers():
         fallbacks=[canceler],
     )
 
-    yield from (CommandHandler("myitems", list_items), SelectItemCallback())
+    yield from (
+        CommandHandler("myitems", list_items),
+        InlineButtonCallback(select_item_callback),
+    )

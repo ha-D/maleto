@@ -1,7 +1,6 @@
 import gettext
-import threading
 import logging
-from collections import defaultdict
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,8 @@ def convert_number(num, lang=None):
 
 def deconvert_number(num):
     def digit(d):
-        if ord('۰') < ord(d) < ord('۹'):
-            return chr(ord(d) - ord('۰') + ord('0'))
+        if ord("۰") < ord(d) < ord("۹"):
+            return chr(ord(d) - ord("۰") + ord("0"))
         return d
+
     return int("".join([digit(s) for s in str(num)]))

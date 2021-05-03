@@ -1,30 +1,26 @@
 import logging
 import warnings
 
-from telegram import *
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.error import BadRequest
-from telegram.ext import *
-from telegram.utils import helpers
-from telegram.utils.helpers import *
+from telegram.ext import ConversationHandler, Filters, MessageHandler
 
-from maleto.item import Item
-from maleto.user import User
-from maleto.utils import (
-    Callback,
-    bot_handler,
-    find_best_inc,
-    find_by,
-    sentry,
-    split_keyboard,
+from maleto.core.bot import (
+    InlineButtonCallback,
+    callback,
+    inline_button_callback,
     trace,
 )
-from maleto.utils.currency import (
+from maleto.core.currency import (
     currency_name,
     deformat_number,
     format_currency,
     format_number,
 )
-from maleto.utils.lang import _, convert_number, uselang
+from maleto.core.lang import _, convert_number, uselang
+from maleto.core.utils import find_best_inc, find_by, split_keyboard
+from maleto.item import Item
+from maleto.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +36,7 @@ STATE_DEFAULT, STATE_BID = range(2)
 ) = range(5)
 
 
-@sentry.span
+@trace
 def publish_bid_message(context, item, user_id):
     bmes, __ = find_by(item.bid_messages, "user_id", user_id)
     if bmes is None:
@@ -70,7 +66,6 @@ def publish_bid_message(context, item, user_id):
             chat_id=user_id,
             message_id=message_id,
             caption=msg,
-            parse_mode=ParseMode.MARKDOWN,
             reply_markup=btns,
         )
     except BadRequest as e:
@@ -87,7 +82,7 @@ def buyer(context, item, bid):
             [
                 InlineKeyboardButton(
                     _("Remove Offer"),
-                    callback_data=BidCallback.data(item.id, ACTION_REVOKE),
+                    callback_data=bid_callback.data(item.id, ACTION_REVOKE),
                 )
             ]
         ]
@@ -104,11 +99,11 @@ def in_waiting_list(context, item, bid, pos):
             [
                 InlineKeyboardButton(
                     _("Change Offer"),
-                    callback_data=BidCallback.data(item.id, ACTION_SUGGEST_BIDS),
+                    callback_data=bid_callback.data(item.id, ACTION_SUGGEST_BIDS),
                 ),
                 InlineKeyboardButton(
                     _("Remove Offer"),
-                    callback_data=BidCallback.data(item.id, ACTION_REVOKE),
+                    callback_data=bid_callback.data(item.id, ACTION_REVOKE),
                 ),
             ],
         ]
@@ -132,7 +127,7 @@ def no_bidder(context, item):
             [
                 InlineKeyboardButton(
                     _("Make Offer"),
-                    callback_data=BidCallback.data(item.id, ACTION_SUGGEST_BIDS),
+                    callback_data=bid_callback.data(item.id, ACTION_SUGGEST_BIDS),
                 ),
             ],
         ]
@@ -150,7 +145,7 @@ def not_bidding(context, item):
             [
                 InlineKeyboardButton(
                     _("Make Offer"),
-                    callback_data=BidCallback.data(item.id, ACTION_SUGGEST_BIDS),
+                    callback_data=bid_callback.data(item.id, ACTION_SUGGEST_BIDS),
                 ),
             ],
         ]
@@ -158,42 +153,38 @@ def not_bidding(context, item):
     return msg, btns
 
 
-class BidCallback(Callback):
-    name = "bid"
-
-    @sentry.transaction
-    @trace
-    def perform(self, context, query, item_id, action=ACTION_SUGGEST_BIDS, price=None):
-        with Item.find_by_id(item_id) as item:
-            bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
-            if bmes is None:
-                logger.error(
-                    f"Missing bid_message in BidCallback",
-                    extra=dict(item=item.id, user=context.user.id),
-                )
-                item.new_bid_message(context, context.user.id, publish=True)
-                query.answer(_("Something went wrong please try again"))
-                return None
-            with uselang(context.user.lang or bmes.get("lang")):
-                if action == ACTION_SUGGEST_BIDS:
-                    bmes["state"] = STATE_BID
-                    publish_bid_message(context, item, context.user.id)
-                elif action == ACTION_SELECT_BID:
-                    on_bid(context, item, bmes, price)
-                elif action == ACTION_CANCEL:
-                    bmes["state"] = STATE_DEFAULT
-                    publish_bid_message(context, item, context.user.id)
-                elif action == ACTION_CUSTOM_BID:
-                    ask_for_bid(context, item)
-                elif action == ACTION_REVOKE:
-                    item.publish_bid_message(context, context.user.id)
-                    item.remove_user_bid(context, context.user.id)
-                    item.publish(context)
-        query.answer()
-        return CUSTOM_OFFER
+@inline_button_callback("bid")
+def bid_callback(update, context, item_id, action=ACTION_SUGGEST_BIDS, price=None):
+    with Item.find_by_id(item_id) as item:
+        bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
+        if bmes is None:
+            logger.error(
+                f"Missing bid_message in bid_callback",
+                extra=dict(item=item.id, user=context.user.id),
+            )
+            item.new_bid_message(context, context.user.id, publish=True)
+            update.callback_query.answer(_("Something went wrong please try again"))
+            return None
+        with uselang(context.user.lang or bmes.get("lang")):
+            if action == ACTION_SUGGEST_BIDS:
+                bmes["state"] = STATE_BID
+                publish_bid_message(context, item, context.user.id)
+            elif action == ACTION_SELECT_BID:
+                on_bid(context, item, bmes, price)
+            elif action == ACTION_CANCEL:
+                bmes["state"] = STATE_DEFAULT
+                publish_bid_message(context, item, context.user.id)
+            elif action == ACTION_CUSTOM_BID:
+                ask_for_bid(context, item)
+            elif action == ACTION_REVOKE:
+                item.publish_bid_message(context, context.user.id)
+                item.remove_user_bid(context, context.user.id)
+                item.publish(context)
+    update.callback_query.answer()
+    return CUSTOM_OFFER
 
 
-@sentry.span
+@trace
 def show_bid_suggestions(item):
     highest_bid = item.base_price
     if item.bids:
@@ -207,17 +198,17 @@ def show_bid_suggestions(item):
         [
             InlineKeyboardButton(
                 text=format_number(p),
-                callback_data=BidCallback.data(item.id, ACTION_SELECT_BID, p),
+                callback_data=bid_callback.data(item.id, ACTION_SELECT_BID, p),
             )
             for p in prices
         ]
         + [
             InlineKeyboardButton(
-                text=_("Back"), callback_data=BidCallback.data(item.id, ACTION_CANCEL)
+                text=_("Back"), callback_data=bid_callback.data(item.id, ACTION_CANCEL)
             ),
             InlineKeyboardButton(
                 text=_("Custom Price"),
-                callback_data=BidCallback.data(item.id, ACTION_CUSTOM_BID),
+                callback_data=bid_callback.data(item.id, ACTION_CUSTOM_BID),
             ),
         ],
         2,
@@ -225,7 +216,7 @@ def show_bid_suggestions(item):
     return msg, InlineKeyboardMarkup(btns)
 
 
-@sentry.span
+@trace
 def ask_for_bid(context, item, error=None):
     if error is not None:
         msg = "\n".join([error, "", _("Do you want to try again?")])
@@ -235,8 +226,7 @@ def ask_for_bid(context, item, error=None):
     item.save_to_context(context)
 
 
-@sentry.transaction
-@bot_handler
+@callback
 def on_custom_bid(update, context):
     # This is to handle the case where the user forgets to click on the Start button
     # before click on the bid button (from a previous bid_message)
@@ -264,7 +254,7 @@ def on_custom_bid(update, context):
             on_bid(context, item, bmes, update.message.text)
 
 
-@sentry.span
+@trace
 def on_bid(context, item, bmes, price):
     try:
         price = deformat_number(price)
@@ -309,7 +299,7 @@ def on_bid(context, item, bmes, price):
         return CUSTOM_OFFER
 
 
-@bot_handler
+@callback
 def cancel(update, context):
     Item.clear_context(context)
     update.message.reply_text(
@@ -323,12 +313,12 @@ def handlers():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=UserWarning)
         yield ConversationHandler(
-            entry_points=[BidCallback()],
+            entry_points=[InlineButtonCallback(bid_callback)],
             states={
                 CUSTOM_OFFER: [
                     canceler,
                     MessageHandler(Filters.text, on_custom_bid),
-                    BidCallback(),
+                    InlineButtonCallback(bid_callback),
                 ]
             },
             fallbacks=[canceler],

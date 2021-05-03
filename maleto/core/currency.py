@@ -1,6 +1,5 @@
 from babel import Locale, numbers
-
-from .lang import _, convert_number, current_lang, deconvert_number
+from maleto.core.lang import _, convert_number, current_lang, deconvert_number
 
 
 def get_currencies():
@@ -44,8 +43,8 @@ def format_number(num):
         raise ValueError("Cannot format 'None' number")
 
     lang = current_lang()
-    if lang is None or lang == '':
-        lang = 'en'
+    if lang is None or lang == "":
+        lang = "en"
     locale = Locale(lang)
     num = numbers.format_number(num, locale)
     return convert_number(num)

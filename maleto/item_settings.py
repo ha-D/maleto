@@ -1,21 +1,19 @@
 import logging
 from re import A
 
-from telegram import *
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import BadRequest
-from telegram.ext import *
-from telegram.utils.helpers import *
 
 from maleto.chat import Chat
+from maleto.core.bot import InlineButtonCallback, inline_button_callback, trace
+from maleto.core.lang import _
 from maleto.item import Item
 from maleto.user import User
-from maleto.utils import Callback, sentry, trace
-from maleto.utils.lang import _
 
 logger = logging.getLogger(__name__)
 
 
-@sentry.span
+@trace
 def publish_settings_message(context, item):
     smes = item.settings_message
     if smes is None:
@@ -33,7 +31,6 @@ def publish_settings_message(context, item):
             chat_id=item.owner_id,
             message_id=smes["message_id"],
             caption=msg,
-            parse_mode=ParseMode.MARKDOWN,
             reply_markup=btns,
         )
     except BadRequest as e:
@@ -46,15 +43,15 @@ def settings_menu(context, item):
         [
             [
                 InlineKeyboardButton(
-                    "Publish", callback_data=PublishCallback.data(item.id)
+                    "Publish", callback_data=item_publish_callback.data(item.id)
                 )
             ],
             [
                 InlineKeyboardButton(
-                    "🗑  Delete", callback_data=DeleteCallback.data(item.id)
+                    "🗑  Delete", callback_data=item_delete_callback.data(item.id)
                 ),
                 InlineKeyboardButton(
-                    "✏️  Edit", callback_data=EditCallback.data(item.id)
+                    "✏️  Edit", callback_data=item_edit_callback.data(item.id)
                 ),
             ],
         ]
@@ -67,7 +64,7 @@ def settings_publishing(context, item):
     existing = set([s["chat_id"] for s in item.posts])
     buttons = [
         InlineKeyboardButton(
-            _("◀️ Back"), callback_data=PublishCallback.data(item.id, "cancel")
+            _("◀️ Back"), callback_data=item_publish_callback.data(item.id, "cancel")
         )
     ]
     chat_names = Chat.get_chat_names(user.chats)
@@ -80,7 +77,8 @@ def settings_publishing(context, item):
             btn_msg = f"Publish to {chat_names.get(chat_id)}"
         buttons.append(
             InlineKeyboardButton(
-                btn_msg, callback_data=PublishCallback.data(item.id, action, chat_id)
+                btn_msg,
+                callback_data=item_publish_callback.data(item.id, action, chat_id),
             )
         )
     return item.generate_owner_message(context), InlineKeyboardMarkup(
@@ -88,21 +86,19 @@ def settings_publishing(context, item):
     )
 
 
-class PublishCallback(Callback):
-    name = "publish"
-
-    def perform(self, context, query, item_id, action="", chat_id=None):
-        with Item.find_by_id(item_id) as item:
-            if action == "":
-                item.update_settings_message_state("publishing")
-            elif action == "cancel":
-                item.update_settings_message_state("default")
-            elif action == "add":
-                item.add_to_chat(context, chat_id)
-            elif action == "rem":
-                item.remove_from_chat(context, chat_id)
-            publish_settings_message(context, item)
-            query.answer()
+@inline_button_callback("publishitem")
+def item_publish_callback(update, context, item_id, action="", chat_id=None):
+    with Item.find_by_id(item_id) as item:
+        if action == "":
+            item.update_settings_message_state("publishing")
+        elif action == "cancel":
+            item.update_settings_message_state("default")
+        elif action == "add":
+            item.add_to_chat(context, chat_id)
+        elif action == "rem":
+            item.remove_from_chat(context, chat_id)
+        publish_settings_message(context, item)
+        update.callback_query.answer()
 
 
 def settings_deleting(context, item):
@@ -116,10 +112,10 @@ def settings_deleting(context, item):
         [
             [
                 InlineKeyboardButton(
-                    _("Yes"), callback_data=DeleteCallback.data(item.id, "yes")
+                    _("Yes"), callback_data=item_delete_callback.data(item.id, "yes")
                 ),
                 InlineKeyboardButton(
-                    _("No"), callback_data=DeleteCallback.data(item.id, "no")
+                    _("No"), callback_data=item_delete_callback.data(item.id, "no")
                 ),
             ]
         ]
@@ -127,37 +123,37 @@ def settings_deleting(context, item):
     return msg, btns
 
 
-class DeleteCallback(Callback):
-    name = "delete"
-
-    @sentry.transaction
-    @trace
-    def perform(self, context, query, item_id, action=""):
-        with Item.find_by_id(item_id) as item:
-            user = query.from_user
-            if action == "":
-                item.update_settings_message_state("deleting")
-                publish_settings_message(context, item)
-                query.answer()
-            elif action == "yes":
-                item.delete_all_messages(context)
-                item.delete()
-                query.answer(_("Item deleted"))
-            elif action == "no":
-                item.update_settings_message_state("default")
-                publish_settings_message(context, item)
-                query.answer()
+@inline_button_callback("deleteitem")
+def item_delete_callback(update, context, item_id, action=""):
+    query = update.callback_query
+    with Item.find_by_id(item_id) as item:
+        user = query.from_user
+        if action == "":
+            item.update_settings_message_state("deleting")
+            publish_settings_message(context, item)
+            query.answer()
+        elif action == "yes":
+            item.delete_all_messages(context)
+            item.delete()
+            query.answer(_("Item deleted"))
+        elif action == "no":
+            item.update_settings_message_state("default")
+            publish_settings_message(context, item)
+            query.answer()
 
 
-class EditCallback(Callback):
-    name = "edit"
-
-    def perform(self, context, query, item_id, action=""):
-        context.bot.send_message(
-            chat_id=query.message.chat.id, text="Editing is not available yet, sorry"
-        )
-        query.answer()
+@inline_button_callback("edititem")
+def item_edit_callback(update, context, item_id, action=""):
+    context.bot.send_message(
+        chat_id=update.callback_query.message.chat.id,
+        text="Editing is not available yet, sorry",
+    )
+    update.callback_query.answer()
 
 
 def handlers():
-    yield from (DeleteCallback(), EditCallback(), PublishCallback())
+    yield from (
+        InlineButtonCallback(item_delete_callback),
+        InlineButtonCallback(item_edit_callback),
+        InlineButtonCallback(item_publish_callback),
+    )

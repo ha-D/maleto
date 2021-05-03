@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime
 
-from telegram import *
-
-from maleto.utils import metrics, sentry
-from maleto.utils.lang import _, uselang
-from maleto.utils.model import Model
+from maleto.core import metrics, sentry
+from maleto.core.bot import trace
+from maleto.core.lang import _, uselang
+from maleto.core.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +32,12 @@ class Chat(Model):
     def __repr__(self):
         return str(self)
 
-    @sentry.span
+    @trace
     def publish_info_message(self, context):
         if self.info_message_id is None:
             info_msg = context.bot.send_message(
                 chat_id=self.id,
                 text=self.generate_info_message(),
-                parse_mode=ParseMode.MARKDOWN,
             )
             self.info_message_id = info_msg.message_id
             info_msg.pin(disable_notification=True)
@@ -49,10 +47,9 @@ class Chat(Model):
                 chat_id=self.id,
                 message_id=self.info_message_id,
                 text=self.generate_info_message(),
-                parse_mode=ParseMode.MARKDOWN,
             )
 
-    @sentry.span
+    @trace
     def generate_info_message(self):
         from maleto.item import Item
 
@@ -142,7 +139,7 @@ class Chat(Model):
         return {c.id: c.title for c in chats}
 
     @classmethod
-    @sentry.span
+    @trace
     def create_or_update_from_api(cls, context, api_chat):
         if api_chat is not None:
             d = cls.col().find_one_and_update(

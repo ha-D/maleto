@@ -1,8 +1,11 @@
-dist/
-deploy/
-venv/
-scratch/
+.idea/
 .vscode/
-media/
+*.code-workspace
+venv/
 .DS_Store
 __pycache__
+
+scratch/
+media/
+dist/
+deploy/

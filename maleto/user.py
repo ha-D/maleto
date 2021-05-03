@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime
 
-from maleto.utils import metrics, sentry
-from maleto.utils.model import Model
+from maleto.core import metrics, sentry
+from maleto.core.bot import trace
+from maleto.core.model import Model
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class User(Model):
         return str(self)
 
     @classmethod
-    @sentry.span
+    @trace
     def create_or_update_from_api(cls, user, lang=None):
         if user is not None:
             # Don't set the lang if its the default lang (i.e, `en`) so that it

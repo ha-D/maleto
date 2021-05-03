@@ -2,20 +2,19 @@ import logging
 
 from telegram.ext import CommandHandler, Filters
 
+from maleto.core.bot import callback, parse_start_params, trace
 from maleto.item import Item
-from maleto.utils import bot_handler, parse_start_params, trace
 
 logger = logging.getLogger(__name__)
 
 
-@bot_handler
-@trace
+@callback
 def on_start(update, context):
     if len(context.args) == 0 or context.args[0] == "":
         return
 
     kwargs = parse_start_params(context.args[0])
-    action = kwargs.pop('action')
+    action = kwargs.pop("action")
 
     if action == "item":
         return item_start(update, context, kwargs)
@@ -23,11 +22,11 @@ def on_start(update, context):
 
 @trace
 def item_start(update, context, kwargs):
-    item_id = kwargs.get('item')
+    item_id = kwargs.get("item")
     if item_id is None:
-        logger.error('Missing item arg in start message')
+        logger.error("Missing item arg in start message")
         return
-    lang = kwargs.get('lang')
+    lang = kwargs.get("lang")
     user = update.message.from_user
     with Item.find_by_id(item_id) as item:
         item.save_to_context(context)

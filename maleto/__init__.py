@@ -16,13 +16,12 @@ from maleto import (
     item_settings,
     user_settings,
 )
-from maleto.utils import sentry
-from maleto.utils.config import EnvDefault
-from maleto.utils.logging import init_logging
-from maleto.utils.metrics import init_monitoring
-from maleto.utils import metrics
-from maleto.utils.model import init_db
-from maleto.utils.shell import start_shell
+from maleto.core import sentry
+from maleto.core.config import EnvDefault
+from maleto.core.logging import init_logging
+from maleto.core.metrics import init_monitoring
+from maleto.core.model import init_db
+from maleto.core.shell import start_shell
 
 __all__ = ("main",)
 
@@ -124,7 +123,6 @@ def cmd_shell(args):
 
 def on_error(update, context):
     unhandled_error_logger.error("Unhandled exception", exc_info=context.error)
-    metrics.transaction_error.inc()
 
 
 def read_config_envs():

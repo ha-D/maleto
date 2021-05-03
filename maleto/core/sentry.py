@@ -1,9 +1,8 @@
-from collections import defaultdict
-from importlib.metadata import version
 import logging
+from collections import defaultdict
 
-from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 
 logger = logging.getLogger(__name__)
 sentry_enabled = False
