@@ -5,6 +5,7 @@ from telegram.utils.helpers import *
 
 from maleto.chat import Chat
 from maleto.user import User
+from maleto.utils.metrics import user_join_chat, user_leave_chat
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,7 @@ def handle_user_join(user, chat):
     if not exists:
         logger.info(f"User joined chat", extra=dict(chat=chat.id, user=user.id))
         user.chats.append(chat.id)
+        user_join_chat.inc()
 
 
 def handle_user_leave(user, chat):
@@ -74,6 +76,7 @@ def handle_user_leave(user, chat):
     if exists:
         logger.info(f"User left chat", extra=dict(chat=chat.id, user=user.id))
         user.chats = [c for c in user.chats if c != chat.id]
+        user_leave_chat.inc()
 
 
 def handle_admin_join(user, chat):

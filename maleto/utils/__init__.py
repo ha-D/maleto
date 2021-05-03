@@ -12,6 +12,7 @@ from threading import Lock
 from collections import defaultdict
 
 from maleto.utils.lang import uselang
+from maleto.utils.metrics import transaction_success
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,9 @@ class Callback(CallbackQueryHandler):
                 args.append(ObjectId(xp[1]))
 
         with uselang(user.lang):
-            return self.perform(context, update.callback_query, *args)
+            result = self.perform(context, update.callback_query, *args)
+            transaction_success.inc()
+            return result
 
 
 def find_by(lst, field, val):
@@ -121,7 +124,9 @@ def bot_handler(f):
         context.chat = Chat.find_by_id(update.effective_chat.id)
         set_user(user)
         with uselang(user.lang):
-            return f(update, context)
+            result = f(update, context)
+            transaction_success.inc()
+            return result
 
     return inner
 

@@ -1,17 +1,16 @@
-from gettext import translation
 import logging
 from re import A
-from telegram.error import BadRequest
 
-from telegram.ext import *
 from telegram import *
+from telegram.error import BadRequest
+from telegram.ext import *
 from telegram.utils.helpers import *
 
+from maleto.chat import Chat
 from maleto.item import Item
 from maleto.user import User
 from maleto.utils import Callback, sentry, trace
 from maleto.utils.lang import _
-from maleto.chat import Chat
 
 logger = logging.getLogger(__name__)
 

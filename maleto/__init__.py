@@ -3,7 +3,7 @@ import logging
 import os
 
 from telegram.bot import Bot
-from telegram.ext import Updater, Defaults
+from telegram.ext import Defaults, Updater
 from telegram.parsemode import ParseMode
 from telegram.utils.request import Request
 
@@ -17,11 +17,12 @@ from maleto import (
     user_settings,
 )
 from maleto.utils import sentry
-from maleto.utils.logging import init_logging
 from maleto.utils.config import EnvDefault
+from maleto.utils.logging import init_logging
+from maleto.utils.metrics import init_monitoring
+from maleto.utils import metrics
 from maleto.utils.model import init_db
 from maleto.utils.shell import start_shell
-
 
 __all__ = ("main",)
 
@@ -56,6 +57,7 @@ def cmd_start(args):
         ignore_loggers=[unhandled_error_logger.name, "httplib"],
     )
     init_db(args.db_uri)
+    init_monitoring(args.metrics_port)
 
     defaults = Defaults(parse_mode=ParseMode.MARKDOWN, run_async=True)
     updater = Updater(
@@ -122,6 +124,7 @@ def cmd_shell(args):
 
 def on_error(update, context):
     unhandled_error_logger.error("Unhandled exception", exc_info=context.error)
+    metrics.transaction_error.inc()
 
 
 def read_config_envs():
@@ -218,7 +221,7 @@ def main():
     )
     parser.add_argument(
         "--metrics-port",
-        type=str,
+        type=int,
         help="",
         action=EnvDefault,
         envvar="BOT_METRICS_PORT",

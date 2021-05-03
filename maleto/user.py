@@ -1,10 +1,8 @@
 import logging
 from datetime import datetime
 
-from pymongo.collection import ReturnDocument
-
+from maleto.utils import metrics, sentry
 from maleto.utils.model import Model
-from maleto.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +61,7 @@ class User(Model):
                         fullname=f"{user.first_name or ''} {user.last_name or ''}",
                     ),
                 )
+                metrics.user_create.inc()
                 return User.find_by_id(user.id)
             else:
                 sentry.set_span_tag("created", False)

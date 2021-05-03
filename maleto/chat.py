@@ -3,9 +3,9 @@ from datetime import datetime
 
 from telegram import *
 
+from maleto.utils import metrics, sentry
 from maleto.utils.lang import _, uselang
 from maleto.utils.model import Model
-from maleto.utils import sentry
 
 logger = logging.getLogger(__name__)
 
@@ -68,33 +68,70 @@ class Chat(Model):
                     _("*Frequently Asked Questions:*"),
                     "",
                     _("*What is this?*"),
-                    " ".join([_("These items are on sale by the members of this group."),
-                        _("The sale is performed through an auction, you can place a bid on any item you like."),
-                        _("The bid with the highest price will be the buyer of that item.")
-                    ]),
+                    " ".join(
+                        [
+                            _("These items are on sale by the members of this group."),
+                            _(
+                                "The sale is performed through an auction, you can place a bid on any item you like."
+                            ),
+                            _(
+                                "The bid with the highest price will be the buyer of that item."
+                            ),
+                        ]
+                    ),
                     "",
                     _("*How can I place a bid?*"),
-                    " ".join([_("Below each item is a purchase link."),
-                        _("Click on the link and you will be redirected to the Bot."),
-                        _("Click on the Start button and follow the steps to place a bid.")
-                    ]),
+                    " ".join(
+                        [
+                            _("Below each item is a purchase link."),
+                            _(
+                                "Click on the link and you will be redirected to the Bot."
+                            ),
+                            _(
+                                "Click on the Start button and follow the steps to place a bid."
+                            ),
+                        ]
+                    ),
                     "",
                     _("*Can I add items for sale?*"),
-                    " ".join([_("This is an open channel, all joined members can add items."),
-                        _("To add an item first join this channel, then [click here](https://t.me/MaletoBot) to go to the Bot."),
-                        _("Enter the `/newitem` command and follow the steps to create a new item.")
-                    ]),
+                    " ".join(
+                        [
+                            _(
+                                "This is an open channel, all joined members can add items."
+                            ),
+                            _(
+                                "To add an item first join this channel, then [click here](https://t.me/MaletoBot) to go to the Bot."
+                            ),
+                            _(
+                                "Enter the `/newitem` command and follow the steps to create a new item."
+                            ),
+                        ]
+                    ),
                     "",
                     _("*Can I use this in other groups or channels?*"),
-                    " ".join([_("Yup, you can use MaletoBot anywhere you like."),
-                        _("Just add the Bot to your group or channel."),
-                        _("All members of the group will be able to publish items to the chat.")
-                    ]),
+                    " ".join(
+                        [
+                            _("Yup, you can use MaletoBot anywhere you like."),
+                            _("Just add the Bot to your group or channel."),
+                            _(
+                                "All members of the group will be able to publish items to the chat."
+                            ),
+                        ]
+                    ),
                     "",
-                    _("*I found a bug or have a feature suggestion, what should I do?*"),
-                    " ".join([_("MaletoBot is an open source project and under development."),
-                        _("If you've encountered a bug, have suggestions or want to contribute visit our [Github Page](https://github.com/ha-D/maleto)"),
-                    ]),
+                    _(
+                        "*I found a bug or have a feature suggestion, what should I do?*"
+                    ),
+                    " ".join(
+                        [
+                            _(
+                                "MaletoBot is an open source project and under development."
+                            ),
+                            _(
+                                "If you've encountered a bug, have suggestions or want to contribute visit our [Github Page](https://github.com/ha-D/maleto)"
+                            ),
+                        ]
+                    ),
                 ]
             )
             return s
@@ -131,6 +168,7 @@ class Chat(Model):
                 )
                 chat = Chat.find_by_id(api_chat.id)
                 chat.publish_info_message(context)
+                metrics.chat_create.inc()
                 return chat
             else:
                 sentry.set_span_tag("created", False)

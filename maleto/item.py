@@ -13,11 +13,12 @@ from maleto.utils import (
     find_best_inc,
     find_by,
     get_bot,
+    metrics,
     sentry,
     trace,
 )
 from maleto.utils.currency import format_currency
-from maleto.utils.lang import _, convert_number, current_lang, uselang
+from maleto.utils.lang import _, convert_number, uselang
 from maleto.utils.model import Model
 
 logger = logging.getLogger(__name__)
@@ -77,10 +78,16 @@ class Item(Model):
 
         return User.find_by_id(self.owner_id)
 
-    def remove_user_bid(self, context, user_id, sort=True):
+    def _remove_user_bid(self, context, user_id):
         self.bids = [b for b in self.bids if b["user_id"] != user_id]
+
+    @sentry.span
+    def remove_user_bid(self, context, user_id, sort=True):
+        self._remove_user_bid(context, user_id)
         if sort:
             self._sort_bids()
+        logger.info("Bid removed", extra=dict(item=self.id, user=user_id))
+        metrics.item_bid_remove.inc()
 
     @sentry.span
     def add_user_bid(self, context, user_id, price, sort=True):
@@ -104,7 +111,7 @@ class Item(Model):
                 ).format(format_currency(context, self.currency))
             )
 
-        self.remove_user_bid(context, user_id, sort=False)
+        self._remove_user_bid(context, user_id)
 
         src_chat = None
         if context.chat:
@@ -119,6 +126,9 @@ class Item(Model):
         )
         if sort:
             self._sort_bids()
+
+        logger.info("New bid placed", extra=dict(item=self.id, user=user_id))
+        metrics.item_bid_add.inc()
 
         self._handle_winner_change(context, previous_winner, self.bids[0])
 
@@ -137,7 +147,20 @@ class Item(Model):
         ):
             return
 
+        if prev_winner is not None and new_winner is not None:
+            metrics.item_buyer_change.inc()
+
         if prev_winner is not None:
+            logger.info(
+                "Winning bidder changed",
+                extra=dict(
+                    item=self.id,
+                    prev_winner=prev_winner["user_id"]
+                    if prev_winner is not None
+                    else "-",
+                    new_winner=new_winner["user_id"] if new_winner is not None else "-",
+                ),
+            )
             link = self.title
             if src_chat := prev_winner.get("src_chat_id"):
                 link = self.chat_link(src_chat)

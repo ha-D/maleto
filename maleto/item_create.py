@@ -6,9 +6,8 @@ from telegram.utils.helpers import *
 
 from maleto.item import Item
 from maleto.utils import Callback, bot_handler
-from maleto.utils import metrics as mt
-from maleto.utils import split_keyboard, trace
-from maleto.utils import sentry
+from maleto.utils import metrics
+from maleto.utils import sentry, split_keyboard, trace
 from maleto.utils.currency import get_currencies
 from maleto.utils.lang import _
 
@@ -46,7 +45,7 @@ def item_new(update, context):
         msg, parse_mode=ParseMode.MARKDOWN, reply_markup=cancel_markup
     )
     logger.info(f"Item creation started", extra=dict(item=item.id, user=context.user.id))
-    mt.item_create_start.inc()
+    metrics.item_create_start.inc()
     return ITEM_TITLE
 
 
@@ -123,7 +122,7 @@ def item_photo_done(update, context):
                 ]
             )
         )
-        mt.item_create_no_photo.inc()
+        metrics.item_create_no_photo.inc()
         return ITEM_PHOTO
 
     return item_description_ask(
@@ -239,7 +238,7 @@ def item_end(update, context, item):
     logger.info(
         f"Item creation successfully finished", extra=dict(item=item.id, user=context.user.id)
     )
-    mt.item_create_done.inc()
+    metrics.item_create_done.inc()
 
 
 @bot_handler
@@ -252,7 +251,7 @@ def cancel(update, context):
         _("Ok, no worries, no item created."), reply_markup=ReplyKeyboardRemove()
     )
     logger.info(f"Item creation cancelled", extra=dict(item=item.id, user=context.user.id))
-    mt.item_create_cancel.inc()
+    metrics.item_create_cancel.inc()
     return ConversationHandler.END
 
 

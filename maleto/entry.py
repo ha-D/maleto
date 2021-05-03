@@ -5,7 +5,6 @@ from telegram.ext import CommandHandler, Filters
 from maleto.item import Item
 from maleto.utils import bot_handler, parse_start_params, trace
 
-
 logger = logging.getLogger(__name__)
 
 

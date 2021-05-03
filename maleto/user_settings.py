@@ -1,12 +1,12 @@
 import logging
-from telegram.ext import *
+
 from telegram import *
+from telegram.ext import *
 from telegram.utils.helpers import *
 
+from maleto.user import User
 from maleto.utils import bot_handler, split_keyboard
 from maleto.utils.lang import LANGUAGES
-from maleto.item import Item
-from maleto.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,9 @@ LANG_SEL = range(1)
 
 @bot_handler
 def lang_start(update, context):
-    btns = ReplyKeyboardMarkup(split_keyboard([KeyboardButton(n) for n in LANGUAGES.keys()], 2))
+    btns = ReplyKeyboardMarkup(
+        split_keyboard([KeyboardButton(n) for n in LANGUAGES.keys()], 2)
+    )
     update.message.reply_text(
         "Select your language", parse_mode=ParseMode.MARKDOWN, reply_markup=btns
     )
