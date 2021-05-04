@@ -155,31 +155,31 @@ class Item(Model):
                     new_winner=new_winner["user_id"] if new_winner is not None else "-",
                 ),
             )
-            # TODO: src_chat not working properly
-            link = self.title
-            if src_chat := prev_winner.get("src_chat_id"):
-                link = self.chat_link(src_chat)
+            link = f"*{self.title}*"
+            # TODO: src_chat not working propertly, needs investigating
+            # if src_chat := prev_winner.get("src_chat_id"):
+            #     link = self.chat_link(src_chat)
             context.bot.send_message(
                 chat_id=prev_winner["user_id"],
                 text="\n".join(
                     [
                         _("🙀 You are no longer the winning bidder for this item:"),
                         "",
-                        f"*{self.title}*",
+                        link,
                     ]
                 ),
             )
         if new_winner is not None and context.user.id != new_winner["user_id"]:
-            link = self.title
-            if src_chat := new_winner.get("src_chat_id"):
-                link = self.chat_link(src_chat)
+            link = f"*{self.title}*"
+            # if src_chat := new_winner.get("src_chat_id"):
+            #     link = self.chat_link(src_chat)
             context.bot.send_message(
                 chat_id=new_winner["user_id"],
                 text="\n".join(
                     [
                         _("🥳 You are now the winning bidder for this item:"),
                         "",
-                        f"*{self.title}*",
+                        link,
                     ]
                 ),
             )
