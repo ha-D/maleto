@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2021-04-29 14:59+0430\n"
-"PO-Revision-Date: 2021-04-29 15:03+0430\n"
+"PO-Revision-Date: 2021-05-04 14:04+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
@@ -169,7 +169,7 @@ msgstr "برای خرید اینجا کلیک کنید"
 
 #: maleto/item.py:423
 msgid "Published in *{}* chats"
-msgstr "منتشر شده در*{}* کانال"
+msgstr "منتشر شده در *{}* کانال"
 
 #: maleto/item.py:425
 msgid "Starting Price: {}"
@@ -288,8 +288,7 @@ msgstr "حالا یه چند تا عکس ازش برام برست."
 
 #: maleto/item_create.py:79
 msgid ""
-"Click on `Done` or enter `/done` when you've sent all the photos you want to "
-"add."
+"Click on `Done` or enter `/done` when you've sent all the photos you want to add."
 msgstr "هر‍ موقع همه‌ی عکس‌هایی که میخوای رو ارسال کردی دکمه‌ی Done رو فشار بده."
 
 #: maleto/item_create.py:118
