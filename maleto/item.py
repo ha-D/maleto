@@ -102,7 +102,7 @@ class Item(Model):
             raise ValueError(
                 _(
                     "You need to increase by at least {} if you want to offer a higher price"
-                ).format(format_currency(context, self.currency))
+                ).format(format_currency(self.currency, min_price_inc))
             )
 
         self._remove_user_bid(context, user_id)
