@@ -31,7 +31,7 @@ def init_media(bot, media_path=None):
 def queue_file_download(file_id):
     global media_downloader
     if media_downloader is not None:
-        media_downloader.put(file_id)
+        media_downloader.q.put(file_id)
 
 
 def open_media(file_id):
