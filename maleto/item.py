@@ -155,6 +155,7 @@ class Item(Model):
                     new_winner=new_winner["user_id"] if new_winner is not None else "-",
                 ),
             )
+            # TODO: src_chat not working properly
             link = self.title
             if src_chat := prev_winner.get("src_chat_id"):
                 link = self.chat_link(src_chat)
@@ -164,7 +165,7 @@ class Item(Model):
                     [
                         _("🙀 You are no longer the winning bidder for this item:"),
                         "",
-                        link,
+                        f"*{self.title}*",
                     ]
                 ),
             )
@@ -178,7 +179,7 @@ class Item(Model):
                     [
                         _("🥳 You are now the winning bidder for this item:"),
                         "",
-                        link,
+                        f"*{self.title}*",
                     ]
                 ),
             )
@@ -223,7 +224,6 @@ class Item(Model):
         Chat.find_by_id(chat_id).publish_info_message(context)
 
     @trace
-    @trace
     def new_bid_message(
         self, context, user_id, message_id=None, lang=None, publish=True
     ):
@@ -260,7 +260,6 @@ class Item(Model):
         if publish:
             self.publish_bid_message(context, user_id)
 
-    @trace
     @trace
     def new_settings_message(self, context, message_id=None, publish=True):
         prev_mes = self.settings_message
@@ -347,7 +346,6 @@ class Item(Model):
 
         return publish_bid_message(context, self, user_id)
 
-    @trace
     @trace
     def delete_all_messages(self, context):
         from maleto.user import User
