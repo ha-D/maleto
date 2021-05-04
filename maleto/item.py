@@ -5,11 +5,13 @@ import time
 
 from telegram import InlineKeyboardMarkup, InputMediaPhoto, ParseMode
 from telegram.error import BadRequest
+from telegram.files.inputfile import InputFile
 
-from maleto.core import metrics, sentry
+from maleto.core import metrics
 from maleto.core.bot import create_start_params, get_bot, trace
 from maleto.core.currency import format_currency
 from maleto.core.lang import _, convert_number, uselang
+from maleto.core.media import minion_photo, open_media
 from maleto.core.model import Model
 from maleto.core.utils import find_best_inc, find_by
 
@@ -243,9 +245,7 @@ class Item(Model):
                 pass
 
         if message_id is None:
-            message = context.bot.send_photo(
-                chat_id=user_id, photo=self.photos[0], caption=_("Please wait...")
-            )
+            message = self.initiate_settings_or_bid_message(context, user_id)
             message_id = message.message_id
             logger.debug(
                 f"New bid message created", extra=dict(user=user_id, msg_id=message_id)
@@ -276,14 +276,39 @@ class Item(Model):
             except BadRequest as e:
                 pass
         if message_id is None:
-            print("PHOOOOOOOOTOOOOOOO", self.photos[0])
-            message = context.bot.send_photo(
-                chat_id=self.owner_id, photo=self.photos[0], caption=_("Please wait...")
-            )
+            message = self.initiate_settings_or_bid_message(context, self.owner.id)
             message_id = message.message_id
         self.settings_message = {"message_id": message_id, "state": "default"}
         if publish:
             self.publish_settings_message(context)
+
+    def initiate_settings_or_bid_message(self, context, user_id):
+        try:
+            return context.bot.send_photo(
+                chat_id=user_id, photo=self.photos[0], caption=_("Please wait...")
+            )
+        except BadRequest as e:
+            # TODO: Sending photos with file_id seems to fail after a few days since the
+            # last time the photo was used. Need to investigate further. For now we'll
+            # fallback to sending the photo from the media dir or a minion photo if
+            # that doesn't exist
+            if "Wrong file" in e.message:
+                logger.error("Unable to start message with item photo", exc_info=e)
+                if photo_file := open_media(self.photos[0]):
+                    with photo_file:
+                        return context.bot.send_photo(
+                            chat_id=user_id,
+                            photo=InputFile(photo_file),
+                            caption=_("Please wait..."),
+                        )
+                else:
+                    return context.bot.send_photo(
+                        chat_id=user_id,
+                        photo=InputFile(minion_photo),
+                        caption=_("Please wait..."),
+                    )
+            else:
+                raise
 
     def update_settings_message_state(self, state):
         mes = self.settings_message

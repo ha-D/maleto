@@ -18,6 +18,7 @@ from maleto.core.bot import (
 )
 from maleto.core.currency import get_currencies
 from maleto.core.lang import _
+from maleto.core.media import queue_file_download
 from maleto.core.utils import split_keyboard
 from maleto.item import Item
 
@@ -101,7 +102,7 @@ def item_photo(update, context):
         return ITEM_PHOTO
 
     photo = update.message.photo[0]
-    # photo.get_file().download(f"media/{photo.file_id}")
+    queue_file_download(photo.file_id)
     with Item.from_context(context) as item:
         item.photos.append(photo.file_id)
 

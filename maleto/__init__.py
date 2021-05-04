@@ -19,6 +19,7 @@ from maleto import (
 from maleto.core import sentry
 from maleto.core.config import EnvDefault
 from maleto.core.logging import init_logging
+from maleto.core.media import init_media
 from maleto.core.metrics import init_monitoring
 from maleto.core.model import init_db
 from maleto.core.shell import start_shell
@@ -65,6 +66,8 @@ def cmd_start(args):
         use_context=True,
         defaults=defaults,
     )
+
+    init_media(updater.bot, args.media_dir)
 
     dispatcher = updater.dispatcher
     dispatcher.add_error_handler(sentry.on_error)
@@ -241,6 +244,14 @@ def main():
         help="The minimum level at which messages are logged",
         action=EnvDefault,
         envvar="BOT_LOG_LEVEL",
+        default="INFO",
+    )
+    parser.add_argument(
+        "--media-dir",
+        type=str,
+        help="Directory to store downloaded media files",
+        action=EnvDefault,
+        envvar="BOT_MEDIA_DIR",
         default="INFO",
     )
 
