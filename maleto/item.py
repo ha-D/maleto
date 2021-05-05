@@ -339,12 +339,28 @@ class Item(Model):
     def publish_settings_message(self, context):
         from maleto.item_settings import publish_settings_message
 
-        return publish_settings_message(context, self)
+        try:
+            return publish_settings_message(context, self)
+        except BadRequest as e:
+            logger.error(
+                "Publishing settings message failed",
+                exc_info=e,
+                extra=dict(
+                    triggered_by=context.user.id, owner=self.owner_id, item=self.id
+                ),
+            )
 
     def publish_bid_message(self, context, user_id):
         from maleto.item_bid import publish_bid_message
 
-        return publish_bid_message(context, self, user_id)
+        try:
+            return publish_bid_message(context, self, user_id)
+        except BadRequest as e:
+            logger.error(
+                "Publishing settings message failed",
+                exc_info=e,
+                extra=dict(triggered_by=context.user.id, user=user_id, item=self.id),
+            )
 
     @trace
     def delete_all_messages(self, context):
