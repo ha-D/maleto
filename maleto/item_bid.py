@@ -46,6 +46,9 @@ def publish_bid_message(context, item, user_id):
 
     with uselang(user.lang or bmes.get("lang")):
         state = bmes.get("state", STATE_DEFAULT)
+        if item.closed:
+            msg = _("This item is no longer on sale")
+            btns = InlineKeyboardMarkup([])
         if state == STATE_BID:
             msg, btns = show_bid_suggestions(item)
         else:

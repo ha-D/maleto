@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from telegram.parsemode import ParseMode
+
 from maleto.core import metrics, sentry
 from maleto.core.bot import trace
 from maleto.core.lang import _, uselang
@@ -47,6 +49,7 @@ class Chat(Model):
                 chat_id=self.id,
                 message_id=self.info_message_id,
                 text=self.generate_info_message(),
+                parse_mode=ParseMode.MARKDOWN,
             )
 
     @trace
@@ -54,12 +57,15 @@ class Chat(Model):
         from maleto.item import Item
 
         with uselang(self.lang):
-            items = Item.find(posts__chat_id=self.id)
+            items = Item.find(posts__chat_id=self.id, closed=False)
             s = "\n".join(
                 [
                     _("Items on sale:"),
                     "",
-                    *[item.chat_link(self.id) for item in items],
+                    *[
+                        item.chat_link(self.id) + (" ⏳" if item.closing else "")
+                        for item in items
+                    ],
                     "",
                     "",
                     _("*Frequently Asked Questions:*"),

@@ -34,12 +34,15 @@ class Item(Model):
             "settings_message",
             "bid_messages",
             "currency",
+            "closed",
+            "closing",
         )
 
     def __init__(self, **kwargs):
         super().__init__(
             **{
                 "active": False,
+                "closed": False,
                 "photos": [],
                 "bids": [],
                 "posts": [],
@@ -363,6 +366,37 @@ class Item(Model):
             )
 
     @trace
+    def send_closing_notification(self, context, minutes):
+        if minutes < 60:
+            time = _("{} minutes").format(minutes)
+        else:
+            time = _("{} hours").format(minutes // 60)
+        for bid in self.bids:
+            logger.info(
+                "Sending closing notification",
+                extra=dict(user=bid["user_id"], item=self.id, minutes=minutes),
+            )
+            user_id = bid["user_id"]
+            try:
+                context.bot.send_message(
+                    chat_id=user_id,
+                    text="\n".join(
+                        [
+                            _(
+                                "The auction for the following item will be closed in {}"
+                            ).format(time),
+                            f"*{self.title}*",
+                        ]
+                    ),
+                )
+            except Exception as e:
+                logger.error(
+                    "Failed to send closing notification",
+                    exc_info=e,
+                    extra=dict(to_user=user_id, item=self.id),
+                )
+
+    @trace
     def delete_all_messages(self, context):
         from maleto.user import User
 
@@ -418,9 +452,14 @@ class Item(Model):
                         exc_info=True,
                     )
 
+    def get_all_chats(self):
+        from maleto.chat import Chat
+
+        return [Chat.find_by_id(p["chat_id"]) for p in self.posts]
+
     @trace
     def generate_sale_message(self, context):
-        from maleto.user import User
+        from maleto.core.lang import current_lang
 
         bot = get_bot(context)
 
@@ -428,50 +467,45 @@ class Item(Model):
         if len(self.bids) > 0:
             current_price = self.bids[0]["price"]
 
-        from maleto.core.lang import current_lang
-
-        clang = current_lang()
-
         msg = [
             f"*{self.title}*",
             "",
+        ]
+
+        if self.closed:
+            msg += [_("☑️ This item has been sold"), ""]
+        elif self.closing:
+            msg += [_("⏳ This item is closing soon"), ""]
+
+        msg += [
             _("Seller: {}").format(self.owner.link()),
-            "",
-            self.description,
             "",
         ]
 
-        def bidline(bid):
-            user = User.find_by_id(bid["user_id"])
-            return "{}  {}".format(
-                user.link(), format_currency(self.currency, bid["price"])
-            )
+        if not self.closed:
+            msg += [
+                self.description,
+                "",
+            ]
 
         if len(self.bids) == 0:
             msg.append(
                 _("Price: {}").format(format_currency(self.currency, current_price))
             )
-        elif len(self.bids) > 0:
-            msg += [_("Buyer: {}").format(bidline(self.bids[0])), ""]
-            if len(self.bids) > 1:
-                bids = self.bids[1:]
-                msg.append(_("Waiting List:"))
-                if len(bids) <= 4:
-                    msg += [f"{bidline(b)}" for i, b in enumerate(bids)]
-                elif len(bids) > 4:
-                    msg += [f"{bidline(b)}" for i, b in enumerate(bids[:3])]
-                    msg.append(_("_{} more people..._").format(len(bids) - 3))
+        else:
+            msg.append(self.generate_bid_list_message())
 
-        click_here = _("Click here to buy this item")
+        if not self.closed:
+            click_here = _("Click here to buy this item")
 
-        params = {"action": "item", "item": self.id}
-        if lang := current_lang():
-            params["lang"] = lang
-        msg += [
-            "",
-            f"[{click_here}](https://t.me/{bot.username}?start={create_start_params(**params)})",
-            "",
-        ]
+            params = {"action": "item", "item": self.id}
+            if lang := current_lang():
+                params["lang"] = lang
+            msg += [
+                "",
+                f"[{click_here}](https://t.me/{bot.username}?start={create_start_params(**params)})",
+                "",
+            ]
 
         return "\n".join(msg)
 
@@ -480,30 +514,53 @@ class Item(Model):
         msg = [
             self.title,
             "",
+        ]
+        if self.closed:
+            msg += [
+                _("This item is closed"),
+                "",
+            ]
+        elif self.closing:
+            msg += [
+                _("Closing notification has been sent"),
+                "",
+            ]
+
+        msg += [
             _("Published in *{}* chats").format(len(self.posts)),
-            "",
-            _("Starting Price: {}").format(
-                format_currency(self.currency, self.base_price)
-            ),
             "",
         ]
         if len(self.bids) == 0:
-            msg.append(_("No one has made an offer"))
-        elif len(self.bids) == 1:
-            msg.append(
-                _(
-                    "Current Bid: {}".format(
-                        format_currency(self.currency, self.bids[0]["price"])
-                    )
-                )
-            )
+            msg += [
+                _("Starting Price: {}").format(
+                    format_currency(self.currency, self.base_price)
+                ),
+                "",
+                _("No one has made an offer"),
+            ]
         else:
-            msg.append(
-                _("Current Bid: {} with {} people in waiting list").format(
-                    format_currency(self.currency, self.bids[0]["price"]),
-                    len(self.bids) - 1,
-                )
+            msg.append(self.generate_bid_list_message())
+
+        return "\n".join(msg)
+
+    def generate_bid_list_message(self):
+        from maleto.user import User
+
+        def bidline(bid):
+            user = User.find_by_id(bid["user_id"])
+            return "{}  {}".format(
+                user.link(), format_currency(self.currency, bid["price"])
             )
+
+        msg = [_("Buyer: {}").format(bidline(self.bids[0])), ""]
+        if not self.closed and len(self.bids) > 1:
+            bids = self.bids[1:]
+            msg.append(_("Waiting List:"))
+            if len(bids) <= 4:
+                msg += [f"{bidline(b)}" for i, b in enumerate(bids)]
+            elif len(bids) > 4:
+                msg += [f"{bidline(b)}" for i, b in enumerate(bids[:3])]
+                msg.append(_("_{} more people..._").format(len(bids) - 3))
 
         return "\n".join(msg)
 
