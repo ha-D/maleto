@@ -36,6 +36,7 @@ class Model:
 
     def __init__(self, **kwargs):
         self.data = kwargs
+        self._deleted = False
 
     def __getattr__(self, key):
         if key == "id":
@@ -52,6 +53,8 @@ class Model:
 
     @sentry.span
     def save(self):
+        if self._deleted:
+            return
         now = datetime.now()
         self.col().update_one(
             {"_id": self.id},
@@ -91,6 +94,7 @@ class Model:
     @sentry.span
     def delete(self):
         self.col().delete_one({"_id": self.id})
+        self._deleted = True
 
     @classmethod
     def clear_context(cls, context):
