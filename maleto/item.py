@@ -36,6 +36,7 @@ class Item(Model):
             "currency",
             "closed",
             "closing",
+            "link",
         )
 
     def __init__(self, **kwargs):
@@ -487,6 +488,9 @@ class Item(Model):
                 self.description,
                 "",
             ]
+
+            if self.link:
+                msg += ["[{}]({})".format(_("Item Link"), self.link), ""]
 
         if len(self.bids) == 0:
             msg.append(

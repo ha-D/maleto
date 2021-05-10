@@ -1,16 +1,67 @@
 import logging
 from re import A
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    replymarkup,
+)
 from telegram.error import BadRequest
+from telegram.ext import ConversationHandler, Filters, MessageHandler
 
 from maleto.chat import Chat
-from maleto.core.bot import InlineButtonCallback, inline_button_callback, trace
+from maleto.core.bot import (
+    InlineButtonCallback,
+    callback,
+    inline_button_callback,
+    trace,
+)
+from maleto.core.currency import get_currencies
 from maleto.core.lang import _
+from maleto.core.utils import split_keyboard
 from maleto.item import Item
 from maleto.user import User
 
 logger = logging.getLogger(__name__)
+
+(
+    STATE_DEFAULT,
+    STATE_PUBLISH,
+    STATE_DELETE,
+    STATE_CLOSE,
+    STATE_CLOSE_NOTIF,
+    STATE_EDIT,
+) = range(6)
+(
+    ACTION_PUBLISH_CANCEL,
+    ACTION_PUBLISH_ADD,
+    ACTION_PUBLISH_REMOVE,
+    ACTION_DELETE_YES,
+    ACTION_DELETE_NO,
+    ACTION_CLOSE_CANCEL,
+    ACTION_CLOSE_NOW,
+    ACTION_CLOSE_NOTIF,
+    ACTION_EDIT_CANCEL,
+    ACTION_EDIT_TITLE,
+    ACTION_EDIT_DESCRIPTION,
+    ACTION_EDIT_PRICE,
+    ACTION_EDIT_LINK,
+    ACTION_EDIT_CURRENCY,
+) = range(14)
+
+
+(
+    CONV_EDIT_TITLE,
+    CONV_EDIT_DESCRIPTION,
+    CONV_EDIT_CURRENCY,
+    CONV_EDIT_PRICE,
+    CONV_EDIT_LINK,
+) = range(5)
+
+cancel_markup = ReplyKeyboardMarkup([[KeyboardButton("Cancel")]])
 
 
 @trace
@@ -19,13 +70,17 @@ def publish_settings_message(context, item):
     if smes is None:
         return
 
-    state = smes.get("state", "default")
+    state = smes.get("state", STATE_DEFAULT)
+    # REMOVEME: temporary fix
+    if type(state) is not int:
+        state = STATE_DEFAULT
     msg, btns = {
-        "default": settings_menu,
-        "publishing": settings_publishing,
-        "deleting": settings_deleting,
-        "closing": settings_closing,
-        "closing_notif": settings_closing_notif,
+        STATE_DEFAULT: settings_menu,
+        STATE_PUBLISH: settings_publishing,
+        STATE_DELETE: settings_deleting,
+        STATE_CLOSE: settings_closing,
+        STATE_CLOSE_NOTIF: settings_closing_notif,
+        STATE_EDIT: settings_editing,
     }[state](context, item)
 
     try:
@@ -62,11 +117,11 @@ def settings_menu(context, item):
                     "🗑  Delete", callback_data=item_delete_callback.data(item.id)
                 ),
             ],
-            # [
-            #     InlineKeyboardButton(
-            #         "✏️  Edit", callback_data=item_edit_callback.data(item.id)
-            #     ),
-            # ]
+            [
+                InlineKeyboardButton(
+                    "✏️  Edit", callback_data=item_edit_callback.data(item.id)
+                ),
+            ],
         ]
     )
     return item.generate_owner_message(context), btns
@@ -83,10 +138,10 @@ def settings_publishing(context, item):
     chat_names = Chat.get_chat_names(user.chats)
     for chat_id in user.chats:
         if chat_id in existing:
-            action = "rem"
+            action = ACTION_PUBLISH_REMOVE
             btn_msg = f"Remove from {chat_names.get(chat_id)}"
         else:
-            action = "add"
+            action = ACTION_PUBLISH_ADD
             btn_msg = f"Publish to {chat_names.get(chat_id)}"
         buttons.append(
             InlineKeyboardButton(
@@ -100,16 +155,23 @@ def settings_publishing(context, item):
 
 
 @inline_button_callback("publishitem")
-def item_publish_callback(update, context, item_id, action="", chat_id=None):
+def item_publish_callback(update, context, item_id, action=None, chat_id=None):
     with Item.find_by_id(item_id) as item:
-        if action == "":
-            item.update_settings_message_state("publishing")
-        elif action == "cancel":
-            item.update_settings_message_state("default")
-        elif action == "add":
+        if action is None:
+            item.update_settings_message_state(STATE_PUBLISH)
+        elif action == ACTION_PUBLISH_CANCEL:
+            item.update_settings_message_state(STATE_DEFAULT)
+        elif action == ACTION_PUBLISH_ADD:
             item.add_to_chat(context, chat_id)
-        elif action == "rem":
+        elif action == ACTION_PUBLISH_REMOVE:
             item.remove_from_chat(context, chat_id)
+        else:
+            logger.error(
+                "Invalid action received for 'item_publish_callback'",
+                extras=dict(action=action, user=context.user.id, item=item.id),
+            )
+            Item.clear_context(context)
+            item.update_settings_message_state(STATE_DEFAULT)
         publish_settings_message(context, item)
         update.callback_query.answer()
 
@@ -125,10 +187,12 @@ def settings_deleting(context, item):
         [
             [
                 InlineKeyboardButton(
-                    _("Yes"), callback_data=item_delete_callback.data(item.id, "yes")
+                    _("Yes"),
+                    callback_data=item_delete_callback.data(item.id, ACTION_DELETE_YES),
                 ),
                 InlineKeyboardButton(
-                    _("No"), callback_data=item_delete_callback.data(item.id, "no")
+                    _("No"),
+                    callback_data=item_delete_callback.data(item.id, ACTION_DELETE_NO),
                 ),
             ]
         ]
@@ -137,20 +201,29 @@ def settings_deleting(context, item):
 
 
 @inline_button_callback("deleteitem")
-def item_delete_callback(update, context, item_id, action=""):
+def item_delete_callback(update, context, item_id, action=None):
     query = update.callback_query
     with Item.find_by_id(item_id) as item:
         user = query.from_user
-        if action == "":
-            item.update_settings_message_state("deleting")
+        if action is None:
+            item.update_settings_message_state(STATE_DELETE)
             publish_settings_message(context, item)
             query.answer()
-        elif action == "yes":
+        elif action == ACTION_DELETE_YES:
             item.delete_all_messages(context)
             item.delete()
             query.answer(_("Item deleted"))
-        elif action == "no":
-            item.update_settings_message_state("default")
+        elif action == ACTION_DELETE_NO:
+            item.update_settings_message_state(STATE_DEFAULT)
+            publish_settings_message(context, item)
+            query.answer()
+        else:
+            logger.error(
+                "Invalid action received for 'item_delete_callback'",
+                extras=dict(action=action, user=context.user.id, item=item.id),
+            )
+            Item.clear_context(context)
+            item.update_settings_message_state(STATE_DEFAULT)
             publish_settings_message(context, item)
             query.answer()
 
@@ -166,19 +239,21 @@ def settings_closing(context, item):
             [
                 InlineKeyboardButton(
                     _("◀️ Back"),
-                    callback_data=item_close_callback.data(item.id, "cancel"),
+                    callback_data=item_close_callback.data(
+                        item.id, ACTION_CLOSE_CANCEL
+                    ),
                 ),
             ],
             [
                 InlineKeyboardButton(
                     _("Close Now"),
-                    callback_data=item_close_callback.data(item.id, "close_now"),
+                    callback_data=item_close_callback.data(item.id, ACTION_CLOSE_NOW),
                 ),
             ],
             [
                 InlineKeyboardButton(
                     _("Send Closing Notification"),
-                    callback_data=item_close_callback.data(item.id, "close_notif"),
+                    callback_data=item_close_callback.data(item.id, ACTION_CLOSE_NOTIF),
                 ),
             ],
         ]
@@ -197,6 +272,28 @@ def settings_closing_notif(context, item):
             _("How long until you will close this item?"),
         ]
     )
+    times = (
+        (_("1 Minute"), 1),
+        (_("5 Minutes"), 5),
+        (_("10 Minutes"), 10),
+        (_("30 Minutes"), 30),
+        (_("1 Hour"), 60),
+        (_("3 Hours"), 3 * 60),
+        (_("6 Hours"), 6 * 60),
+        (_("12 Hours"), 12 * 60),
+        (_("24 Hours"), 24 * 60),
+        (_("48 Hours"), 48 * 60),
+    )
+    btns = split_keyboard(
+        [
+            InlineKeyboardButton(
+                t[0],
+                callback_data=item_close_callback.data(item.id, "close_notif", t[1]),
+            )
+            for t in times
+        ],
+        2,
+    )
     btns = InlineKeyboardMarkup(
         [
             [
@@ -205,85 +302,49 @@ def settings_closing_notif(context, item):
                     callback_data=item_close_callback.data(item.id, "cancel"),
                 ),
             ],
-            [
-                InlineKeyboardButton(
-                    _("1 Minute"),
-                    callback_data=item_close_callback.data(item.id, "close_notif", 1),
-                ),
-                InlineKeyboardButton(
-                    _("5 Minutes"),
-                    callback_data=item_close_callback.data(item.id, "close_notif", 5),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    _("10 Minutes"),
-                    callback_data=item_close_callback.data(item.id, "close_notif", 10),
-                ),
-                InlineKeyboardButton(
-                    _("30 Minutes"),
-                    callback_data=item_close_callback.data(item.id, "close_notif", 30),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    _("1 Hour"),
-                    callback_data=item_close_callback.data(item.id, "close_notif", 60),
-                ),
-                InlineKeyboardButton(
-                    _("6 Hours"),
-                    callback_data=item_close_callback.data(
-                        item.id, "close_notif", 6 * 60
-                    ),
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    _("12 Hours"),
-                    callback_data=item_close_callback.data(
-                        item.id, "close_notif", 12 * 60
-                    ),
-                ),
-                InlineKeyboardButton(
-                    _("24 Hours"),
-                    callback_data=item_close_callback.data(
-                        item.id, "close_notif", 24 * 60
-                    ),
-                ),
-            ],
+            *btns,
         ]
     )
     return msg, btns
 
 
 @inline_button_callback("closeitem")
-def item_close_callback(update, context, item_id, action="", close_time=None):
+def item_close_callback(update, context, item_id, action=None, close_time=None):
     query = update.callback_query
     publish = False
     with Item.find_by_id(item_id) as item:
-        if action == "":
-            item.update_settings_message_state("closing")
+        if action is None:
+            item.update_settings_message_state(STATE_CLOSE)
             publish_settings_message(context, item)
             query.answer()
-        elif action == "cancel":
-            item.update_settings_message_state("default")
+        elif action == ACTION_CLOSE_CANCEL:
+            item.update_settings_message_state(STATE_DEFAULT)
             publish_settings_message(context, item)
             query.answer()
-        elif action == "close_now":
+        elif action == ACTION_CLOSE_NOW:
             item.closed = True
             publish = True
             query.answer(_("Item closed"))
-        elif action == "close_notif":
+        elif action == ACTION_CLOSE_NOTIF:
             if close_time is None:
-                item.update_settings_message_state("closing_notif")
+                item.update_settings_message_state(STATE_CLOSE_NOTIF)
                 publish_settings_message(context, item)
                 query.answer()
             else:
                 item.closing = True
                 item.send_closing_notification(context, close_time)
-                item.update_settings_message_state("default")
+                item.update_settings_message_state(STATE_DEFAULT)
                 publish = True
                 query.answer("Notification sent")
+        else:
+            logger.error(
+                "Invalid action received for 'item_close_callback'",
+                extras=dict(action=action, user=context.user.id, item=item.id),
+            )
+            Item.clear_context(context)
+            item.update_settings_message_state(STATE_DEFAULT)
+            publish_settings_message(context, item)
+            query.answer()
     if publish:
         item.publish(context)
         for chat in item.get_all_chats():
@@ -302,20 +363,233 @@ def item_open_callback(update, context, item_id):
         chat.publish_info_message(context)
 
 
-@inline_button_callback("edititem")
-def item_edit_callback(update, context, item_id, action=""):
-    context.bot.send_message(
-        chat_id=update.callback_query.message.chat.id,
-        text="Editing is not available yet, sorry",
+def settings_editing(context, item):
+    msg = "\n".join(
+        [
+            item.generate_owner_message(context),
+        ]
     )
-    update.callback_query.answer()
+    btns = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton(
+                    _("◀️ Back"),
+                    callback_data=item_edit_callback.data(item.id, ACTION_EDIT_CANCEL),
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    _("Title"),
+                    callback_data=item_edit_callback.data(item.id, ACTION_EDIT_TITLE),
+                ),
+                InlineKeyboardButton(
+                    _("Description"),
+                    callback_data=item_edit_callback.data(
+                        item.id, ACTION_EDIT_DESCRIPTION
+                    ),
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    _("Price"),
+                    callback_data=item_edit_callback.data(item.id, ACTION_EDIT_PRICE),
+                ),
+                InlineKeyboardButton(
+                    _("Currency"),
+                    callback_data=item_edit_callback.data(
+                        item.id, ACTION_EDIT_CURRENCY
+                    ),
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    _("Link"),
+                    callback_data=item_edit_callback.data(item.id, ACTION_EDIT_LINK),
+                ),
+            ],
+        ]
+    )
+    return msg, btns
+
+
+@inline_button_callback("edititem")
+def item_edit_callback(update, context, item_id, action=None):
+    query = update.callback_query
+    with Item.find_by_id(item_id) as item:
+        if action is None:
+            item.update_settings_message_state(STATE_EDIT)
+            publish_settings_message(context, item)
+            query.answer()
+        elif action == ACTION_EDIT_CANCEL:
+            item.update_settings_message_state(STATE_DEFAULT)
+            publish_settings_message(context, item)
+            query.answer()
+        elif action == ACTION_EDIT_TITLE:
+            item.save_to_context(context)
+            query.message.reply_text(_("Enter the new title"))
+            query.answer()
+            return CONV_EDIT_TITLE
+        elif action == ACTION_EDIT_DESCRIPTION:
+            item.save_to_context(context)
+            query.message.reply_text(_("Enter the new description"))
+            query.answer()
+            return CONV_EDIT_DESCRIPTION
+        elif action == ACTION_EDIT_CURRENCY:
+            item.save_to_context(context)
+            currencies = get_currencies()
+            btns = split_keyboard([KeyboardButton(text=c) for c in currencies], 2)
+            query.message.reply_text(
+                _("Select the new currency"), reply_markup=ReplyKeyboardMarkup(btns)
+            )
+            query.answer()
+            return CONV_EDIT_CURRENCY
+        elif action == ACTION_EDIT_PRICE:
+            item.save_to_context(context)
+            query.message.reply_text(_("Enter the new price"))
+            query.answer()
+            return CONV_EDIT_PRICE
+        elif action == ACTION_EDIT_LINK:
+            item.save_to_context(context)
+            query.message.reply_text(_("Enter the new link"))
+            query.answer()
+            return CONV_EDIT_LINK
+        else:
+            logger.error(
+                "Invalid action received for 'item_edit_callback'",
+                extras=dict(action=action, user=context.user.id, item=item.id),
+            )
+            Item.clear_context(context)
+            item.update_settings_message_state(STATE_DEFAULT)
+            publish_settings_message(context, item)
+            query.answer()
+
+
+@callback
+def on_edit_title(update, context):
+    new_title = update.message.text
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    with item:
+        item.title = new_title
+    item.publish(context)
+    update.message.reply_text(_("Title updated"))
+    return ConversationHandler.END
+
+
+@callback
+def on_edit_description(update, context):
+    new_description = update.message.text
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    with item:
+        item.title = new_description
+    item.publish(context)
+    update.message.reply_text(_("Description updated"))
+    return ConversationHandler.END
+
+
+@callback
+def on_edit_currency(update, context):
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    currency_key = get_currencies().get(update.message.text)
+    if currency_key is None:
+        update.message.reply_text(
+            _("I'm not familiar with that currency, please try again")
+        )
+        return CONV_EDIT_CURRENCY
+
+    with item:
+        item.currency = currency_key
+    item.publish(context)
+    update.message.reply_text(_("Currency updated"), reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+
+@callback
+def on_edit_price(update, context):
+    new_price = update.message.text
+
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    if not new_price.isdigit():
+        msg = "\n".join(
+            [
+                _("That doesn't look like a valid price, please just give me a number"),
+            ]
+        )
+        update.message.reply_text(msg, reply_markup=cancel_markup)
+        return CONV_EDIT_PRICE
+
+    with item:
+        item.base_price = int(new_price)
+    item.publish(context)
+    update.message.reply_text(_("Price updated"))
+    return ConversationHandler.END
+
+
+@callback
+def on_edit_link(update, context):
+    new_link = update.message.text
+
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    with item:
+        item.link = new_link
+    item.publish(context)
+    update.message.reply_text(_("Link updated"))
+    return ConversationHandler.END
+
+
+@callback
+def cancel(update, context):
+    Item.clear_context(context)
+    update.message.reply_text(
+        _("Ok no problem, cancelled"), reply_markup=ReplyKeyboardRemove()
+    )
+    return ConversationHandler.END
 
 
 def handlers():
+    canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
+
+    edit_states = (
+        (CONV_EDIT_TITLE, on_edit_title),
+        (CONV_EDIT_DESCRIPTION, on_edit_description),
+        (CONV_EDIT_CURRENCY, on_edit_currency),
+        (CONV_EDIT_PRICE, on_edit_price),
+        (CONV_EDIT_LINK, on_edit_link),
+    )
     yield from (
         InlineButtonCallback(item_delete_callback),
-        InlineButtonCallback(item_edit_callback),
         InlineButtonCallback(item_publish_callback),
         InlineButtonCallback(item_close_callback),
         InlineButtonCallback(item_open_callback),
+        ConversationHandler(
+            entry_points=[InlineButtonCallback(item_edit_callback)],
+            states={
+                e[0]: [
+                    canceler,
+                    MessageHandler(Filters.text, e[1]),
+                    InlineButtonCallback(item_edit_callback),
+                ]
+                for e in edit_states
+            },
+            fallbacks=[canceler],
+        ),
     )

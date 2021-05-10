@@ -10,6 +10,7 @@ LANGUAGES = {"English": "en", "فارسی": "fa"}
 
 translator_cache = {}
 thread_langs = {}
+langs_lock = threading.RLock()
 
 
 def get_translator(lang):
@@ -37,16 +38,23 @@ def _(msg, lang=None):
 class LangContext:
     def __init__(self, lang):
         self.lang = lang
+        self.prev_lang = None
 
     def __enter__(self):
         tid = threading.current_thread().ident
-        thread_langs[tid] = self.lang
-        return self
+        with langs_lock:
+            if tid in thread_langs:
+                self.prev_lang = thread_langs[tid]
+            thread_langs[tid] = self.lang
+            return self
 
     def __exit__(self, type, value, traceback):
         tid = threading.current_thread().ident
-        if tid in thread_langs:
-            del thread_langs[tid]
+        with langs_lock:
+            if self.prev_lang is not None:
+                thread_langs[tid] = self.prev_lang
+            elif tid in thread_langs:
+                del thread_langs[tid]
 
 
 def uselang(lang):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-06 11:32+0430\n"
+"POT-Creation-Date: 2021-05-10 15:25+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,91 +17,91 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: maleto/chat.py:60
+#: maleto/chat.py:63
 msgid "Items on sale:"
 msgstr ""
 
-#: maleto/chat.py:65
+#: maleto/chat.py:71
 msgid "*Frequently Asked Questions:*"
 msgstr ""
 
-#: maleto/chat.py:67
+#: maleto/chat.py:73
 msgid "*What is this?*"
 msgstr ""
 
-#: maleto/chat.py:70
+#: maleto/chat.py:76
 msgid "These items are on sale by the members of this group."
 msgstr ""
 
-#: maleto/chat.py:71
+#: maleto/chat.py:77
 msgid ""
 "The sale is performed through an auction, you can place a bid on any item"
 " you like."
 msgstr ""
 
-#: maleto/chat.py:74
+#: maleto/chat.py:80
 msgid "The bid with the highest price will be the buyer of that item."
 msgstr ""
 
-#: maleto/chat.py:80
+#: maleto/chat.py:86
 msgid "*How can I place a bid?*"
 msgstr ""
 
-#: maleto/chat.py:83
+#: maleto/chat.py:89
 msgid "Below each item is a purchase link."
 msgstr ""
 
-#: maleto/chat.py:84
+#: maleto/chat.py:90
 msgid "Click on the link and you will be redirected to the Bot."
 msgstr ""
 
-#: maleto/chat.py:87
+#: maleto/chat.py:93
 msgid "Click on the Start button and follow the steps to place a bid."
 msgstr ""
 
-#: maleto/chat.py:93
+#: maleto/chat.py:99
 msgid "*Can I add items for sale?*"
 msgstr ""
 
-#: maleto/chat.py:96
+#: maleto/chat.py:102
 msgid "This is an open channel, all joined members can add items."
 msgstr ""
 
-#: maleto/chat.py:99
+#: maleto/chat.py:105
 msgid ""
 "To add an item first join this channel, then [click "
 "here](https://t.me/MaletoBot) to go to the Bot."
 msgstr ""
 
-#: maleto/chat.py:102
+#: maleto/chat.py:108
 msgid "Enter the `/newitem` command and follow the steps to create a new item."
 msgstr ""
 
-#: maleto/chat.py:108
+#: maleto/chat.py:114
 msgid "*Can I use this in other groups or channels?*"
 msgstr ""
 
-#: maleto/chat.py:111
+#: maleto/chat.py:117
 msgid "Yup, you can use MaletoBot anywhere you like."
 msgstr ""
 
-#: maleto/chat.py:112
+#: maleto/chat.py:118
 msgid "Just add the Bot to your group or channel."
 msgstr ""
 
-#: maleto/chat.py:113
+#: maleto/chat.py:119
 msgid "All members of the group will be able to publish items to the chat."
 msgstr ""
 
-#: maleto/chat.py:119
+#: maleto/chat.py:125
 msgid "*I found a bug or have a feature suggestion, what should I do?*"
 msgstr ""
 
-#: maleto/chat.py:124
+#: maleto/chat.py:130
 msgid "MaletoBot is an open source project and under development."
 msgstr ""
 
-#: maleto/chat.py:127
+#: maleto/chat.py:133
 msgid ""
 "If you've encountered a bug, have suggestions or want to contribute visit"
 " our [Github Page](https://github.com/ha-D/maleto)"
@@ -111,91 +111,95 @@ msgstr ""
 msgid "Select language"
 msgstr ""
 
-#: maleto/item.py:94
+#: maleto/item.py:95
 msgid "Your offer is too low"
 msgstr ""
 
-#: maleto/item.py:106
+#: maleto/item.py:107
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr ""
 
-#: maleto/item.py:169
+#: maleto/item.py:170
 msgid "🙀 You are no longer the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:183
+#: maleto/item.py:184
 msgid "🥳 You are now the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:290 maleto/item.py:304 maleto/item.py:310
+#: maleto/item.py:291 maleto/item.py:305 maleto/item.py:311
 msgid "Please wait..."
 msgstr ""
 
-#: maleto/item.py:371
+#: maleto/item.py:372
 msgid "{} minutes"
 msgstr ""
 
-#: maleto/item.py:373
+#: maleto/item.py:374
 msgid "{} hours"
 msgstr ""
 
-#: maleto/item.py:385
+#: maleto/item.py:386
 msgid "The auction for the following item will be closed in {}"
 msgstr ""
 
-#: maleto/item.py:408 maleto/item.py:426
+#: maleto/item.py:409 maleto/item.py:427
 msgid "This item is no longer available"
 msgstr ""
 
-#: maleto/item.py:471
+#: maleto/item.py:477
 msgid "☑️ This item has been sold"
 msgstr ""
 
-#: maleto/item.py:473
+#: maleto/item.py:479
 msgid "⏳ This item is closing soon"
 msgstr ""
 
-#: maleto/item.py:476
+#: maleto/item.py:482
 msgid "Seller: {}"
 msgstr ""
 
-#: maleto/item.py:488
+#: maleto/item.py:493
+msgid "Item Link"
+msgstr ""
+
+#: maleto/item.py:497
 msgid "Price: {}"
 msgstr ""
 
-#: maleto/item.py:494
+#: maleto/item.py:503
 msgid "Click here to buy this item"
 msgstr ""
 
-#: maleto/item.py:515
+#: maleto/item.py:524
 msgid "This item is closed"
 msgstr ""
 
-#: maleto/item.py:520
+#: maleto/item.py:529
 msgid "Closing notification has been sent"
 msgstr ""
 
-#: maleto/item.py:525
+#: maleto/item.py:534
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: maleto/item.py:530
+#: maleto/item.py:539
 msgid "Starting Price: {}"
 msgstr ""
 
-#: maleto/item.py:534
+#: maleto/item.py:543
 msgid "No one has made an offer"
 msgstr ""
 
-#: maleto/item.py:550
+#: maleto/item.py:559
 msgid "Buyer: {}"
 msgstr ""
 
-#: maleto/item.py:553
+#: maleto/item.py:562
 msgid "Waiting List:"
 msgstr ""
 
-#: maleto/item.py:558
+#: maleto/item.py:567
 msgid "_{} more people..._"
 msgstr ""
 
@@ -240,7 +244,9 @@ msgid "The highest bid is {}, do you want to make an offer?"
 msgstr ""
 
 #: maleto/item_bid.py:169 maleto/item_bid.py:243 maleto/item_bid.py:253
-#: maleto/item_bid.py:300
+#: maleto/item_bid.py:300 maleto/item_settings.py:472
+#: maleto/item_settings.py:487 maleto/item_settings.py:501
+#: maleto/item_settings.py:524 maleto/item_settings.py:549
 msgid "Something went wrong please try again"
 msgstr ""
 
@@ -276,7 +282,7 @@ msgstr ""
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:309
+#: maleto/item_bid.py:309 maleto/item_settings.py:563
 msgid "Ok no problem, cancelled"
 msgstr ""
 
@@ -332,7 +338,7 @@ msgstr ""
 msgid "What *currency* would you like to use?"
 msgstr ""
 
-#: maleto/item_create.py:178
+#: maleto/item_create.py:178 maleto/item_settings.py:507
 msgid "I'm not familiar with that currency, please try again"
 msgstr ""
 
@@ -340,7 +346,7 @@ msgstr ""
 msgid "What *price* are you selling at?"
 msgstr ""
 
-#: maleto/item_create.py:207
+#: maleto/item_create.py:207 maleto/item_settings.py:530
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr ""
 
@@ -368,79 +374,147 @@ msgstr ""
 msgid "Click on one any item to view more options"
 msgstr ""
 
-#: maleto/item_settings.py:80 maleto/item_settings.py:168
-#: maleto/item_settings.py:204
+#: maleto/item_settings.py:135 maleto/item_settings.py:241
+#: maleto/item_settings.py:301 maleto/item_settings.py:376
 msgid "◀️ Back"
 msgstr ""
 
-#: maleto/item_settings.py:121
+#: maleto/item_settings.py:183
 msgid "Are you sure you want to delete this item? 🙀"
 msgstr ""
 
-#: maleto/item_settings.py:128
+#: maleto/item_settings.py:190
 msgid "Yes"
 msgstr ""
 
-#: maleto/item_settings.py:131
+#: maleto/item_settings.py:194
 msgid "No"
 msgstr ""
 
-#: maleto/item_settings.py:151
+#: maleto/item_settings.py:215
 msgid "Item deleted"
 msgstr ""
 
-#: maleto/item_settings.py:174
+#: maleto/item_settings.py:249
 msgid "Close Now"
 msgstr ""
 
-#: maleto/item_settings.py:180
+#: maleto/item_settings.py:255
 msgid "Send Closing Notification"
 msgstr ""
 
-#: maleto/item_settings.py:194
+#: maleto/item_settings.py:269
 msgid ""
 "This will send a message to users interested in this item to let them "
 "know the item will be closed soon"
 msgstr ""
 
-#: maleto/item_settings.py:197
+#: maleto/item_settings.py:272
 msgid "How long until you will close this item?"
 msgstr ""
 
-#: maleto/item_settings.py:210
+#: maleto/item_settings.py:276
 msgid "1 Minute"
 msgstr ""
 
-#: maleto/item_settings.py:214
+#: maleto/item_settings.py:277
 msgid "5 Minutes"
 msgstr ""
 
-#: maleto/item_settings.py:220
+#: maleto/item_settings.py:278
 msgid "10 Minutes"
 msgstr ""
 
-#: maleto/item_settings.py:224
+#: maleto/item_settings.py:279
 msgid "30 Minutes"
 msgstr ""
 
-#: maleto/item_settings.py:230
+#: maleto/item_settings.py:280
 msgid "1 Hour"
 msgstr ""
 
-#: maleto/item_settings.py:234
+#: maleto/item_settings.py:281
+msgid "3 Hours"
+msgstr ""
+
+#: maleto/item_settings.py:282
 msgid "6 Hours"
 msgstr ""
 
-#: maleto/item_settings.py:242
+#: maleto/item_settings.py:283
 msgid "12 Hours"
 msgstr ""
 
-#: maleto/item_settings.py:248
+#: maleto/item_settings.py:284
 msgid "24 Hours"
 msgstr ""
 
-#: maleto/item_settings.py:275 maleto/item_settings.py:297
+#: maleto/item_settings.py:285
+msgid "48 Hours"
+msgstr ""
+
+#: maleto/item_settings.py:327 maleto/item_settings.py:360
 msgid "Item closed"
+msgstr ""
+
+#: maleto/item_settings.py:382
+msgid "Title"
+msgstr ""
+
+#: maleto/item_settings.py:386
+msgid "Description"
+msgstr ""
+
+#: maleto/item_settings.py:394
+msgid "Price"
+msgstr ""
+
+#: maleto/item_settings.py:398
+msgid "Currency"
+msgstr ""
+
+#: maleto/item_settings.py:406
+msgid "Link"
+msgstr ""
+
+#: maleto/item_settings.py:429
+msgid "Enter the new title"
+msgstr ""
+
+#: maleto/item_settings.py:434
+msgid "Enter the new description"
+msgstr ""
+
+#: maleto/item_settings.py:442
+msgid "Select the new currency"
+msgstr ""
+
+#: maleto/item_settings.py:448
+msgid "Enter the new price"
+msgstr ""
+
+#: maleto/item_settings.py:453
+msgid "Enter the new link"
+msgstr ""
+
+#: maleto/item_settings.py:478
+msgid "Title updated"
+msgstr ""
+
+#: maleto/item_settings.py:493
+msgid "Description updated"
+msgstr ""
+
+#: maleto/item_settings.py:514
+msgid "Currency updated"
+msgstr ""
+
+#: maleto/item_settings.py:539
+msgid "Price updated"
+msgstr ""
+
+#: maleto/item_settings.py:555
+msgid "Link updated"
 msgstr ""
 
 #: maleto/core/currency.py:7
