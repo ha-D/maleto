@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from re import A
 
 from telegram import (
@@ -7,7 +8,6 @@ from telegram import (
     KeyboardButton,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
-    replymarkup,
 )
 from telegram.error import BadRequest
 from telegram.ext import ConversationHandler, Filters, MessageHandler
@@ -488,7 +488,7 @@ def on_edit_description(update, context):
         return ConversationHandler.END
 
     with item:
-        item.title = new_description
+        item.description = new_description
     item.publish(context)
     update.message.reply_text(_("Description updated"))
     return ConversationHandler.END
@@ -565,6 +565,12 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
+@callback
+def abort(update, context):
+    Item.clear_context(context)
+    return ConversationHandler.END
+
+
 def handlers():
     canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
 
@@ -590,6 +596,7 @@ def handlers():
                 ]
                 for e in edit_states
             },
-            fallbacks=[canceler],
+            fallbacks=[canceler, MessageHandler(Filters.command, abort)],
+            conversation_timeout=timedelta(minutes=10),
         ),
     )

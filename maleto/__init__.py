@@ -13,6 +13,7 @@ from maleto import (
     entry,
     item_bid,
     item_create,
+    item_list,
     item_settings,
     user_settings,
 )
@@ -77,6 +78,7 @@ def cmd_start(args):
         entry,
         item_bid,
         item_create,
+        item_list,
         item_settings,
         chat_member,
         chat_settings,

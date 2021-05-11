@@ -8,7 +8,7 @@ def init_logging(log_file, log_level):
     log_level = logging.getLevelName(log_level.upper())
 
     lib_loggers = (
-        ("telegram.*", logging.DEBUG),
+        ("telegram.*", logging.INFO),
         ("apscheduler.*", logging.INFO),
         ("PYMONGOIM*", logging.WARNING),
     )

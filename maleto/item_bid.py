@@ -1,5 +1,6 @@
 import logging
 import warnings
+from datetime import timedelta
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.error import BadRequest
@@ -158,6 +159,7 @@ def not_bidding(context, item):
 
 @inline_button_callback("bid")
 def bid_callback(update, context, item_id, action=ACTION_SUGGEST_BIDS, price=None):
+    Item.clear_context(context)
     with Item.find_by_id(item_id) as item:
         bmes, __ = find_by(item.bid_messages, "user_id", context.user.id)
         if bmes is None:
@@ -311,6 +313,11 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
+@callback
+def abort(update, context):
+    return ConversationHandler.END
+
+
 def handlers():
     canceler = MessageHandler(Filters.regex(r"/?[cC]ancel"), cancel)
     with warnings.catch_warnings():
@@ -324,5 +331,6 @@ def handlers():
                     InlineButtonCallback(bid_callback),
                 ]
             },
-            fallbacks=[canceler],
+            fallbacks=[canceler, MessageHandler(Filters.command, abort)],
+            conversation_timeout=timedelta(minutes=5),
         )

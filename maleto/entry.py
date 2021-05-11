@@ -13,6 +13,8 @@ def on_start(update, context):
     if len(context.args) == 0 or context.args[0] == "":
         return
 
+    Item.clear_context(context)
+
     kwargs = parse_start_params(context.args[0])
     action = kwargs.pop("action")
 

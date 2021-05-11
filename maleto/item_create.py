@@ -1,21 +1,11 @@
 import logging
+from datetime import timedelta
 
-from telegram import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    KeyboardButton,
-    ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
-)
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, ConversationHandler, Filters, MessageHandler
 
 from maleto.core import metrics
-from maleto.core.bot import (
-    InlineButtonCallback,
-    callback,
-    inline_button_callback,
-    trace,
-)
+from maleto.core.bot import callback, trace
 from maleto.core.currency import get_currencies
 from maleto.core.lang import _
 from maleto.core.media import queue_file_download
@@ -254,40 +244,13 @@ def cancel(update, context):
 
 
 @callback
-def list_items(update, context):
-    items = Item.find(owner_id=context.user.id)
-    if len(items) == 0:
-        message = _(
-            "You don't have any items. Use the `/newitem` command to create one."
-        )
-        update.message.reply_text(text=message)
-    else:
-        kb = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        s.title,
-                        callback_data=select_item_callback.data(s.id),
-                    ),
-                ]
-                for s in items
-            ]
-        )
-        message = "\n".join(
-            [
-                _("Click on one any item to view more options"),
-            ]
-        )
-        update.message.reply_text(text=message, reply_markup=kb)
-
-
-@inline_button_callback("selectitem")
-def select_item_callback(update, context, item_id):
-    item = Item.find_by_id(item_id)
-    update.callback_query.edit_message_reply_markup(InlineKeyboardMarkup([]))
-    with item:
-        item.new_settings_message(context, publish=True)
-    update.callback_query.answer()
+def abort(update, context):
+    item = Item.from_context(context)
+    item.delete()
+    logger.info(
+        f"Item creation aborted", extra=dict(item=item.id, user=context.user.id)
+    )
+    return ConversationHandler.END
 
 
 def handlers():
@@ -309,10 +272,7 @@ def handlers():
             ITEM_CURRENCY: [canceler, MessageHandler(Filters.text, item_currency)],
             ITEM_PRICE: [canceler, MessageHandler(Filters.text, item_price)],
         },
-        fallbacks=[canceler],
-    )
-
-    yield from (
-        CommandHandler("myitems", list_items),
-        InlineButtonCallback(select_item_callback),
+        fallbacks=[canceler, MessageHandler(Filters.command, abort)],
+        allow_reentry=True,
+        conversation_timeout=timedelta(minutes=10),
     )
