@@ -197,8 +197,10 @@ def show_bid_suggestions(item):
 
     msg = _("Select your offer")
 
-    min_price_inc = item.min_price_inc or find_best_inc(highest_bid)
-    prices = [highest_bid + min_price_inc * i for i in range(4)]
+    min_price_inc = item.min_price_inc or find_best_inc(
+        max(item.base_price, highest_bid)
+    )
+    prices = [max(item.base_price, highest_bid) + min_price_inc * i for i in range(4)]
     btns = split_keyboard(
         [
             InlineKeyboardButton(
@@ -274,11 +276,15 @@ def on_bid(context, item, bmes, price):
     try:
         item.add_user_bid(context, context.user.id, price)
         if item.bids[0]["user_id"] == context.user.id:
+            if item.bids[0]["price"] >= item.base_price:
+                msg = _("Congrats 🎉, you're the current buyer at {}")
+            else:
+                msg = _(
+                    "You have placed the highest bid at {}. However, this is lower than the base price for this item."
+                )
             context.bot.send_message(
                 chat_id=context.user.id,
-                text=_("Congrats 🎉, you're the current buyer at {}").format(
-                    format_currency(item.currency, price)
-                ),
+                text=msg.format(format_currency(item.currency, price)),
                 reply_markup=ReplyKeyboardRemove(),
             )
         else:

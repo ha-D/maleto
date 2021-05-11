@@ -91,8 +91,8 @@ class Item(Model):
     def add_user_bid(self, context, user_id, price, sort=True):
         # TODO: check min price inc
 
-        if self.base_price and price < self.base_price:
-            raise ValueError(_("Your offer is too low"))
+        if price < 0:
+            raise ValueError(_("You cannot bid a negative value"))
 
         previous_winner = None
         if self.bids:
@@ -138,6 +138,11 @@ class Item(Model):
 
     @trace
     def _handle_winner_change(self, context, prev_winner, new_winner):
+        if prev_winner is not None and prev_winner["price"] < self.base_price:
+            prev_winner = None
+        if new_winner is not None and new_winner["price"] < self.base_price:
+            new_winner = None
+
         if (
             prev_winner is not None
             and new_winner is not None
@@ -492,12 +497,13 @@ class Item(Model):
             if self.link:
                 msg += ["[{}]({})".format(_("Item Link"), self.link), ""]
 
-        if len(self.bids) == 0:
-            msg.append(
-                _("Price: {}").format(format_currency(self.currency, current_price))
-            )
-        else:
-            msg.append(self.generate_bid_list_message())
+        if len(self.bids) == 0 or self.bids[0]["price"] < self.base_price:
+            msg += [
+                _("Price: {}").format(format_currency(self.currency, self.base_price)),
+                "",
+            ]
+        if len(self.bids) > 0:
+            msg += [self.generate_bid_list_message(), ""]
 
         if not self.closed:
             click_here = _("Click here to buy this item")
@@ -506,7 +512,6 @@ class Item(Model):
             if lang := current_lang():
                 params["lang"] = lang
             msg += [
-                "",
                 f"[{click_here}](https://t.me/{bot.username}?start={create_start_params(**params)})",
                 "",
             ]
@@ -556,9 +561,13 @@ class Item(Model):
                 user.link(), format_currency(self.currency, bid["price"])
             )
 
-        msg = [_("Buyer: {}").format(bidline(self.bids[0])), ""]
-        if not self.closed and len(self.bids) > 1:
+        msg = []
+        bids = self.bids
+        if bids[0]["price"] >= self.base_price:
+            msg += [_("Buyer: {}").format(bidline(bids[0])), ""]
             bids = self.bids[1:]
+
+        if not self.closed and len(bids) > 0:
             msg.append(_("Waiting List:"))
             if len(bids) <= 4:
                 msg += [f"{bidline(b)}" for i, b in enumerate(bids)]
