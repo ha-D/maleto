@@ -469,10 +469,6 @@ class Item(Model):
 
         bot = get_bot(context)
 
-        current_price = self.base_price
-        if len(self.bids) > 0:
-            current_price = self.bids[0]["price"]
-
         msg = [
             f"*{self.title}*",
             "",
@@ -564,7 +560,7 @@ class Item(Model):
         msg = []
         bids = self.bids
         if bids[0]["price"] >= self.base_price:
-            msg += [_("Buyer: {}").format(bidline(bids[0])), ""]
+            msg += [_("Highest Bidder: {}").format(bidline(bids[0])), ""]
             bids = self.bids[1:]
 
         if not self.closed and len(bids) > 0:

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-10 15:25+0430\n"
+"POT-Creation-Date: 2021-05-12 16:36+0430\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,265 +112,271 @@ msgid "Select language"
 msgstr ""
 
 #: maleto/item.py:95
-msgid "Your offer is too low"
+msgid "You cannot bid a negative value"
 msgstr ""
 
 #: maleto/item.py:107
 msgid "You need to increase by at least {} if you want to offer a higher price"
 msgstr ""
 
-#: maleto/item.py:170
+#: maleto/item.py:175
 msgid "🙀 You are no longer the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:184
+#: maleto/item.py:189
 msgid "🥳 You are now the winning bidder for this item:"
 msgstr ""
 
-#: maleto/item.py:291 maleto/item.py:305 maleto/item.py:311
+#: maleto/item.py:296 maleto/item.py:310 maleto/item.py:316
 msgid "Please wait..."
 msgstr ""
 
-#: maleto/item.py:372
+#: maleto/item.py:377
 msgid "{} minutes"
 msgstr ""
 
-#: maleto/item.py:374
+#: maleto/item.py:379
 msgid "{} hours"
 msgstr ""
 
-#: maleto/item.py:386
+#: maleto/item.py:391
 msgid "The auction for the following item will be closed in {}"
 msgstr ""
 
-#: maleto/item.py:409 maleto/item.py:427
+#: maleto/item.py:414 maleto/item.py:432
 msgid "This item is no longer available"
 msgstr ""
 
-#: maleto/item.py:477
+#: maleto/item.py:478
 msgid "☑️ This item has been sold"
 msgstr ""
 
-#: maleto/item.py:479
+#: maleto/item.py:480
 msgid "⏳ This item is closing soon"
 msgstr ""
 
-#: maleto/item.py:482
+#: maleto/item.py:483
 msgid "Seller: {}"
 msgstr ""
 
-#: maleto/item.py:493
+#: maleto/item.py:494
 msgid "Item Link"
 msgstr ""
 
-#: maleto/item.py:497
+#: maleto/item.py:498
 msgid "Price: {}"
 msgstr ""
 
-#: maleto/item.py:503
+#: maleto/item.py:505
 msgid "Click here to buy this item"
 msgstr ""
 
-#: maleto/item.py:524
+#: maleto/item.py:525
 msgid "This item is closed"
 msgstr ""
 
-#: maleto/item.py:529
+#: maleto/item.py:530
 msgid "Closing notification has been sent"
 msgstr ""
 
-#: maleto/item.py:534
+#: maleto/item.py:535
 msgid "Published in *{}* chats"
 msgstr ""
 
-#: maleto/item.py:539
+#: maleto/item.py:540
 msgid "Starting Price: {}"
 msgstr ""
 
-#: maleto/item.py:543
+#: maleto/item.py:544
 msgid "No one has made an offer"
 msgstr ""
 
-#: maleto/item.py:559
-msgid "Buyer: {}"
-msgstr ""
-
-#: maleto/item.py:562
-msgid "Waiting List:"
+#: maleto/item.py:563
+msgid "Highest Bidder: {}"
 msgstr ""
 
 #: maleto/item.py:567
+msgid "Waiting List:"
+msgstr ""
+
+#: maleto/item.py:572
 msgid "_{} more people..._"
 msgstr ""
 
-#: maleto/item_bid.py:50
+#: maleto/item_bid.py:51
 msgid "This item is no longer on sale"
 msgstr ""
 
-#: maleto/item_bid.py:80
+#: maleto/item_bid.py:81
 msgid "You are the current buyer with {}"
 msgstr ""
 
-#: maleto/item_bid.py:87 maleto/item_bid.py:108
+#: maleto/item_bid.py:88 maleto/item_bid.py:109
 msgid "Remove Offer"
 msgstr ""
 
-#: maleto/item_bid.py:97
+#: maleto/item_bid.py:98
 msgid "You have bidded {} and are currently {} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:104
+#: maleto/item_bid.py:105
 msgid "Change Offer"
 msgstr ""
 
-#: maleto/item_bid.py:120
+#: maleto/item_bid.py:121
 msgid "There are no offers for this item"
 msgstr ""
 
-#: maleto/item_bid.py:121
+#: maleto/item_bid.py:122
 msgid "Base Price: {}"
 msgstr ""
 
-#: maleto/item_bid.py:123
+#: maleto/item_bid.py:124
 msgid "Would you like to place an offer?"
 msgstr ""
 
-#: maleto/item_bid.py:132 maleto/item_bid.py:150
+#: maleto/item_bid.py:133 maleto/item_bid.py:151
 msgid "Make Offer"
 msgstr ""
 
-#: maleto/item_bid.py:143
+#: maleto/item_bid.py:144
 msgid "The highest bid is {}, do you want to make an offer?"
 msgstr ""
 
-#: maleto/item_bid.py:169 maleto/item_bid.py:243 maleto/item_bid.py:253
-#: maleto/item_bid.py:300 maleto/item_settings.py:472
+#: maleto/item_bid.py:171 maleto/item_bid.py:247 maleto/item_bid.py:257
+#: maleto/item_bid.py:308 maleto/item_settings.py:472
 #: maleto/item_settings.py:487 maleto/item_settings.py:501
 #: maleto/item_settings.py:524 maleto/item_settings.py:549
 msgid "Something went wrong please try again"
 msgstr ""
 
-#: maleto/item_bid.py:196
+#: maleto/item_bid.py:198
 msgid "Select your offer"
 msgstr ""
 
-#: maleto/item_bid.py:210
+#: maleto/item_bid.py:214
 msgid "Back"
 msgstr ""
 
-#: maleto/item_bid.py:213
+#: maleto/item_bid.py:217
 msgid "Custom Price"
 msgstr ""
 
-#: maleto/item_bid.py:225
+#: maleto/item_bid.py:229
 msgid "Do you want to try again?"
 msgstr ""
 
-#: maleto/item_bid.py:227
+#: maleto/item_bid.py:231
 msgid "Enter your offer in {}"
 msgstr ""
 
-#: maleto/item_bid.py:268
+#: maleto/item_bid.py:272
 msgid "That is not a valid price, please enter a number"
 msgstr ""
 
-#: maleto/item_bid.py:277
+#: maleto/item_bid.py:280
 msgid "Congrats 🎉, you're the current buyer at {}"
 msgstr ""
 
-#: maleto/item_bid.py:286
+#: maleto/item_bid.py:282
+msgid ""
+"You have placed the highest bid at {}. However, this is lower than the "
+"base price for this item."
+msgstr ""
+
+#: maleto/item_bid.py:294
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr ""
 
-#: maleto/item_bid.py:309 maleto/item_settings.py:563
+#: maleto/item_bid.py:317 maleto/item_settings.py:563
 msgid "Ok no problem, cancelled"
 msgstr ""
 
-#: maleto/item_create.py:43
+#: maleto/item_create.py:33
 msgid ""
 "Ok lets add a new item. I'm going to ask you a few questions about the "
 "item you want to sell."
 msgstr ""
 
-#: maleto/item_create.py:46
+#: maleto/item_create.py:36
 msgid ""
 "You can click on the `Cancel` button or enter `/cancel` at any time to "
 "abort"
 msgstr ""
 
-#: maleto/item_create.py:50
+#: maleto/item_create.py:40
 msgid "To start, enter the *title* of the item you want to sell"
 msgstr ""
 
-#: maleto/item_create.py:72
+#: maleto/item_create.py:62
 msgid "Great thanks."
 msgstr ""
 
-#: maleto/item_create.py:84
+#: maleto/item_create.py:74
 msgid "Now send me some `photos` of the item."
 msgstr ""
 
-#: maleto/item_create.py:85
+#: maleto/item_create.py:75
 msgid ""
 "Click on `Done` or enter `/done` when you've sent all the photos you want"
 " to add."
 msgstr ""
 
-#: maleto/item_create.py:119
+#: maleto/item_create.py:109
 msgid "Hmm, I haven't received any photos 🤔."
 msgstr ""
 
-#: maleto/item_create.py:121
+#: maleto/item_create.py:111
 msgid ""
 "If you've sent photos please wait for the upload to finish and then "
 "notify me again."
 msgstr ""
 
-#: maleto/item_create.py:134
+#: maleto/item_create.py:124
 msgid "Awesome! 🎉"
 msgstr ""
 
-#: maleto/item_create.py:145
+#: maleto/item_create.py:135
 msgid "Now enter a *description* for your item"
 msgstr ""
 
-#: maleto/item_create.py:164
+#: maleto/item_create.py:154
 msgid "What *currency* would you like to use?"
 msgstr ""
 
-#: maleto/item_create.py:178 maleto/item_settings.py:507
+#: maleto/item_create.py:168 maleto/item_settings.py:507
 msgid "I'm not familiar with that currency, please try again"
 msgstr ""
 
-#: maleto/item_create.py:193
+#: maleto/item_create.py:183
 msgid "What *price* are you selling at?"
 msgstr ""
 
-#: maleto/item_create.py:207 maleto/item_settings.py:530
+#: maleto/item_create.py:197 maleto/item_settings.py:530
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr ""
 
-#: maleto/item_create.py:224
+#: maleto/item_create.py:214
 msgid "Alright, thats all I need 🥳🥳"
 msgstr ""
 
-#: maleto/item_create.py:226
+#: maleto/item_create.py:216
 msgid "There are more options you can edit later on."
 msgstr ""
 
-#: maleto/item_create.py:228
+#: maleto/item_create.py:218
 msgid "You can view all your created items anytime by entering /myitems"
 msgstr ""
 
-#: maleto/item_create.py:247
+#: maleto/item_create.py:237
 msgid "Ok, no worries, no item created."
 msgstr ""
 
-#: maleto/item_create.py:260
+#: maleto/item_list.py:18
 msgid "You don't have any items. Use the `/newitem` command to create one."
 msgstr ""
 
-#: maleto/item_create.py:278
+#: maleto/item_list.py:36
 msgid "Click on one any item to view more options"
 msgstr ""
 
