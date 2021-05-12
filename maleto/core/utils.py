@@ -30,7 +30,15 @@ def find_best_inc(price):
     if price < 1000:
         return 50
     if price < 10000:
+        return 100
+    if price < 50000:
         return 200
+    if price < 100000:
+        return 500
+    if price < 500000:
+        return 2000
+    if price < 1000000:
+        return 5000
     return find_best_inc(price // 1000) * 1000
 
 

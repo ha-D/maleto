@@ -47,10 +47,11 @@ logger = logging.getLogger(__name__)
     ACTION_EDIT_CANCEL,
     ACTION_EDIT_TITLE,
     ACTION_EDIT_DESCRIPTION,
-    ACTION_EDIT_PRICE,
-    ACTION_EDIT_LINK,
     ACTION_EDIT_CURRENCY,
-) = range(14)
+    ACTION_EDIT_PRICE,
+    ACTION_EDIT_MIN_INC,
+    ACTION_EDIT_LINK,
+) = range(15)
 
 
 (
@@ -58,8 +59,9 @@ logger = logging.getLogger(__name__)
     CONV_EDIT_DESCRIPTION,
     CONV_EDIT_CURRENCY,
     CONV_EDIT_PRICE,
+    CONV_EDIT_MIN_INC,
     CONV_EDIT_LINK,
-) = range(5)
+) = range(6)
 
 cancel_markup = ReplyKeyboardMarkup([[KeyboardButton("Cancel")]])
 
@@ -403,6 +405,10 @@ def settings_editing(context, item):
             ],
             [
                 InlineKeyboardButton(
+                    _("Minimum Price Increase"),
+                    callback_data=item_edit_callback.data(item.id, ACTION_EDIT_MIN_INC),
+                ),
+                InlineKeyboardButton(
                     _("Link"),
                     callback_data=item_edit_callback.data(item.id, ACTION_EDIT_LINK),
                 ),
@@ -453,6 +459,11 @@ def item_edit_callback(update, context, item_id, action=None):
             query.message.reply_text(_("Enter the new link"))
             query.answer()
             return CONV_EDIT_LINK
+        elif action == ACTION_EDIT_MIN_INC:
+            item.save_to_context(context)
+            query.message.reply_text(_("Enter minimum price increase"))
+            query.answer()
+            return CONV_EDIT_MIN_INC
         else:
             logger.error(
                 "Invalid action received for 'item_edit_callback'",
@@ -541,6 +552,30 @@ def on_edit_price(update, context):
 
 
 @callback
+def on_edit_min_price_inc(update, context):
+    new_price = update.message.text
+
+    item = Item.from_context(context)
+    if item is None:
+        update.message.reply_text(_("Something went wrong please try again"))
+        return ConversationHandler.END
+
+    if not new_price.isdigit():
+        msg = "\n".join(
+            [
+                _("That doesn't look like a valid price, please just give me a number"),
+            ]
+        )
+        update.message.reply_text(msg, reply_markup=cancel_markup)
+        return CONV_EDIT_MIN_INC
+    with item:
+        item.min_price_inc = int(new_price)
+    item.publish(context)
+    update.message.reply_text(_("Minimum price increase updated"))
+    return ConversationHandler.END
+
+
+@callback
 def on_edit_link(update, context):
     new_link = update.message.text
 
@@ -567,7 +602,6 @@ def cancel(update, context):
 
 @callback
 def abort(update, context):
-    Item.clear_context(context)
     return ConversationHandler.END
 
 
@@ -579,6 +613,7 @@ def handlers():
         (CONV_EDIT_DESCRIPTION, on_edit_description),
         (CONV_EDIT_CURRENCY, on_edit_currency),
         (CONV_EDIT_PRICE, on_edit_price),
+        (CONV_EDIT_MIN_INC, on_edit_min_price_inc),
         (CONV_EDIT_LINK, on_edit_link),
     )
     yield from (

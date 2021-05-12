@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-12 16:36+0430\n"
-"PO-Revision-Date: 2021-05-12 16:37+0430\n"
+"POT-Creation-Date: 2021-05-12 16:41+0430\n"
+"PO-Revision-Date: 2021-05-12 16:43+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
@@ -252,9 +252,9 @@ msgid "The highest bid is {}, do you want to make an offer?"
 msgstr "بالاترین پیشنهاد داده شده {} هست، میخوای قیمتی پیشنهاد بدی؟"
 
 #: maleto/item_bid.py:171 maleto/item_bid.py:247 maleto/item_bid.py:257
-#: maleto/item_bid.py:308 maleto/item_settings.py:472 maleto/item_settings.py:487
-#: maleto/item_settings.py:501 maleto/item_settings.py:524
-#: maleto/item_settings.py:549
+#: maleto/item_bid.py:308 maleto/item_settings.py:483 maleto/item_settings.py:498
+#: maleto/item_settings.py:512 maleto/item_settings.py:535
+#: maleto/item_settings.py:560 maleto/item_settings.py:584
 msgid "Something went wrong please try again"
 msgstr "یه مشکلی خورد، دوباره امتحان کن"
 
@@ -291,12 +291,13 @@ msgid ""
 "You have placed the highest bid at {}. However, this is lower than the base "
 "price for this item."
 msgstr ""
+"شما بالاترین قیمت رو پیشنهاد دادی ولی این قیمت از قیمت پایه محصول کمتر  هست"
 
 #: maleto/item_bid.py:294
 msgid "You've made an offer for {} and are #{} in the waiting list"
 msgstr "شما با قیمت {} نفر {} در صف انتظار هستی"
 
-#: maleto/item_bid.py:317 maleto/item_settings.py:563
+#: maleto/item_bid.py:317 maleto/item_settings.py:598
 msgid "Ok no problem, cancelled"
 msgstr "باشه مشکلی نیست، لغو شد"
 
@@ -352,7 +353,7 @@ msgstr "حالا برای جنسی که میخوای بفروشی *توضیحا�
 msgid "What *currency* would you like to use?"
 msgstr "از چه *ارزی* میخوای استفاده کنی؟"
 
-#: maleto/item_create.py:168 maleto/item_settings.py:507
+#: maleto/item_create.py:168 maleto/item_settings.py:518
 msgid "I'm not familiar with that currency, please try again"
 msgstr "با این `ارز` آشنا نیستم، لطفا دوباره امتحان کن"
 
@@ -360,7 +361,8 @@ msgstr "با این `ارز` آشنا نیستم، لطفا دوباره امت�
 msgid "What *price* are you selling at?"
 msgstr "با چه *قیمتی* میخوای بفروشی؟"
 
-#: maleto/item_create.py:197 maleto/item_settings.py:530
+#: maleto/item_create.py:197 maleto/item_settings.py:541
+#: maleto/item_settings.py:566
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr "به نظر قیمت معتبری نمیاد، لطفا یه عدد وارد کن"
 
@@ -390,36 +392,36 @@ msgstr "شما جنسی اضافه نکردی. میتونی با دستور `new
 msgid "Click on one any item to view more options"
 msgstr "روی یه محصول کلیک کن تا تنظیمات بیشتری ببینی"
 
-#: maleto/item_settings.py:135 maleto/item_settings.py:241
-#: maleto/item_settings.py:301 maleto/item_settings.py:376
+#: maleto/item_settings.py:137 maleto/item_settings.py:243
+#: maleto/item_settings.py:303 maleto/item_settings.py:378
 msgid "◀️ Back"
 msgstr "برگرد"
 
-#: maleto/item_settings.py:183
+#: maleto/item_settings.py:185
 msgid "Are you sure you want to delete this item? 🙀"
 msgstr "مطمعنی میخوای اینو حذف کنی؟ 🙀"
 
-#: maleto/item_settings.py:190
+#: maleto/item_settings.py:192
 msgid "Yes"
 msgstr "اره"
 
-#: maleto/item_settings.py:194
+#: maleto/item_settings.py:196
 msgid "No"
 msgstr "نه"
 
-#: maleto/item_settings.py:215
+#: maleto/item_settings.py:217
 msgid "Item deleted"
 msgstr "جنس حذف شد"
 
-#: maleto/item_settings.py:249
+#: maleto/item_settings.py:251
 msgid "Close Now"
 msgstr "فروش کالا رو ببند"
 
-#: maleto/item_settings.py:255
+#: maleto/item_settings.py:257
 msgid "Send Closing Notification"
 msgstr "اعلام بسته شدن فروش"
 
-#: maleto/item_settings.py:269
+#: maleto/item_settings.py:271
 msgid ""
 "This will send a message to users interested in this item to let them know the "
 "item will be closed soon"
@@ -427,111 +429,123 @@ msgstr ""
 "با انتخاب این گزینه به کاربرهای علاقه‌مند به این کالا اطلاع داده میشه که فروش "
 "به زودی به پایان میرسه"
 
-#: maleto/item_settings.py:272
+#: maleto/item_settings.py:274
 msgid "How long until you will close this item?"
 msgstr "فروش رو کی به پایان میرسونی؟"
 
-#: maleto/item_settings.py:276
+#: maleto/item_settings.py:278
 msgid "1 Minute"
 msgstr "۱ دقیقه"
 
-#: maleto/item_settings.py:277
+#: maleto/item_settings.py:279
 msgid "5 Minutes"
 msgstr "۵ دقیقه"
 
-#: maleto/item_settings.py:278
+#: maleto/item_settings.py:280
 msgid "10 Minutes"
 msgstr "۱۰ دقیقه"
 
-#: maleto/item_settings.py:279
+#: maleto/item_settings.py:281
 msgid "30 Minutes"
 msgstr "۳۰ دقیقه"
 
-#: maleto/item_settings.py:280
+#: maleto/item_settings.py:282
 msgid "1 Hour"
 msgstr "۱ ساعت"
 
-#: maleto/item_settings.py:281
+#: maleto/item_settings.py:283
 msgid "3 Hours"
 msgstr "۳ ساعت"
 
-#: maleto/item_settings.py:282
+#: maleto/item_settings.py:284
 msgid "6 Hours"
 msgstr "۶ ساعت"
 
-#: maleto/item_settings.py:283
+#: maleto/item_settings.py:285
 msgid "12 Hours"
 msgstr "۱۲ ساعت"
 
-#: maleto/item_settings.py:284
+#: maleto/item_settings.py:286
 msgid "24 Hours"
 msgstr "۲۴ ساعت"
 
-#: maleto/item_settings.py:285
+#: maleto/item_settings.py:287
 msgid "48 Hours"
 msgstr "۴۸ ساعت"
 
-#: maleto/item_settings.py:327 maleto/item_settings.py:360
+#: maleto/item_settings.py:329 maleto/item_settings.py:362
 msgid "Item closed"
 msgstr "کالا بسته شد"
 
-#: maleto/item_settings.py:382
+#: maleto/item_settings.py:384
 msgid "Title"
 msgstr "عنوان"
 
-#: maleto/item_settings.py:386
+#: maleto/item_settings.py:388
 msgid "Description"
 msgstr "توضیحات"
 
-#: maleto/item_settings.py:394
+#: maleto/item_settings.py:396
 msgid "Price"
 msgstr "قیمت"
 
-#: maleto/item_settings.py:398
+#: maleto/item_settings.py:400
 msgid "Currency"
 msgstr "ارز"
 
-#: maleto/item_settings.py:406
+#: maleto/item_settings.py:408
+msgid "Minimum Price Increase"
+msgstr "حداقل افزایش قیمت"
+
+#: maleto/item_settings.py:412
 msgid "Link"
 msgstr "لینک"
 
-#: maleto/item_settings.py:429
+#: maleto/item_settings.py:435
 msgid "Enter the new title"
 msgstr "عنوان جدید رو وارد کن"
 
-#: maleto/item_settings.py:434
+#: maleto/item_settings.py:440
 msgid "Enter the new description"
 msgstr "توضیحات جدید رو وارد کن"
 
-#: maleto/item_settings.py:442
+#: maleto/item_settings.py:448
 msgid "Select the new currency"
 msgstr "ارز جدید رو وارد کن"
 
-#: maleto/item_settings.py:448
+#: maleto/item_settings.py:454
 msgid "Enter the new price"
 msgstr "قیمت جدید رو وارد کن"
 
-#: maleto/item_settings.py:453
+#: maleto/item_settings.py:459
 msgid "Enter the new link"
 msgstr "لینک جدید رو وارد کن"
 
-#: maleto/item_settings.py:478
+#: maleto/item_settings.py:464
+msgid "Enter minimum price increase"
+msgstr "حداقل افزایش قیمت رو وارد کنید"
+
+#: maleto/item_settings.py:489
 msgid "Title updated"
 msgstr "عنوان تغییر کرد"
 
-#: maleto/item_settings.py:493
+#: maleto/item_settings.py:504
 msgid "Description updated"
 msgstr "توضیحات تغییر کرد"
 
-#: maleto/item_settings.py:514
+#: maleto/item_settings.py:525
 msgid "Currency updated"
 msgstr "ارز تغییر کرد"
 
-#: maleto/item_settings.py:539
+#: maleto/item_settings.py:550
 msgid "Price updated"
 msgstr "قیمت تغییر کرد"
 
-#: maleto/item_settings.py:555
+#: maleto/item_settings.py:574
+msgid "Minimum price increase updated"
+msgstr "حداقل افزایش قیمت تغییر کرد"
+
+#: maleto/item_settings.py:590
 msgid "Link updated"
 msgstr "لینک تغییر کرد"
 
