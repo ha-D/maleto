@@ -632,6 +632,5 @@ def handlers():
                 for e in edit_states
             },
             fallbacks=[canceler, MessageHandler(Filters.command, abort)],
-            conversation_timeout=timedelta(minutes=20),
         ),
     )
