@@ -9,6 +9,7 @@ from maleto.core.bot import callback, trace
 from maleto.core.currency import get_currencies
 from maleto.core.lang import _
 from maleto.core.media import queue_file_download
+from maleto.core.model import ModelException
 from maleto.core.utils import split_keyboard
 from maleto.item import Item
 
@@ -274,5 +275,5 @@ def handlers():
         },
         fallbacks=[canceler, MessageHandler(Filters.command, abort)],
         allow_reentry=True,
-        conversation_timeout=timedelta(minutes=10),
+        conversation_timeout=timedelta(minutes=20),
     )

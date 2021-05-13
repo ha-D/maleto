@@ -3,6 +3,7 @@ import logging
 import os
 
 from telegram.bot import Bot
+from telegram.error import BadRequest
 from telegram.ext import Defaults, Updater
 from telegram.parsemode import ParseMode
 from telegram.utils.request import Request
@@ -19,10 +20,11 @@ from maleto import (
 )
 from maleto.core import sentry
 from maleto.core.config import EnvDefault
+from maleto.core.lang import _
 from maleto.core.logging import init_logging
 from maleto.core.media import init_media
 from maleto.core.metrics import init_monitoring
-from maleto.core.model import init_db
+from maleto.core.model import ModelException, init_db
 from maleto.core.shell import start_shell
 
 __all__ = ("main",)
@@ -127,6 +129,16 @@ def cmd_shell(args):
 
 
 def on_error(update, context):
+    if isinstance(context.error, ModelException):
+        try:
+            context.bot.send_message(
+                chat_id=context.user.id,
+                text=_(
+                    "Something went wrong, I can't find the item. Please try again."
+                ),
+            )
+        except (BadRequest, AttributeError):
+            pass
     unhandled_error_logger.error("Unhandled exception", exc_info=context.error)
 
 

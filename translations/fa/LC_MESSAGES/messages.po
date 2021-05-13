@@ -7,17 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-12 16:41+0430\n"
-"PO-Revision-Date: 2021-05-12 16:43+0430\n"
+"POT-Creation-Date: 2021-05-13 17:53+0430\n"
+"PO-Revision-Date: 2021-05-13 17:53+0430\n"
 "Last-Translator: \n"
 "Language: fa\n"
 "Language-Team: fa <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
-"X-Generator: Poedit 2.4.2\n"
+
+#: maleto/__init__.py:136
+#, fuzzy
+msgid "Something went wrong, I can't find the item. Please try again."
+msgstr "یه مشکلی خورد، نمی‌تونم کالای مورد نظر رو پیدا کنم. از اول امتحان کن."
 
 #: maleto/chat.py:63
 msgid "Items on sale:"
@@ -37,11 +41,11 @@ msgstr "این کالاها رو اعضای گروه دارن میفرشون."
 
 #: maleto/chat.py:77
 msgid ""
-"The sale is performed through an auction, you can place a bid on any item you "
-"like."
+"The sale is performed through an auction, you can place a bid on any item"
+" you like."
 msgstr ""
-"فروش به صورت مزایده انجام میشه، شما میتونی رو هر کالایی که خواستی قیمت پیشنهاد "
-"بدی."
+"فروش به صورت مزایده انجام میشه، شما میتونی رو هر کالایی که خواستی قیمت "
+"پیشنهاد بدی."
 
 #: maleto/chat.py:80
 msgid "The bid with the highest price will be the buyer of that item."
@@ -73,11 +77,11 @@ msgstr "همه‌ی اعضای کانال میتونن کالا برای فرو�
 
 #: maleto/chat.py:105
 msgid ""
-"To add an item first join this channel, then [click here](https://t.me/"
-"MaletoBot) to go to the Bot."
+"To add an item first join this channel, then [click "
+"here](https://t.me/MaletoBot) to go to the Bot."
 msgstr ""
-"برای اضافه کردن کالا اول عضو کانال شو، بعد [اینجا](https://t.me/MaletoBot) رو "
-"کلیک کن تا به صفحه‌ی بات بری."
+"برای اضافه کردن کالا اول عضو کانال شو، بعد "
+"[اینجا](https://t.me/MaletoBot) رو کلیک کن تا به صفحه‌ی بات بری."
 
 #: maleto/chat.py:108
 msgid "Enter the `/newitem` command and follow the steps to create a new item."
@@ -109,11 +113,11 @@ msgstr "مال‌تو بات یه پروژه متن‌باز و در حال تو
 
 #: maleto/chat.py:133
 msgid ""
-"If you've encountered a bug, have suggestions or want to contribute visit our "
-"[Github Page](https://github.com/ha-D/maleto)"
+"If you've encountered a bug, have suggestions or want to contribute visit"
+" our [Github Page](https://github.com/ha-D/maleto)"
 msgstr ""
-"میتونی با رفتن به [صفحه‌ی گیت‌هاب](https://github.com/ha-D/maleto) پروژه پیشنهاد "
-"خودت رو بدی، باگ گزارش کنی یا به توسعه پروژه کمک کنی."
+"میتونی با رفتن به [صفحه‌ی گیت‌هاب](https://github.com/ha-D/maleto) پروژه "
+"پیشنهاد خودت رو بدی، باگ گزارش کنی یا به توسعه پروژه کمک کنی."
 
 #: maleto/chat_settings.py:53
 msgid "Select language"
@@ -135,79 +139,79 @@ msgstr "🙀  شما دیگه خریدار کالای زیر نیستید:"
 msgid "🥳 You are now the winning bidder for this item:"
 msgstr "🥳  شما خریدار کالای زیر شدید:"
 
-#: maleto/item.py:296 maleto/item.py:310 maleto/item.py:316
+#: maleto/item.py:304 maleto/item.py:318 maleto/item.py:324
 msgid "Please wait..."
 msgstr "لطفا صبر کن..."
 
-#: maleto/item.py:377
+#: maleto/item.py:385
 msgid "{} minutes"
 msgstr "{} دقیقه"
 
-#: maleto/item.py:379
+#: maleto/item.py:387
 msgid "{} hours"
 msgstr "{} ساعت"
 
-#: maleto/item.py:391
+#: maleto/item.py:399
 msgid "The auction for the following item will be closed in {}"
 msgstr "فروش این کالا تا {} دیگه بسته میشه"
 
-#: maleto/item.py:414 maleto/item.py:432
+#: maleto/item.py:422 maleto/item.py:440
 msgid "This item is no longer available"
 msgstr "این جنس دیگه موجود نیست"
 
-#: maleto/item.py:478
+#: maleto/item.py:486
 msgid "☑️ This item has been sold"
 msgstr "☑️ این کالا به فروش رسید"
 
-#: maleto/item.py:480
+#: maleto/item.py:488
 msgid "⏳ This item is closing soon"
 msgstr "⏳ فروش به زودی بسته میشه"
 
-#: maleto/item.py:483
+#: maleto/item.py:491
 msgid "Seller: {}"
 msgstr "فروشنده:  {}"
 
-#: maleto/item.py:494
+#: maleto/item.py:502
 msgid "Item Link"
 msgstr "لینک کالا"
 
-#: maleto/item.py:498
+#: maleto/item.py:506
 msgid "Price: {}"
 msgstr "قیمت:   {}"
 
-#: maleto/item.py:505
+#: maleto/item.py:513
 msgid "Click here to buy this item"
 msgstr "برای خرید اینجا کلیک کنید"
 
-#: maleto/item.py:525
+#: maleto/item.py:533
 msgid "This item is closed"
 msgstr "فروش این کالا بسته شده"
 
-#: maleto/item.py:530
+#: maleto/item.py:538
 msgid "Closing notification has been sent"
 msgstr "اعلام بسته شدن فروش ارسال شده"
 
-#: maleto/item.py:535
+#: maleto/item.py:543
 msgid "Published in *{}* chats"
 msgstr "منتشر شده در *{}* کانال"
 
-#: maleto/item.py:540
+#: maleto/item.py:548
 msgid "Starting Price: {}"
 msgstr "قیمت اولیه: {}"
 
-#: maleto/item.py:544
+#: maleto/item.py:552
 msgid "No one has made an offer"
 msgstr "کسی هنوز قیمتی پیشنهاد نداده"
 
-#: maleto/item.py:563
+#: maleto/item.py:571
 msgid "Highest Bidder: {}"
 msgstr "پیشنهاد برتر: {}"
 
-#: maleto/item.py:567
+#: maleto/item.py:575
 msgid "Waiting List:"
 msgstr "صف انتظار:"
 
-#: maleto/item.py:572
+#: maleto/item.py:580
 msgid "_{} more people..._"
 msgstr "_{} نفر دیگه..._"
 
@@ -252,9 +256,10 @@ msgid "The highest bid is {}, do you want to make an offer?"
 msgstr "بالاترین پیشنهاد داده شده {} هست، میخوای قیمتی پیشنهاد بدی؟"
 
 #: maleto/item_bid.py:171 maleto/item_bid.py:247 maleto/item_bid.py:257
-#: maleto/item_bid.py:308 maleto/item_settings.py:483 maleto/item_settings.py:498
-#: maleto/item_settings.py:512 maleto/item_settings.py:535
-#: maleto/item_settings.py:560 maleto/item_settings.py:584
+#: maleto/item_bid.py:308 maleto/item_settings.py:483
+#: maleto/item_settings.py:498 maleto/item_settings.py:512
+#: maleto/item_settings.py:535 maleto/item_settings.py:560
+#: maleto/item_settings.py:584
 msgid "Something went wrong please try again"
 msgstr "یه مشکلی خورد، دوباره امتحان کن"
 
@@ -288,10 +293,11 @@ msgstr "تبریک 🎉, شما با قیمت {} خریدار این محصول 
 
 #: maleto/item_bid.py:282
 msgid ""
-"You have placed the highest bid at {}. However, this is lower than the base "
-"price for this item."
+"You have placed the highest bid at {}. However, this is lower than the "
+"base price for this item."
 msgstr ""
-"شما بالاترین قیمت رو پیشنهاد دادی ولی این قیمت از قیمت پایه محصول کمتر  هست"
+"شما بالاترین قیمت رو پیشنهاد دادی ولی این قیمت از قیمت پایه محصول کمتر  "
+"هست."
 
 #: maleto/item_bid.py:294
 msgid "You've made an offer for {} and are #{} in the waiting list"
@@ -301,86 +307,88 @@ msgstr "شما با قیمت {} نفر {} در صف انتظار هستی"
 msgid "Ok no problem, cancelled"
 msgstr "باشه مشکلی نیست، لغو شد"
 
-#: maleto/item_create.py:33
+#: maleto/item_create.py:34
 msgid ""
-"Ok lets add a new item. I'm going to ask you a few questions about the item "
-"you want to sell."
+"Ok lets add a new item. I'm going to ask you a few questions about the "
+"item you want to sell."
 msgstr "یه چندتا سوال راجب جنسی که میخوای بفروشی میپرسم."
 
-#: maleto/item_create.py:36
+#: maleto/item_create.py:37
 msgid ""
-"You can click on the `Cancel` button or enter `/cancel` at any time to abort"
+"You can click on the `Cancel` button or enter `/cancel` at any time to "
+"abort"
 msgstr "هرجای فرایند اگه خواستی بیخیال شی کافیه دکمه‌ی Cancel رو فشار بدی"
 
-#: maleto/item_create.py:40
+#: maleto/item_create.py:41
 msgid "To start, enter the *title* of the item you want to sell"
 msgstr "برای شروع *عنوان* جنسی که میخوای بفروشی رو وارد کن"
 
-#: maleto/item_create.py:62
+#: maleto/item_create.py:63
 msgid "Great thanks."
 msgstr "مچکرم."
 
-#: maleto/item_create.py:74
+#: maleto/item_create.py:75
 msgid "Now send me some `photos` of the item."
 msgstr "حالا یه چند تا عکس ازش برام برست."
 
-#: maleto/item_create.py:75
+#: maleto/item_create.py:76
 msgid ""
-"Click on `Done` or enter `/done` when you've sent all the photos you want to "
-"add."
+"Click on `Done` or enter `/done` when you've sent all the photos you want"
+" to add."
 msgstr "هر‍ موقع همه‌ی عکس‌هایی که میخوای رو ارسال کردی دکمه‌ی Done رو فشار بده."
 
-#: maleto/item_create.py:109
+#: maleto/item_create.py:110
 msgid "Hmm, I haven't received any photos 🤔."
 msgstr "همم، من عکسی دریافت نکردم 🤔."
 
-#: maleto/item_create.py:111
+#: maleto/item_create.py:112
 msgid ""
-"If you've sent photos please wait for the upload to finish and then notify me "
-"again."
+"If you've sent photos please wait for the upload to finish and then "
+"notify me again."
 msgstr ""
-"اگه عکس‌ها رو ارسال کردی لطفا صبر کن که کامل اپلود بشن بعد دوباره من رو خبر کن."
+"اگه عکس‌ها رو ارسال کردی لطفا صبر کن که کامل اپلود بشن بعد دوباره من رو "
+"خبر کن."
 
-#: maleto/item_create.py:124
+#: maleto/item_create.py:125
 msgid "Awesome! 🎉"
 msgstr "عالی! 🎉"
 
-#: maleto/item_create.py:135
+#: maleto/item_create.py:136
 msgid "Now enter a *description* for your item"
 msgstr "حالا برای جنسی که میخوای بفروشی *توضیحاتی* وارد کن"
 
-#: maleto/item_create.py:154
+#: maleto/item_create.py:155
 msgid "What *currency* would you like to use?"
 msgstr "از چه *ارزی* میخوای استفاده کنی؟"
 
-#: maleto/item_create.py:168 maleto/item_settings.py:518
+#: maleto/item_create.py:169 maleto/item_settings.py:518
 msgid "I'm not familiar with that currency, please try again"
 msgstr "با این `ارز` آشنا نیستم، لطفا دوباره امتحان کن"
 
-#: maleto/item_create.py:183
+#: maleto/item_create.py:184
 msgid "What *price* are you selling at?"
 msgstr "با چه *قیمتی* میخوای بفروشی؟"
 
-#: maleto/item_create.py:197 maleto/item_settings.py:541
+#: maleto/item_create.py:198 maleto/item_settings.py:541
 #: maleto/item_settings.py:566
 msgid "That doesn't look like a valid price, please just give me a number"
 msgstr "به نظر قیمت معتبری نمیاد، لطفا یه عدد وارد کن"
 
-#: maleto/item_create.py:214
+#: maleto/item_create.py:215
 msgid "Alright, thats all I need 🥳🥳"
 msgstr "ایول، همه اطلاعاتی که لازم بود رو گرفتم 🥳🥳"
 
-#: maleto/item_create.py:216
+#: maleto/item_create.py:217
 msgid "There are more options you can edit later on."
 msgstr "بعدا میتونی تنظیمات بیشتری وارد کنی."
 
-#: maleto/item_create.py:218
+#: maleto/item_create.py:219
 msgid "You can view all your created items anytime by entering /myitems"
 msgstr ""
-"اگه خواستی جنس‌هایی که اضافه کردی رو ببینی با وارد کردن دستور `myitems/` میتونی "
-"اینکار رو بکنی"
+"اگه خواستی جنس‌هایی که اضافه کردی رو ببینی با وارد کردن دستور `myitems/` "
+"میتونی اینکار رو بکنی"
 
-#: maleto/item_create.py:237
+#: maleto/item_create.py:238
 msgid "Ok, no worries, no item created."
 msgstr "باشه مشکلی نیست، لغو شد."
 
@@ -423,11 +431,11 @@ msgstr "اعلام بسته شدن فروش"
 
 #: maleto/item_settings.py:271
 msgid ""
-"This will send a message to users interested in this item to let them know the "
-"item will be closed soon"
+"This will send a message to users interested in this item to let them "
+"know the item will be closed soon"
 msgstr ""
-"با انتخاب این گزینه به کاربرهای علاقه‌مند به این کالا اطلاع داده میشه که فروش "
-"به زودی به پایان میرسه"
+"با انتخاب این گزینه به کاربرهای علاقه‌مند به این کالا اطلاع داده میشه که "
+"فروش به زودی به پایان میرسه"
 
 #: maleto/item_settings.py:274
 msgid "How long until you will close this item?"
@@ -615,3 +623,4 @@ msgstr "{} تومن"
 
 #~ msgid "Buyer: {}"
 #~ msgstr "خریدار:  {}"
+

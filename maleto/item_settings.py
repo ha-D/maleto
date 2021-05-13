@@ -170,7 +170,7 @@ def item_publish_callback(update, context, item_id, action=None, chat_id=None):
         else:
             logger.error(
                 "Invalid action received for 'item_publish_callback'",
-                extras=dict(action=action, user=context.user.id, item=item.id),
+                extra=dict(action=action, user=context.user.id, item=item.id),
             )
             Item.clear_context(context)
             item.update_settings_message_state(STATE_DEFAULT)
@@ -222,7 +222,7 @@ def item_delete_callback(update, context, item_id, action=None):
         else:
             logger.error(
                 "Invalid action received for 'item_delete_callback'",
-                extras=dict(action=action, user=context.user.id, item=item.id),
+                extra=dict(action=action, user=context.user.id, item=item.id),
             )
             Item.clear_context(context)
             item.update_settings_message_state(STATE_DEFAULT)
@@ -341,7 +341,7 @@ def item_close_callback(update, context, item_id, action=None, close_time=None):
         else:
             logger.error(
                 "Invalid action received for 'item_close_callback'",
-                extras=dict(action=action, user=context.user.id, item=item.id),
+                extra=dict(action=action, user=context.user.id, item=item.id),
             )
             Item.clear_context(context)
             item.update_settings_message_state(STATE_DEFAULT)
@@ -467,7 +467,7 @@ def item_edit_callback(update, context, item_id, action=None):
         else:
             logger.error(
                 "Invalid action received for 'item_edit_callback'",
-                extras=dict(action=action, user=context.user.id, item=item.id),
+                extra=dict(action=action, user=context.user.id, item=item.id),
             )
             Item.clear_context(context)
             item.update_settings_message_state(STATE_DEFAULT)
@@ -632,6 +632,6 @@ def handlers():
                 for e in edit_states
             },
             fallbacks=[canceler, MessageHandler(Filters.command, abort)],
-            conversation_timeout=timedelta(minutes=10),
+            conversation_timeout=timedelta(minutes=20),
         ),
     )

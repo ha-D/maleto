@@ -292,8 +292,16 @@ class Item(Model):
 
     def initiate_settings_or_bid_message(self, context, user_id):
         try:
+            if len(self.photos):
+                photo = self.photos[0]
+            else:
+                photo = InputFile(minion_photo)
+                logger.error(
+                    "Item doesn't have any photos",
+                    extra=dict(item=self.id, user=user_id),
+                )
             return context.bot.send_photo(
-                chat_id=user_id, photo=self.photos[0], caption=_("Please wait...")
+                chat_id=user_id, photo=photo, caption=_("Please wait...")
             )
         except BadRequest as e:
             # TODO: Sending photos with file_id seems to fail after a few days since the
