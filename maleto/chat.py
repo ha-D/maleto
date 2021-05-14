@@ -147,6 +147,8 @@ class Chat(Model):
     @classmethod
     @trace
     def create_or_update_from_api(cls, context, api_chat):
+        if api_chat is not None and api_chat.type == "private":
+            return PrivateChat(context.user)
         if api_chat is not None:
             d = cls.col().find_one_and_update(
                 {"_id": api_chat.id},
@@ -177,3 +179,27 @@ class Chat(Model):
                 sentry.set_span_tag("created", False)
                 return cls(**d)
         return None
+
+
+class PrivateChat:
+    def __init__(self, user):
+        self.user = user
+
+    @property
+    def title(self):
+        return f"Private {self.user.username or self.user.id}"
+
+    @property
+    def id(self):
+        return self.user.id
+
+    @property
+    def type(self):
+        return "private"
+
+    @property
+    def lang(self):
+        return self.user.lang
+
+    def __str__(self):
+        return f"Private Chat [{self.id}]"

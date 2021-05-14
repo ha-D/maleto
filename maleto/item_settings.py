@@ -23,6 +23,7 @@ from maleto.core.currency import get_currencies
 from maleto.core.lang import _
 from maleto.core.utils import split_keyboard
 from maleto.item import Item
+from maleto.item_bid import ACTION_CANCEL
 from maleto.user import User
 
 logger = logging.getLogger(__name__)
@@ -290,7 +291,9 @@ def settings_closing_notif(context, item):
         [
             InlineKeyboardButton(
                 t[0],
-                callback_data=item_close_callback.data(item.id, "close_notif", t[1]),
+                callback_data=item_close_callback.data(
+                    item.id, ACTION_CLOSE_NOTIF, t[1]
+                ),
             )
             for t in times
         ],
@@ -301,7 +304,7 @@ def settings_closing_notif(context, item):
             [
                 InlineKeyboardButton(
                     _("◀️ Back"),
-                    callback_data=item_close_callback.data(item.id, "cancel"),
+                    callback_data=item_close_callback.data(item.id, ACTION_CANCEL),
                 ),
             ],
             *btns,
